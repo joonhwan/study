@@ -25,7 +25,7 @@ IppStatus ippiAbsDiff_C3R(const Ipp8u* pSrc1, int src1Step,
 	return ippiAbsDiff_8u_C3R(pSrc1, src1Step, pSrc2, src2Step, pDst, dstStep, roiSize);
 }
 
+};
 
-}
 
 #endif	// __cplusplus

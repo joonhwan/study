@@ -10,41 +10,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-template<typename T, int C>
-class Base
-{
-public:
-	enum
-	{
-		cvalue = C
-	};
-	T value;
-};
-
-template<typename T>
-class Mono
-{
-	typedef Base<T, 1> Type;
-};
-
-template<typename T>
-class Color
-{
-	typedef Base<T, 3> Type;
-};
-
-void doSomething(Mono<T>::Type& i0,
-				 Mono<T>::Type& i1)
-{
-	// process mono
-}
-
-void doSomething(Color<T>::Type& i0,
-				 Color<T>::Type&,i1)
-{
-	// process color
-}
-
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
@@ -52,14 +17,17 @@ int main(int argc, char** argv)
 	QCoreApplication::setOrganizationDomain("www.joonhwan.org");
 	QCoreApplication::setApplicationName("cvmattest");
 
-	WImageT<uchar> image = cv::imread(IMAGE_DIR "castle.jpg");
-	WImageT<uchar> timage = image; // keep original but not yet copy!
+	WImageProcess<uchar> proc;
+	WColorImageT<uchar>::Type image = cv::imread(IMAGE_DIR "castle.jpg");
+	WColorImageT<uchar>::Type timage = image; // keep original but not yet copy!
 	if (timage) {
 		// can convert image..!
-		Wf::salt(timage, 1000);
+		proc.salt(timage, 1000);
 	}
-	WImageT<uchar> diffImage = image;
-	Wf::absDiff(image(QPoint(50,50)), timage(QPoint(50,50)), diffImage(QRect(50,50,100,100)));
+	WColorImageT<uchar>::Type diffImage = image;
+	WMonoImageT<uchar>::Type obj(diffImage); // invalid.
+
+	proc.absDiff(image(QPoint(50,50)), timage(QPoint(50,50)), diffImage(QRect(50,50,100,100)));
 	// Wf::absDiff(image, timage, output);
 
 	cv::namedWindow("image");

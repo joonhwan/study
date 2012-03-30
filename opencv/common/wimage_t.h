@@ -4,15 +4,15 @@
 #include "wimage_t_traits.h"
 #include <QRect>
 
-template<typename T>
+template<typename T, int C>
 class WImageT;
 
-template<typename T>
+template<typename T, int C>
 class WInputImageT
 {
 	WInputImageT(); // cannot use thi ctor
 public:
-	typedef const WImageT<T> ImageType;
+	typedef const WImageT<T,C> ImageType;
 	WInputImageT(const ImageType& _const_image,
 				 const QPoint& _topLeft)
 		: m_const_image(_const_image)
@@ -36,6 +36,7 @@ public:
 	}
 	int channels() const
 	{
+		// return C;
 		return m_const_image->channels();
 	}
 	int step() const
@@ -56,31 +57,44 @@ public:
 	{
 		return canInclude(QRect(m_topLeft, roiSize));
 	}
-	bool hasSameChannelWith(const WInputImageT<T>& i0)
+	bool hasSameChannelWith(const WInputImageT<T,C>& i0)
 	{
 		return m_const_image->channels() == i0.m_const_image->channels();
 	}
-	bool hasSameChannelWith(const WInputImageT<T>& i0, const WInputImageT<T>& i1)
+	bool hasSameChannelWith(const WInputImageT<T,C>& i0, const WInputImageT<T,C>& i1)
 	{
+		// C ?
 		int channel = m_const_image->channels();
 		return channel == i0.m_const_image->channels()
 			&& channel == i1.m_const_image->channels();
 	}
 protected:
-	const WImageT<T>& m_const_image;
+	const WImageT<T,C>& m_const_image;
 	QPoint m_topLeft;
 };
 
 template<typename T>
-class WOutputImageT : public WInputImageT<T>
+struct WMonoInputImageT
+{
+	typedef WInputImageT<T,1> Type;
+};
+
+template<typename T>
+struct WColorInputImageT
+{
+	typedef WInputImageT<T, 3> Type;
+};
+
+template<typename T, int C>
+class WOutputImageT : public WInputImageT<T,C>
 {
 	WOutputImageT(); // cannot use this ctor
 public:
-	typedef WImageT<T> ImageType;
+	typedef WImageT<T,C> ImageType;
 	WOutputImageT(ImageType& _image,
 				  const QRect& _roi)
-		: WInputImageT<T>(_image,
-						  _roi.topLeft())
+		: WInputImageT<T,C>(_image,
+							_roi.topLeft())
 		, m_image(_image)
 		, m_roi(_roi)
 	{
@@ -92,7 +106,7 @@ public:
 	}
 	cv::Mat matrix() const
 	{
-		return WInputImageT<T>::matrix(m_roi);
+		return WInputImageT<T,C>::matrix(m_roi);
 	}
 	QSize roiSize() const
 	{
@@ -110,11 +124,11 @@ public:
 	{
 		return m_roi;
 	}
-	bool canOperateFrom(const WInputImageT<T>& i0) const
+	bool canOperateFrom(const WInputImageT<T,C>& i0) const
 	{
 		return i0.canExpandTo(m_roi.size());
 	}
-	bool canOperateFrom(const WInputImageT<T>& i0, const WInputImageT<T>& i1) const
+	bool canOperateFrom(const WInputImageT<T,C>& i0, const WInputImageT<T,C>& i1) const
 	{
 		QSize size = m_roi.size();
 		return i0.canExpandTo(size)
@@ -126,13 +140,28 @@ protected:
 };
 
 template<typename T>
+struct WMonoOutputImageT
+{
+	typedef WOutputImageT<T, 1> Type;
+};
+
+template<typename T>
+struct WColorOutputImageT
+{
+	typedef WOutputImageT<T, 3> Type;
+};
+
+
+template<typename T,int C>
 class WImageT : public WImage
 {
 public:
 	typedef WImageTypeTrait<T> Trait;
     WImageT(const WImage& source)
 	{
-		if (Trait::openCvMatDepth==source->depth()) {
+		if (Trait::openCvMatDepth==source->depth()
+			&& source->channels() == C)
+		{
 			*(WImage*)this = source;
 		}
 	}
@@ -141,21 +170,34 @@ public:
     ~WImageT()
 	{
 	}
-	operator WInputImageT<T>() const
+	operator WInputImageT<T,C>() const
 	{
-		return WInputImageT<T>(*this, QPoint(0,0));
+		return WInputImageT<T,C>(*this, QPoint(0,0));
 	}
-	WInputImageT<T> operator () (const QPoint& topLeft) const
+	WInputImageT<T,C> operator () (const QPoint& topLeft) const
 	{
-		return WInputImageT<T>(*this, topLeft);
+		return WInputImageT<T,C>(*this, topLeft);
 	}
-	operator WOutputImageT<T>()
+	operator WOutputImageT<T,C>()
 	{
 		const cv::Mat& mat = (const cv::Mat&)(*this);
-		return WOutputImageT<T>(*this, QRect(0,0,mat.cols,mat.cols));
+		return WOutputImageT<T,C>(*this, QRect(0,0,mat.cols,mat.cols));
 	}
-	WOutputImageT<T> operator ()(const QRect& roi)
+	WOutputImageT<T,C> operator ()(const QRect& roi)
 	{
-		return WOutputImageT<T>(*this, roi);
+		return WOutputImageT<T,C>(*this, roi);
 	}
 };
+
+template<typename T>
+struct WColorImageT
+{
+	typedef WImageT<T, 3> Type;
+};
+
+template<typename T>
+struct WMonoImageT
+{
+	typedef WImageT<T, 1> Type;
+};
+
