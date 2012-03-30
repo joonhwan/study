@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(cvmat_test)
+ADD_SUBDIRECTORY(pixel)

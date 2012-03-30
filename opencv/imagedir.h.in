@@ -1,0 +1,4 @@
+#pragma once
+
+#define IMAGE_DIR "@IMAGE_DIR@/"
+
