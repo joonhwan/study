@@ -10,6 +10,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+typedef WImageT<uchar,3> MyImageType;
+
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
@@ -17,23 +19,32 @@ int main(int argc, char** argv)
 	QCoreApplication::setOrganizationDomain("www.joonhwan.org");
 	QCoreApplication::setApplicationName("cvmattest");
 
-	WImageProcess<uchar> proc;
-	WColorImageT<uchar>::Type image = cv::imread(IMAGE_DIR "castle.jpg");
-	WColorImageT<uchar>::Type timage = image; // keep original but not yet copy!
-	if (timage) {
-		// can convert image..!
-		proc.salt(timage, 1000);
-	}
-	WColorImageT<uchar>::Type diffImage = image;
-	WMonoImageT<uchar>::Type obj(diffImage); // invalid.
+	MyImageType::Processor proc;
+	MyImageType image(IMAGE_DIR "castle.jpg");
 
-	proc.absDiff(image(QPoint(50,50)), timage(QPoint(50,50)), diffImage(QRect(50,50,100,100)));
+	WImageT<float,3> floatImage = image;
+
+	MyImageType timage = image; // keep original but not yet copy!
+	if (timage) {
+		proc.salt(timage, 2000);
+	}
+	MyImageType diffImage = image;
+	// WImageT<uchar,3> colorImage = image;
+
+	proc.absDiff(image.of(QPoint(50,50)), timage.of(QPoint(50,50)), diffImage.of(QRect(50,50,100,100)));
+	proc.absDiff(image, timage, diffImage);
+	proc.addC(diffImage, 50, 1);
+	cv::absdiff(image(QPoint(50,50)).matrix(100,100),
+				timage(QPoint(50,50)).matrix(100,100),
+				diffImage(QRect(50,50,100,100)).matrix());
 	// Wf::absDiff(image, timage, output);
 
 	cv::namedWindow("image");
+	cv::namedWindow("floatimage");
 	cv::namedWindow("timage");
 	cv::namedWindow("diffImage");
 	cv::imshow("image", image);
+	cv::imshow("floatimage", image);
 	cv::imshow("timage", timage);
 	cv::imshow("diffImage", diffImage);
 	cv::waitKey(0);

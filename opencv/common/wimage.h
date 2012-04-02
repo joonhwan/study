@@ -41,10 +41,17 @@ public:
 	~WImage() // should be virtual?
 	{
 	}
+	void create(int width, int height, int type);
+	void create(int width, int height, int type, const cv::Scalar& s);
+	int width() const;
+	int height() const;
+	QSize size() const;
+	void convertFrom(const WImage& source);
+
 	// origianl cv::Mat accessor
-	// to call function like image->matrix()->depth()
+	// to call function like image->matrix().depth()
 	// or (*image)->depth()
-	// or (*image).matrix()->depth()
+	// or (*image).matrix().depth()
 	// ...
 	//
 	// 주의 : pixel wise하게 접근하는 경우, refcount확인 루틴이
@@ -57,13 +64,13 @@ public:
 	{
 		return &d->m_buffer;
 	}
-	cv::Mat* matrix()
+	cv::Mat& matrix()
 	{
-		return &d->m_buffer;
+		return d->m_buffer;
 	}
-	const cv::Mat* matrix() const
+	const cv::Mat& matrix() const
 	{
-		return &d->m_buffer;
+		return d->m_buffer;
 	}
 	operator cv::Mat&()
 	{

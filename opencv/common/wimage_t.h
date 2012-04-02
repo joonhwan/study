@@ -19,14 +19,24 @@ public:
 		, m_topLeft(_topLeft)
 	{
 	}
-	cv::Mat matrix(const QSize& roiSize) const {
+	WInputImageT(const ImageType& _const_image)
+		: m_const_image(_const_image)
+		, m_topLeft(0,0)
+	{
+	}
+	cv::Mat matrix(int width, int height) const {
 		cv::Rect rect(m_topLeft.x(), m_topLeft.y(),
-					  roiSize.width(), roiSize.height());
+					  width, height);
+		// generated object will be copied in a shallow way.
 		return ((const cv::Mat&)m_const_image)(rect);
+	}
+	cv::Mat matrix(const QSize& roiSize) const {
+		return matrix(roiSize.width(), roiSize.height());
 	}
 	cv::Mat matrix(const QRect& roi) const {
 		cv::Rect rect(roi.x(), roi.y(),
 					  roi.width(), roi.height());
+		// generated object will be copied in a shallow way.
 		return ((const cv::Mat&)m_const_image)(rect);
 	}
 	operator const T* () const
@@ -41,7 +51,7 @@ public:
 	}
 	int step() const
 	{
-		return m_const_image->step1();
+		return m_const_image->step;
 	}
 	// dimension 에 대한 check도 canInclude로 된다.(side effect).
 	// 2차원인경우에만, rows > 0 , cols > 0 이다.
@@ -50,8 +60,8 @@ public:
 		const cv::Mat& mat = (const cv::Mat&)m_const_image;
 		return (mat.rows > 0)
 			&& (mat.cols > 0)
-			&& ((roi.x() + roi.width()) < mat.cols)
-			&& ((roi.y() + roi.height()) < mat.rows);
+			&& ((roi.right()) < mat.cols)
+			&& ((roi.bottom()) < mat.rows);
 	}
 	bool canExpandTo(const QSize& roiSize) const
 	{
@@ -73,17 +83,6 @@ protected:
 	QPoint m_topLeft;
 };
 
-template<typename T>
-struct WMonoInputImageT
-{
-	typedef WInputImageT<T,1> Type;
-};
-
-template<typename T>
-struct WColorInputImageT
-{
-	typedef WInputImageT<T, 3> Type;
-};
 
 template<typename T, int C>
 class WOutputImageT : public WInputImageT<T,C>
@@ -98,6 +97,14 @@ public:
 		, m_image(_image)
 		, m_roi(_roi)
 	{
+	}
+	WOutputImageT(ImageType& _image)
+		: WInputImageT<T,C>(_image)
+		, m_image(_image)
+	{
+		const cv::Mat& mat = (const cv::Mat&)m_image;
+		// full roi
+		m_roi = QRect(0,0,mat.cols,mat.rows);
 	}
 	operator T* ()
 	{
@@ -139,65 +146,62 @@ protected:
 	QRect m_roi;
 };
 
-template<typename T>
-struct WMonoOutputImageT
-{
-	typedef WOutputImageT<T, 1> Type;
-};
+template<typename T, int C>
+class WImageProcess;
 
-template<typename T>
-struct WColorOutputImageT
-{
-	typedef WOutputImageT<T, 3> Type;
-};
-
-
-template<typename T,int C>
+template<typename T, int C>
 class WImageT : public WImage
 {
 public:
+	typedef WImageProcess<T,C> Processor;
 	typedef WImageTypeTrait<T> Trait;
-    WImageT(const WImage& source)
+	typedef WImageCvIoTrait<T,C> IoTrait;
+	WImageT()
 	{
-		if (Trait::openCvMatDepth==source->depth()
-			&& source->channels() == C)
-		{
-			*(WImage*)this = source;
-		}
 	}
+	WImageT(const QString& filePathName)
+	{
+		loadFromFile(filePathName);
+	}
+	WImageT(int width, int height)
+		: WImage(height/*rows*/, width/*cols*/,
+				 CV_MAKETYPE(Trait::openCvMatDepth,C))
+	{
+	}
+	WImageT(int width, int height, const cv::Scalar& s)
+		: WImage(height/*rows*/, width/*cols*/,
+				 CV_MAKETYPE(Trait::openCvMatDepth,C), s)
+	{
+	}
+	WImageT(const WImageT<uchar,1>& src);
+	WImageT(const WImageT<ushort,1>& src);
+	WImageT(const WImageT<float,1>& src);
+	WImageT(const WImageT<uchar,3>& src);
+	WImageT(const WImageT<ushort,3>& src);
+	WImageT(const WImageT<float,3>& src);
 	// TODO CHECKME should be virtual or not?
 	// maybe not. see opencv comment on cv::Mat_ class in core.hpp
     ~WImageT()
 	{
 	}
-	operator WInputImageT<T,C>() const
-	{
-		return WInputImageT<T,C>(*this, QPoint(0,0));
-	}
 	WInputImageT<T,C> operator () (const QPoint& topLeft) const
 	{
 		return WInputImageT<T,C>(*this, topLeft);
 	}
-	operator WOutputImageT<T,C>()
+	WInputImageT<T,C> of(const QPoint& topLeft) const
 	{
-		const cv::Mat& mat = (const cv::Mat&)(*this);
-		return WOutputImageT<T,C>(*this, QRect(0,0,mat.cols,mat.cols));
+		return WInputImageT<T,C>(*this, topLeft);
 	}
 	WOutputImageT<T,C> operator ()(const QRect& roi)
 	{
 		return WOutputImageT<T,C>(*this, roi);
 	}
+	WOutputImageT<T,C> of(const QRect& roi)
+	{
+		return WOutputImageT<T,C>(*this, roi);
+	}
+	void loadFromFile(const QString& filePathName)
+	{
+		matrix() = cv::imread(filePathName.toLocal8Bit().data(), IoTrait::loadFlag);
+	}
 };
-
-template<typename T>
-struct WColorImageT
-{
-	typedef WImageT<T, 3> Type;
-};
-
-template<typename T>
-struct WMonoImageT
-{
-	typedef WImageT<T, 1> Type;
-};
-

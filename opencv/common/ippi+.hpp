@@ -11,6 +11,7 @@
 
 namespace IPPIP {
 
+inline
 IppStatus ippiAbsDiff_C1R(const Ipp8u* pSrc1, int src1Step,
 						  const Ipp8u* pSrc2, int src2Step,
 						  Ipp8u* pDst, int dstStep, IppiSize roiSize )
@@ -18,6 +19,7 @@ IppStatus ippiAbsDiff_C1R(const Ipp8u* pSrc1, int src1Step,
 	return ippiAbsDiff_8u_C1R(pSrc1, src1Step, pSrc2, src2Step, pDst, dstStep, roiSize);
 }
 
+inline
 IppStatus ippiAbsDiff_C3R(const Ipp8u* pSrc1, int src1Step,
 						  const Ipp8u* pSrc2, int src2Step,
 						  Ipp8u* pDst, int dstStep, IppiSize roiSize )

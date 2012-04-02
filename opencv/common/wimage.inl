@@ -105,4 +105,34 @@ WImage::WImage(const IplImage* img, bool copyData)
 	d = new WImagePrivate(img, copyData);
 }
 
+inline
+void WImage::create(int width, int height, int type)
+{
+	d = new WImagePrivate(height/*rows*/, width/*cols*/, type);
+}
+
+inline
+void WImage::create(int width, int height, int type, const cv::Scalar& s)
+{
+	d = new WImagePrivate(height/*rows*/, width/*cols*/, type, s);
+}
+
+inline
+int WImage::width() const
+{
+	return d->m_buffer.cols;
+}
+
+inline
+int WImage::height() const
+{
+	return d->m_buffer.rows;
+}
+
+// QSize WImage::size() const
+// {
+// 	const cv::Mat& mat = d->m_buffer;
+// 	QSize size_(mat.cols, mat.rows);
+// 	return size_;
+// }
 

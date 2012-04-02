@@ -44,3 +44,25 @@ struct WImageTypeTrait
 DEFINE_TRAIT(uchar, CV_8U, Ipp8u)
 DEFINE_TRAIT(ushort, CV_16U, Ipp16u)
 DEFINE_TRAIT(float, CV_32F, Ipp32f)
+
+template<typename T, int C>
+struct WImageCvIoTrait
+{
+	enum
+	{
+		loadFlag = 0,
+	};
+};
+
+#define DEFINE_IOTRAIT(T, C,FLAG)				\
+	template<>									\
+	struct WImageCvIoTrait<T, C>				\
+	{											\
+		enum									\
+		{										\
+			loadFlag = FLAG,					\
+		};										\
+	};											\
+
+DEFINE_IOTRAIT(uchar,1,CV_LOAD_IMAGE_GRAYSCALE)
+DEFINE_IOTRAIT(uchar,3,CV_LOAD_IMAGE_COLOR)
