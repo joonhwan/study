@@ -18,3 +18,8 @@ cv::Mat WImage::operator()(const QRect& _roi) const
 		);
 	return d->m_buffer(roi);
 }
+
+void WImage::copyFrom(const WImage& source)
+{
+	((const cv::Mat&)source).copyTo(*this);
+}

@@ -46,7 +46,11 @@ public:
 	int width() const;
 	int height() const;
 	QSize size() const;
+	cv::Size sizeCv() const;
+	QPointF center() const;
+	cv::Point2f centerCv() const;
 	void convertFrom(const WImage& source);
+	void copyFrom(const WImage& source);
 
 	// origianl cv::Mat accessor
 	// to call function like image->matrix().depth()
@@ -92,7 +96,7 @@ public:
 	{
 		return cv::_OutputArray(d->m_buffer);
 	}
-	operator bool () const
+	bool isValid() const
 	{
 		return d->m_buffer.data;
 	}

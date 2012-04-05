@@ -1,6 +1,9 @@
 #pragma once
 
 #include <vld.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 const char* moduleList[] =
 {
 	"opencv_calib3d233.dll",

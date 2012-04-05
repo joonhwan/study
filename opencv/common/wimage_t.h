@@ -16,19 +16,31 @@ public:
 	WInputImageT(const ImageType& _const_image,
 				 const QPoint& _topLeft)
 		: m_const_image(_const_image)
-		, m_topLeft(_topLeft)
+		, m_roi(_topLeft, QSize(0,0))
+	{
+		const cv::Mat& mat = (const cv::Mat&)m_const_image;
+		m_roi.setRight(mat.cols-1);
+		m_roi.setBottom(mat.rows-1);
+	}
+	typedef const WImageT<T,C> ImageType;
+	WInputImageT(const ImageType& _const_image,
+				 const QRect& roi)
+		: m_const_image(_const_image)
+		, m_roi(roi)
 	{
 	}
 	WInputImageT(const ImageType& _const_image)
 		: m_const_image(_const_image)
-		, m_topLeft(0,0)
 	{
+		// full roi
+		const cv::Mat& mat = (const cv::Mat&)m_const_image;
+		m_roi = QRect(0,0,mat.cols,mat.rows);
 	}
 	cv::Mat matrix(int width, int height) const {
-		cv::Rect rect(m_topLeft.x(), m_topLeft.y(),
-					  width, height);
+		QRect roi(m_roi.x(), m_roi.y(),
+				  width, height);
 		// generated object will be copied in a shallow way.
-		return ((const cv::Mat&)m_const_image)(rect);
+		return matrix(roi);
 	}
 	cv::Mat matrix(const QSize& roiSize) const {
 		return matrix(roiSize.width(), roiSize.height());
@@ -39,10 +51,13 @@ public:
 		// generated object will be copied in a shallow way.
 		return ((const cv::Mat&)m_const_image)(rect);
 	}
+	cv::Mat matrix() const {
+		return matrix(m_roi);
+	}
 	operator const T* () const
 	{
 		//  NOTE : y=row, x=col
-		return m_const_image->ptr<T>(m_topLeft.y(), m_topLeft.x());
+		return m_const_image->ptr<T>(m_roi.y(), m_roi.x());
 	}
 	int channels() const
 	{
@@ -53,19 +68,25 @@ public:
 	{
 		return m_const_image->step;
 	}
+	bool isValid() const
+	{
+		const cv::Mat& mat = (const cv::Mat&)m_const_image;
+		return mat.dims == 2
+			&& mat.cols > 0
+			&& mat.rows > 0
+			&& mat.data
+			&& QRect(0,0,mat.cols,mat.rows).canInclude(m_roi);
+	}
 	// dimension 에 대한 check도 canInclude로 된다.(side effect).
 	// 2차원인경우에만, rows > 0 , cols > 0 이다.
 	bool canInclude(const QRect& roi) const
 	{
 		const cv::Mat& mat = (const cv::Mat&)m_const_image;
-		return (mat.rows > 0)
-			&& (mat.cols > 0)
-			&& ((roi.right()) < mat.cols)
-			&& ((roi.bottom()) < mat.rows);
+		return QRect(0,0,mat.cols,mat.rows).contains(m_roi)
 	}
 	bool canExpandTo(const QSize& roiSize) const
 	{
-		return canInclude(QRect(m_topLeft, roiSize));
+		return canInclude(QRect(m_roi.topLeft(), roiSize));
 	}
 	bool hasSameChannelWith(const WInputImageT<T,C>& i0)
 	{
@@ -77,43 +98,6 @@ public:
 		int channel = m_const_image->channels();
 		return channel == i0.m_const_image->channels()
 			&& channel == i1.m_const_image->channels();
-	}
-protected:
-	const WImageT<T,C>& m_const_image;
-	QPoint m_topLeft;
-};
-
-
-template<typename T, int C>
-class WOutputImageT : public WInputImageT<T,C>
-{
-	WOutputImageT(); // cannot use this ctor
-public:
-	typedef WImageT<T,C> ImageType;
-	WOutputImageT(ImageType& _image,
-				  const QRect& _roi)
-		: WInputImageT<T,C>(_image,
-							_roi.topLeft())
-		, m_image(_image)
-		, m_roi(_roi)
-	{
-	}
-	WOutputImageT(ImageType& _image)
-		: WInputImageT<T,C>(_image)
-		, m_image(_image)
-	{
-		const cv::Mat& mat = (const cv::Mat&)m_image;
-		// full roi
-		m_roi = QRect(0,0,mat.cols,mat.rows);
-	}
-	operator T* ()
-	{
-		//  NOTE : y=row, x=col
-		return m_image->ptr<T>(m_roi.y(),m_roi.x());
-	}
-	cv::Mat matrix() const
-	{
-		return WInputImageT<T,C>::matrix(m_roi);
 	}
 	QSize roiSize() const
 	{
@@ -131,6 +115,33 @@ public:
 	{
 		return m_roi;
 	}
+protected:
+	const WImageT<T,C>& m_const_image;
+	QRect m_roi;
+};
+
+
+template<typename T, int C>
+class WOutputImageT : public WInputImageT<T,C>
+{
+	WOutputImageT(); // cannot use this ctor
+public:
+	typedef WImageT<T,C> ImageType;
+	WOutputImageT(ImageType& _image, const QRect& _roi)
+		: WInputImageT<T,C>(_image, _roi)
+		, m_image(_image)
+	{
+	}
+	WOutputImageT(ImageType& _image)
+		: WInputImageT<T,C>(_image)
+		, m_image(_image)
+	{
+	}
+	operator T* ()
+	{
+		//  NOTE : y=row, x=col
+		return m_image->ptr<T>(m_roi.y(),m_roi.x());
+	}
 	bool canOperateFrom(const WInputImageT<T,C>& i0) const
 	{
 		return i0.canExpandTo(m_roi.size());
@@ -143,7 +154,6 @@ public:
 	}
 protected:
 	ImageType& m_image;
-	QRect m_roi;
 };
 
 template<typename T, int C>
@@ -153,15 +163,24 @@ template<typename T, int C>
 class WImageT : public WImage
 {
 public:
+	typedef T DataType;
 	typedef WImageProcess<T,C> Processor;
 	typedef WImageTypeTrait<T> Trait;
 	typedef WImageCvIoTrait<T,C> IoTrait;
+	typedef WInputImageT<T,C> In;
+	typedef WOutputImageT<T,C> Out;
+	typedef WOutputImageT<T,C> InOut;
 	WImageT()
 	{
 	}
 	WImageT(const QString& filePathName)
 	{
 		loadFromFile(filePathName);
+	}
+	WImageT(const QSize& size)
+		: WImage(size.height()/*rows*/, size.width()/*cols*/,
+				 CV_MAKETYPE(Trait::openCvMatDepth,C))
+	{
 	}
 	WImageT(int width, int height)
 		: WImage(height/*rows*/, width/*cols*/,
@@ -184,21 +203,33 @@ public:
     ~WImageT()
 	{
 	}
-	WInputImageT<T,C> operator () (const QPoint& topLeft) const
+	WImageT<T, C>& operator=(const WImageT<uchar, 1>& src);
+	WImageT<T, C>& operator=(const WImageT<ushort, 1>& src);
+	WImageT<T, C>& operator=(const WImageT<float, 1>& src);
+	WImageT<T, C>& operator=(const WImageT<uchar, 3>& src);
+	WImageT<T, C>& operator=(const WImageT<ushort, 3>& src);
+	WImageT<T, C>& operator=(const WImageT<float, 3>& src);
+	WImageT<T, C>& operator=(const cv::MatExpr& expr)
 	{
-		return WInputImageT<T,C>(*this, topLeft);
+		(cv::Mat_<T>&)(this->matrix()) = expr;
+		return *this;
 	}
-	WInputImageT<T,C> of(const QPoint& topLeft) const
+	// In,Out,InOut accessor creation operators
+	In from(const QPoint& topLeft) const
 	{
-		return WInputImageT<T,C>(*this, topLeft);
+		return In(*this, topLeft);
 	}
-	WOutputImageT<T,C> operator ()(const QRect& roi)
+	In from(const QRect& roi) const
 	{
-		return WOutputImageT<T,C>(*this, roi);
+		return In(*this, roi);
 	}
-	WOutputImageT<T,C> of(const QRect& roi)
+	Out to(const QRect& roi)
 	{
-		return WOutputImageT<T,C>(*this, roi);
+		return Out(*this, roi);
+	}
+	Out to()
+	{
+		return Out(*this);
 	}
 	void loadFromFile(const QString& filePathName)
 	{

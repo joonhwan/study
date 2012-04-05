@@ -1,0 +1,5 @@
+ADD_SUBDIRECTORY(bgremover)
+ADD_SUBDIRECTORY(colorReduce)
+ADD_SUBDIRECTORY(operatorTest)
+ADD_SUBDIRECTORY(operatorTest2)
+ADD_SUBDIRECTORY(ippoptest)

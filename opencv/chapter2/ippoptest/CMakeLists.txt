@@ -1,28 +1,20 @@
-PROJECT(common)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
+
+PROJECT(ippoptest)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 
+SET(QT_USE_QTMAIN ON)
 INCLUDE(${QT_USE_FILE})
 
 SET(sources
-  wimage.cpp
-  wimageipp.cpp
-  wimage_t.cpp
+  main.cpp
   )
 
 SET(moc_header
   )
 
 SET(header
-  common.h
-  vldhelper.h
-  wimage.h
-  wimage.inl
-  wimageipp.h
-  wimage_p.h
-  wimage_t.h
-  wimage_t_traits.h
-  wstopwatch.h
   )
 
 SET(forms
@@ -35,7 +27,7 @@ QT4_WRAP_CPP(moc_generated ${moc_header})
 QT4_WRAP_UI(forms_generated ${forms})
 QT4_ADD_RESOURCES(rc_generated ${resources})
 
-ADD_LIBRARY(${PROJECT_NAME} STATIC
+ADD_EXECUTABLE(${PROJECT_NAME} MACOSX_BUNDLE
   ${sources}
   ${header}
   ${moc_header}
@@ -45,3 +37,16 @@ ADD_LIBRARY(${PROJECT_NAME} STATIC
   ${forms_generated}
   ${rc_generated}
   )
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+  ${QT_LIBRARIES}
+  ${PROJECT_COMMON_LIBRARIES}
+  common
+  )
+
+# ADD_CUSTOM_COMMAND(TARGET ${PROJECT_NAME}
+#   POST_BUILD
+#   COMMAND ${PROJECT_NAME}
+#   COMMENT "****** testing ${PROJECT_NAME} ..."
+#   )
+

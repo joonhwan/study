@@ -1,3 +1,5 @@
+#include <QtCore/qmath.h>
+
 inline
 WImage::WImage()
 {
@@ -129,10 +131,37 @@ int WImage::height() const
 	return d->m_buffer.rows;
 }
 
-// QSize WImage::size() const
-// {
-// 	const cv::Mat& mat = d->m_buffer;
-// 	QSize size_(mat.cols, mat.rows);
-// 	return size_;
-// }
+inline
+QSize WImage::size() const
+{
+	const cv::Mat& mat = d->m_buffer;
+	QSize size_(mat.cols, mat.rows);
+	return size_;
+}
+
+inline
+cv::Size WImage::sizeCv() const
+{
+	const cv::Mat& mat = d->m_buffer;
+	cv::Size size_(mat.cols, mat.rows);
+	return size_;
+}
+
+inline
+QPointF WImage::center() const
+{
+	const cv::Mat& mat = d->m_buffer;
+	double x = qFloor(mat.cols / 2.);
+	double y = qFloor(mat.rows / 2.);
+	return QPointF(x, y);
+}
+
+inline
+cv::Point2f WImage::centerCv() const
+{
+	const cv::Mat& mat = d->m_buffer;
+	float x = qFloor(mat.cols / 2.);
+	float y = qFloor(mat.rows / 2.);
+	return cv::Point2f(x, y);
+}
 

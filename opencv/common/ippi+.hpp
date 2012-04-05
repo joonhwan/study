@@ -27,6 +27,49 @@ IppStatus ippiAbsDiff_C3R(const Ipp8u* pSrc1, int src1Step,
 	return ippiAbsDiff_8u_C3R(pSrc1, src1Step, pSrc2, src2Step, pDst, dstStep, roiSize);
 }
 
+inline
+IppStatus ippiCopySubpix_C1R(const Ipp8u* pSrc, int srcStep,
+							 Ipp8u* pDst, int dstStep, IppiSize roiSize,
+							 Ipp32f dx, Ipp32f dy)
+{
+	return ippiCopySubpix_8u_C1R(pSrc, srcStep,
+								 pDst, dstStep, roiSize,
+								 dx, dy);
+}
+
+inline
+IppStatus ippiCopySubpix_C1R(const Ipp16u* pSrc, int srcStep,
+							 Ipp16u* pDst, int dstStep, IppiSize roiSize,
+							 Ipp32f dx, Ipp32f dy)
+{
+	return ippiCopySubpix_16u_C1R(pSrc, srcStep,
+								  pDst, dstStep, roiSize,
+								  dx, dy);
+}
+
+inline
+IppStatus ippiCopySubpix_C1R(const Ipp32f* pSrc, int srcStep,
+							 Ipp32f* pDst, int dstStep, IppiSize roiSize,
+							 Ipp32f dx, Ipp32f dy)
+{
+	return ippiCopySubpix_32f_C1R(pSrc, srcStep,
+								  pDst, dstStep, roiSize,
+								  dx, dy);
+}
+
+inline
+IppStatus ippiCopySubpix_C1R(const Ipp8u* pSrc, int srcStep,
+							 Ipp32f* pDst, int dstStep, IppiSize roiSize,
+							 Ipp32f dx, Ipp32f dy)
+{
+	return ippiCopySubpix_8u32f_C1R(pSrc, srcStep,
+									pDst, dstStep, roiSize,
+									dx, dy);
+}
+
+
+
+
 };
 
 
