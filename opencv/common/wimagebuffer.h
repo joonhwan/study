@@ -8,37 +8,38 @@
 
 // Shared cv::Mat class
 // using Qt's QSharedDataPointer
-class WImage
+class WImageBuffer
 {
 public:
-	WImage();
-	WImage(const WImage& source);
-	WImage(const cv::Mat& source);
+	WImageBuffer();
+	WImageBuffer(const WImageBuffer& source);
+	WImageBuffer(const cv::Mat& source);
+	// ----- from old cv::Mat constructor -----
 	//! constructs 2D matrix of the specified size and type
     // (_type is CV_8UC1, CV_64FC3, CV_32SC(12) etc.)
-    WImage(int _rows, int _cols, int _type);
-    WImage(cv::Size _size, int _type);
+    WImageBuffer(int _rows, int _cols, int _type);
+    WImageBuffer(cv::Size _size, int _type);
     //! constucts 2D matrix and fills it with the specified value _s.
-    WImage(int _rows, int _cols, int _type, const cv::Scalar& _s);
-    WImage(cv::Size _size, int _type, const cv::Scalar& _s);
+    WImageBuffer(int _rows, int _cols, int _type, const cv::Scalar& _s);
+    WImageBuffer(cv::Size _size, int _type, const cv::Scalar& _s);
     //! constructs n-dimensional matrix
-    WImage(int _ndims, const int* _sizes, int _type);
-    WImage(int _ndims, const int* _sizes, int _type, const cv::Scalar& _s);
+    WImageBuffer(int _ndims, const int* _sizes, int _type);
+    WImageBuffer(int _ndims, const int* _sizes, int _type, const cv::Scalar& _s);
     //! constructor for matrix headers pointing to user-allocated data
-    WImage(int _rows, int _cols, int _type, void* _data, size_t _step=cv::Mat::AUTO_STEP);
-    WImage(cv::Size _size, int _type, void* _data, size_t _step=cv::Mat::AUTO_STEP);
-    WImage(int _ndims, const int* _sizes, int _type, void* _data, const size_t* _steps=0);
+    WImageBuffer(int _rows, int _cols, int _type, void* _data, size_t _step=cv::Mat::AUTO_STEP);
+    WImageBuffer(cv::Size _size, int _type, void* _data, size_t _step=cv::Mat::AUTO_STEP);
+    WImageBuffer(int _ndims, const int* _sizes, int _type, void* _data, const size_t* _steps=0);
     //! creates a matrix header for a part of the bigger matrix
-    WImage(const WImage& m, const cv::Range& rowRange, const cv::Range& colRange=cv::Range::all());
-    WImage(const WImage& m, const cv::Rect& roi);
-    WImage(const WImage& m, const cv::Range* ranges);
+    WImageBuffer(const WImageBuffer& m, const cv::Range& rowRange, const cv::Range& colRange=cv::Range::all());
+    WImageBuffer(const WImageBuffer& m, const cv::Rect& roi);
+    WImageBuffer(const WImageBuffer& m, const cv::Range* ranges);
     //! converts old-style CvMat to the new matrix; the data is not copied by default
-    WImage(const CvMat* m, bool copyData=false);
+    WImageBuffer(const CvMat* m, bool copyData=false);
     //! converts old-style CvMatND to the new matrix; the data is not copied by default
-    WImage(const CvMatND* m, bool copyData=false);
+    WImageBuffer(const CvMatND* m, bool copyData=false);
     //! converts old-style IplImage to the new matrix; the data is not copied by default
-    WImage(const IplImage* img, bool copyData=false);
-	~WImage() // should be virtual?
+    WImageBuffer(const IplImage* img, bool copyData=false);
+	~WImageBuffer() // should be virtual?
 	{
 	}
 	void create(int width, int height, int type);
@@ -49,8 +50,8 @@ public:
 	cv::Size sizeCv() const;
 	QPointF center() const;
 	cv::Point2f centerCv() const;
-	void convertFrom(const WImage& source);
-	void copyFrom(const WImage& source);
+	void convertFrom(const WImageBuffer& source);
+	void copyFrom(const WImageBuffer& source);
 
 	// origianl cv::Mat accessor
 	// to call function like image->matrix().depth()
@@ -92,15 +93,11 @@ public:
 	{
 		return cv::_OutputArray(d->m_buffer);
 	}
-	operator cv::_OutputArray() const
-	{
-		return cv::_OutputArray(d->m_buffer);
-	}
 	bool isValid() const
 	{
 		return d->m_buffer.data;
 	}
-	WImage& operator = (const WImage& rhs)
+	WImageBuffer& operator = (const WImageBuffer& rhs)
 	{
 		d = rhs.d;
 		return *this;
@@ -119,4 +116,4 @@ private:
 template<>
 WImagePrivate* QSharedDataPointer<WImagePrivate>::clone();
 
-#include "wimage.inl"
+#include "wimagebuffer.inl"

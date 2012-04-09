@@ -1,11 +1,11 @@
 #include "wimage_t.h"
-#include "wimageipp.h"
+#include "wimageprocessor.h"
 
 // 1. same format = copy constructor
 #define COPY_CONSTRUCTOR(TYPE, C)							\
 	template<>												\
-	WImageT<TYPE, C>::WImageT(const WImageT<TYPE, C>& src)	\
-		: WImage((const WImage&)src)						\
+	WImageBufferT<TYPE, C>::WImageBufferT(const WImageBufferT<TYPE, C>& src)	\
+		: WImageBuffer((const WImageBuffer&)src)						\
 	{														\
 	}
 
@@ -19,11 +19,11 @@ COPY_CONSTRUCTOR(float,  3)
 // 2. same channel count conversion
 #define DEPTH_CONVERT_CONSTRUCTOR(TYPE_FROM, TYPE_TO, C)						\
 	template<>															\
-	WImageT<TYPE_TO, C>::WImageT(const WImageT<TYPE_FROM, C>& src)		\
-		: WImage(src.height(), src.width(),								\
+	WImageBufferT<TYPE_TO, C>::WImageBufferT(const WImageBufferT<TYPE_FROM, C>& src)		\
+		: WImageBuffer(src.height(), src.width(),								\
 		  CV_MAKETYPE(Trait::openCvMatDepth, C))						\
 	{																	\
-		WImageT<TYPE_FROM, C>::Processor().convertTo<TYPE_TO>(src, *this); \
+		WImageBufferT<TYPE_FROM, C>::Processor().convertTo(src, *this); \
 	}
 
 DEPTH_CONVERT_CONSTRUCTOR(uchar, float, 1)
@@ -39,7 +39,7 @@ DEPTH_CONVERT_CONSTRUCTOR(uchar, ushort, 3)
 // DEPTH_CONVERT_CONSTRUCTOR(float, uchar, 3)
 #define DEPTH_CONVERT_CONSTRUCTOR_OPENCV(TYPE_FROM, TYPE_TO, C)				\
 	template<>															\
-	WImageT<TYPE_TO, C>::WImageT(const WImageT<TYPE_FROM, C>&src)		\
+	WImageBufferT<TYPE_TO, C>::WImageBufferT(const WImageBufferT<TYPE_FROM, C>&src)		\
 	{																	\
 		src->convertTo(*this, CV_MAKETYPE(Trait::openCvMatDepth,C));	\
 	}
@@ -54,8 +54,8 @@ DEPTH_CONVERT_CONSTRUCTOR_OPENCV(float, ushort, 3)
 // for 'CODE' see "opencv2/imgproc/types_c.h"
 #define COLOR_CONVERT(TYPE, C_FROM, C_TO, CODE)						\
 	template<>														\
-	WImageT<TYPE, C_TO>::WImageT(const WImageT<TYPE, C_FROM>& src)	\
-		: WImage(src.height(), src.width(),							\
+	WImageBufferT<TYPE, C_TO>::WImageBufferT(const WImageBufferT<TYPE, C_FROM>& src)	\
+		: WImageBuffer(src.height(), src.width(),							\
 				 CV_MAKETYPE(Trait::openCvMatDepth,1))				\
 	{																\
 		cv::cvtColor(src, *this, CODE);								\
@@ -74,10 +74,10 @@ COLOR_CONVERT(float, 1, 3, CV_GRAY2RGB)
 // 1. same type
 #define ASSIGN_SAME_TYPE(TYPE, C)										\
 	template<>															\
-	WImageT<TYPE, C>&													\
-	WImageT<TYPE, C>::operator=(const WImageT<TYPE, C>& src)			\
+	WImageBufferT<TYPE, C>&													\
+	WImageBufferT<TYPE, C>::operator=(const WImageBufferT<TYPE, C>& src)			\
 	{																	\
-		(WImage&)(*this) = (const WImage&)(src);						\
+		(WImageBuffer&)(*this) = (const WImageBuffer&)(src);						\
 		return *this;													\
 	}
 
@@ -91,11 +91,11 @@ ASSIGN_SAME_TYPE(float, 3)
 // 2. same channel count conversion
 #define ASSIGN_DEPTH_CONVERT(TYPE_FROM, TYPE_TO, C)						\
 	template<>															\
-	WImageT<TYPE_TO, C>&												\
-	WImageT<TYPE_TO, C>::operator=(const WImageT<TYPE_FROM, C>& src)	\
+	WImageBufferT<TYPE_TO, C>&											\
+	WImageBufferT<TYPE_TO, C>::operator=(const WImageBufferT<TYPE_FROM, C>& src) \
 	{																	\
-		WImageT<TYPE_FROM, C>::Processor().								\
-			convertTo<TYPE_TO>(src, *this);								\
+		WImageBufferT<TYPE_FROM, C>::Processor().						\
+			convertTo(src, *this);										\
 		return *this;													\
 	}
 
@@ -110,8 +110,8 @@ ASSIGN_DEPTH_CONVERT(ushort, float, 3)
 
 #define ASSIGN_DEPTH_CHANGE_OPENCV(TYPE_FROM, TYPE_TO, C)				\
 	template<>															\
-	WImageT<TYPE_TO, C>&												\
-	WImageT<TYPE_TO, C>::operator=(const WImageT<TYPE_FROM, C>& src)	\
+	WImageBufferT<TYPE_TO, C>&												\
+	WImageBufferT<TYPE_TO, C>::operator=(const WImageBufferT<TYPE_FROM, C>& src)	\
 	{																	\
 		(cv::Mat&)(*this) = (const cv::Mat&)src;						\
 		return *this;													\

@@ -2,7 +2,7 @@
 #include "wstopwatch.h"
 #include "imagedir.h"
 #include "operatorTest.h"
-#include "wimageipp.h"
+#include "wimageprocessor.h"
 #include "wimage_operator.h"
 #include <QApplication>
 #include <iostream>
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 	for (int i = 0; i < count; ++i) {
 		result3.copyFrom(image3);
 		stopWatch.start();
-		ColorImage::Processor::add(result3, 100, 1);
+		ColorImage::Processor::add(result3, 100);
 		time3 += stopWatch.elapsedTime();
 	}
 	std::cout << "test3 : " << time3/count << "msec" << std::endl;

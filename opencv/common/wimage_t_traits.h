@@ -19,7 +19,7 @@
 // double -> signed 64 bit
 
 template<typename T>
-struct WImageTypeTrait
+struct WImageBufferTypeTrait
 {
 	enum
 	{
@@ -31,7 +31,7 @@ struct WImageTypeTrait
 
 #define DEFINE_TRAIT(T, CVID, IPPTYPE)									\
 	template<>															\
-	struct WImageTypeTrait<T>											\
+	struct WImageBufferTypeTrait<T>											\
 	{																	\
 		enum															\
 		{																\

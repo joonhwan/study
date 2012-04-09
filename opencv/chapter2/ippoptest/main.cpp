@@ -1,7 +1,7 @@
 #include "vldhelper.h"
 #include "wstopwatch.h"
 #include "imagedir.h"
-#include "wimageipp.h"
+#include "wimageprocessor.h"
 #include "wimage_operator.h"
 #include <QApplication>
 #include <iostream>
@@ -11,8 +11,8 @@
 
 using namespace std;
 
-typedef WImageT<uchar, 3> ColorImage;
-typedef WImageT<uchar, 1> MonoImage;
+typedef WImageBufferT<uchar, 3> ColorImage;
+typedef WImageBufferT<uchar, 1> MonoImage;
 
 int main(int argc, char** argv)
 {
@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
 	MonoImage bufferD = bufferA;
 	// bufferA - 50
-	MonoImage::Processor::subC(50, bufferD);
+	MonoImage::Processor::sub(bufferD, 50);
 
 	cout << "A" << endl << bufferA.matrix() << endl;
 	cout << "B" << endl << bufferB.matrix() << endl;

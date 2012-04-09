@@ -1,7 +1,7 @@
 #include "vldhelper.h"
 #include "wstopwatch.h"
 #include "imagedir.h"
-#include "wimageipp.h"
+#include "wimageprocessor.h"
 #include "wimage_operator.h"
 #include <QApplication>
 #include <iostream>
@@ -9,8 +9,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-typedef WImageT<uchar, 3> ColorImage;
-typedef WImageT<uchar, 1> MonoImage;
+typedef WImageBufferT<uchar, 3> ColorImage;
+typedef WImageBufferT<uchar, 1> MonoImage;
 
 int main(int argc, char** argv)
 {
@@ -24,8 +24,8 @@ int main(int argc, char** argv)
 	{
 		ColorImage image1(IMAGE_DIR "castle.jpg");
 
-		ColorImage result1(image1.size());
-		ColorImage::Processor::logical_and(image1, 255, 0, 0, result1);
+		ColorImage result1 = image1;
+		ColorImage::Processor::logical_and(ColorImage::Value(255, 0, 0), result1);
 		// test(image1, result1);
 
 		cv::namedWindow("image1");
@@ -42,16 +42,15 @@ int main(int argc, char** argv)
 		cv::namedWindow("monoImage1");
 		cv::imshow("monoImage1", monoImage1);
 
-		MonoImage output1(monoImage1.size());
-		MonoImage output2(monoImage1.size());
+		QSize size = monoImage1.size();
+		MonoImage output1(size);
+		MonoImage output2(size);
 
 		float delta = 20;
 		float fraction = 0.;
-		QPoint topLeft(delta,delta);
-		QSize size = output1.size() - QSize(delta,delta);
-		MonoImage::Processor::copySubpixel(monoImage1.from(topLeft),
-										   output1.to(QRect(QPoint(0,0), size)),
-										   fraction, fraction);
+		QPointF topLeft(delta+fraction,delta+fraction);
+		MonoImage::Processor::copySubpixel(monoImage1.from(topLeft, size),
+										   output1.to(QRect(QPoint(0,0), size)));
 
 		cv::Point2f center = monoImage1.centerCv();
 		center.x += (delta+fraction);

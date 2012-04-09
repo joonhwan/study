@@ -1,4 +1,4 @@
-#include "wimage.h"
+#include "wimagebuffer.h"
 
 template<>
 WImagePrivate* QSharedDataPointer<WImagePrivate>::clone()
@@ -8,7 +8,7 @@ WImagePrivate* QSharedDataPointer<WImagePrivate>::clone()
 	return new WImagePrivate(cloned);
 }
 
-cv::Mat WImage::operator()(const QRect& _roi) const
+cv::Mat WImageBuffer::operator()(const QRect& _roi) const
 {
 	cv::Rect roi(
 		_roi.x(),
@@ -19,7 +19,7 @@ cv::Mat WImage::operator()(const QRect& _roi) const
 	return d->m_buffer(roi);
 }
 
-void WImage::copyFrom(const WImage& source)
+void WImageBuffer::copyFrom(const WImageBuffer& source)
 {
 	((const cv::Mat&)source).copyTo(*this);
 }

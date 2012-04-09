@@ -5,25 +5,29 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE(${QT_USE_FILE})
 
 SET(sources
-  wimage.cpp
-  wimageipp.cpp
-  wimage_t.cpp
+  wimagebuffer.cpp
+  wimagebuffer_t.cpp
+  wimageprocessor.cpp
   )
 
 SET(moc_header
   )
 
 SET(header
-  common.h
+  ippi+.hpp
+  ippi.hpp
   vldhelper.h
-  wimage.h
-  wimage.inl
-  wimageipp.h
+  wconstimage_t.h
+  wimagebuffer.h
+  wimagebuffer.inl
+  wimagebuffer_t.h
+  wimageprocessor.h
+  wimage_operator.h
   wimage_p.h
   wimage_t.h
   wimage_t_traits.h
   wstopwatch.h
-  )
+)
 
 SET(forms
   )

@@ -3,7 +3,7 @@
 
 void colorReduce_1(ColorImage::InOut image, int div)
 {
-	cv::Mat mat = image.matrix();
+	cv::Mat mat = image;
 	for (int row = 0; row < mat.rows; ++row) {
 		ColorImage::DataType* data = mat.ptr<ColorImage::DataType>(row);
 		for (int col = 0; col < mat.cols * mat.channels(); ++col) {
@@ -14,7 +14,7 @@ void colorReduce_1(ColorImage::InOut image, int div)
 
 void colorReduce_2(ColorImage::InOut image, int div)
 {
-	cv::Mat mat = image.matrix();
+	cv::Mat mat = image;
 	int rowCount = mat.rows;
 	int columnCount = mat.cols * mat.channels();
 	for (int row = 0; row < rowCount; ++row) {
@@ -27,7 +27,7 @@ void colorReduce_2(ColorImage::InOut image, int div)
 
 void colorReduce_3(ColorImage::InOut image, int div)
 {
-	cv::Mat mat = image.matrix();
+	cv::Mat mat = image;
 	int rowCount = mat.rows;
 	int columnCount = mat.cols * mat.channels();
 	if (mat.isContinuous()) {
@@ -44,7 +44,7 @@ void colorReduce_3(ColorImage::InOut image, int div)
 
 void colorReduce_4(ColorImage::InOut image, int div)
 {
-	cv::Mat mat = image.matrix();
+	cv::Mat mat = image;
 	int rowCount = mat.rows;
 	int columnCount = mat.cols;
 	if (mat.isContinuous()) {
@@ -63,7 +63,7 @@ void colorReduce_4(ColorImage::InOut image, int div)
 
 void colorReduce_5(ColorImage::InOut image, int div)
 {
-	cv::Mat mat = image.matrix();
+	cv::Mat mat = image;
 	int rowCount = mat.rows;
 	int columnCount = mat.cols;
 	if (mat.isContinuous()) {

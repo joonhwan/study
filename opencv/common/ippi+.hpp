@@ -67,10 +67,22 @@ IppStatus ippiCopySubpix_C1R(const Ipp8u* pSrc, int srcStep,
 									dx, dy);
 }
 
+inline
+IppStatus ippiMean_C1R(const Ipp32f* pSrc, int srcStep, IppiSize roiSize,
+					   Ipp64f* pMean)
+{
+	IppHintAlgorithm defaultAlgorithm  = ippAlgHintNone;
+	return ippiMean_C1R(pSrc, srcStep, roiSize, pMean, defaultAlgorithm);
+}
 
+inline
+IppStatus ippiMean_C3R(const Ipp32f* pSrc, int srcStep, IppiSize roiSize,
+					   Ipp64f pMean[3])
+{
+	IppHintAlgorithm defaultAlgorithm  = ippAlgHintNone;
+	return ippiMean_C3R(pSrc, srcStep, roiSize, pMean, defaultAlgorithm);
+}
 
-
-};
-
+} // namespace IPPIP
 
 #endif	// __cplusplus

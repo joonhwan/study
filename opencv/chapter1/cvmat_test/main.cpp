@@ -1,4 +1,4 @@
-#include "wimage.h"
+#include "wimagebuffer.h"
 #include "vldhelper.h"
 #include "imagedir.h"
 #include <QApplication>
@@ -21,17 +21,17 @@ int main(int argc, char** argv)
 	cv::namedWindow("image4");
 	cv::namedWindow("image5");
 
-	WImage image;
+	WImageBuffer image;
 	image = cv::imread(IMAGE_DIR "castle.jpg");
-	WImage image2 = image;
+	WImageBuffer image2 = image;
 	cv::randShuffle(image2);
 
-	WImage image3(240, 320, CV_8U, cv::Scalar(255));
-	// WimageT<uchar, 1>
+	WImageBuffer image3(240, 320, CV_8U, cv::Scalar(255));
+	// WImageBufferT<uchar, 1>
 
 	cv::Ptr<IplImage> iplImage = cvLoadImage(IMAGE_DIR "castle.jpg");
-	WImage image4(iplImage, false);
-	WImage image5;
+	WImageBuffer image4(iplImage, false);
+	WImageBuffer image5;
 	cv::flip(image4, image5, 1);
 
 	cv::imshow("image", image);

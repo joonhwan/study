@@ -1,0 +1,123 @@
+# -*- mode:org -*-
+
+| ippAddC_8u_C1R                        |                                          |                          |
+| ippAlgHintAccurate                    |                                          |                          |
+| ippAlgHintFast                        |                                          |                          |
+| ippAlgHintNone                        |                                          |                          |
+| ippAxsHorizontal                      |                                          |                          |
+| ippCmpEq                              |                                          |                          |
+| ippErrorCode                          |                                          |                          |
+| ippGetStatusString                    |                                          |                          |
+| ippNumThreads                         |                                          |                          |
+| ippRndNear                            |                                          |                          |
+| ippRndZero                            |                                          |                          |
+| ippSetNumThreads                      |                                          |                          |
+| ippiAbsDiffC_8u_C1R                   |                                          |                          |
+| ippiAbsDiff_16u_C1R                   | absDiff(In a, In b, Out c)               |                          |
+| ippiAbsDiff_32f_C1R                   | absDiff(In a, In b, Out c)               |                          |
+| ippiAbsDiff_8u_C1R                    | absDiff(In a, In b, Out c)               |                          |
+| ippiAbs_32f_C1R                       | abs(In a, In b, Out c)                   |                          |
+| ippiAddC_32f_C1IR                     | add(InOut a, T value)                    |                          |
+| ippiAddC_8u_C1IRSfs                   | add(InOut a, T value, int s)             |                          |
+| ippiAdd_32f_C1IR                      | add(In a, InOut b);                      |                          |
+| ippiAdd_32f_C1R                       | x                                        | use add(In a, InOut b)   |
+| ippiAdd_8u_C1IRSfs                    | add(In a, InOut b, int s);               |                          |
+| ippiAdd_8u_C1RSfs                     | add(In a, In b, Out c, int s)            |                          |
+| ippiAndC_8u_C3R                       | add(const ValueArray& a, InOut b, int s) |                          |
+| ippiAnd_8u_C1R                        | logical_and(In a, In b, Out c)           |                          |
+| ippiCompareC_8u_C1R                   |                                          |                          |
+| ippiComputeThreshold_Otsu_8u_C1R      |                                          |                          |
+| ippiConvert_32f8u_C1R                 | convertTo(In a, WImageT<uchar,C> b)      |                          |
+| ippiConvert_8u16u_C1R                 | convertTo(In a, WImageT<ushort,C> b);    |                          |
+| ippiConvert_8u32f_C1R                 | convertTo(In a, WImageT<float,C> b)      |                          |
+| ippiCopySubpix_8u_C1R                 | void copySubpixel(In a, Out b)           |                          |
+| ippiCopy_32f_C1R                      | copy(In a, Out b)                        |                          |
+| ippiCopy_8u_C1R                       | copy(In a, Out b)                        |                          |
+| ippiDivC_8u_C1IRSfs                   | div(const ValueArray& v, InOut b, int s) |                          |
+| ippiDiv_32f_C1R                       | div(In a, In b, Out c, int s=0)          | 's' is ignored for float |
+| ippiFilterMedian_8u_C1R               |                                          |                          |
+| ippiFilterSharpen_8u_C1R              |                                          |                          |
+| ippiFloodFillGetSize                  |                                          |                          |
+| ippiFloodFill_8Con_8u_C1IR            |                                          |                          |
+| ippiHistogramEven_8u_C1R              | use opencv                               |                          |
+| ippiHistogramRange_8u_C1R             | use opencv                               |                          |
+| ippiImageRamp_                        | ramp(Out a, float offset, ...)           |                          |
+| ippiImageRamp_16u_C1R                 | ramp(Out a, float offset, ...)           |                          |
+| ippiImageRamp_32f_C1R                 | ramp(Out a, float offset, ...)           |                          |
+| ippiLUT_8u_C1R                        | lut(In a, Out b, ..., LutMode mode)      | LutMode::Plain           |
+| ippiLUT_Cubic_8u_C1R                  | lut(In a, Out b, ..., LutMode mode)      | LutMode::Linear          |
+| ippiLUT_Linear_8u_C1R                 | lut(In a, Out b, ..., LutMode mode)      | LutMode::Cubic           |
+| ippiLabelMarkersGetBufferSize_16u_C1R |                                          |                          |
+| ippiLabelMarkers_16u_C1IR             |                                          |                          |
+| ippiMaxEvery_32f_C1IR                 | maxEvery(In a, Out b)                    |                          |
+| ippiMaxEvery_8u_C1IR                  | maxEvery(In a, Out b)                    |                          |
+| ippiMaxIndx_16u_C1R                   | findMaxIntensity(In a, WPixelPosition&)  |                          |
+| ippiMaxIndx_8u_C1R                    | findMaxIntensity(In a, WPixelPosition&)  |                          |
+| ippiMax_16u_C1R                       | max(In a, PixelValue<T,C>& value)        |                          |
+| ippiMax_32f_C1R                       | max(In a, PixelValue<T,C>& value)        |                          |
+| ippiMax_8u_C1R                        | max(In a, PixelValue<T,C>& value)        |                          |
+| ippiMean_32f_C1R                      | mean(In a, MeanValue& value)             | used ippAlgHintNone.     |
+| ippiMean_8u_C1R                       | mean(In a, MeanValue& value)             |                          |
+| ippiMean_StdDev                       |                                          |                          |
+| ippiMean_StdDev_8u_C1R                |                                          |                          |
+| ippiMinEvery_32f_C1IR                 | minEvery(In a, InOut b)                  |                          |
+| ippiMinEvery_8u_C1IR                  | minEvery(In a, InOut b)                  |                          |
+| ippiMinIndx_16u_C1R                   | findMinIntensity(In a, WPixelPosition&)  |                          |
+| ippiMinMax_8u_C1R                     | minMax(In a, PixelValueRange& value)     |                          |
+| ippiMin_32f_C1R                       | min(In a, PixelValue& value)             |                          |
+| ippiMin_8u_C1R                        | min(In a, PixelValue& value)             |                          |
+| ippiMirror_8u_C1IR                    | mirror(InOut, Wf::Direction)             |                          |
+| ippiMulC_32f_C1R                      | mul(In, const ValueArray&, Out, int s)   | 's' is ignored for float |
+| ippiMulC_8u_C1IRSfs                   | mul(const ValueArray& a, InOut b, int s) |                          |
+| ippiMulC_8u_C1RSfs                    | mul(In, const ValueArray&, Out, int s)   |                          |
+| ippiMul_16u_C1RSfs                    | mul(In, const ValueArray&, Out, int s)   |                          |
+| ippiMul_32f_C1IR                      | mul(const ValueArray& a, InOut b, int s) | 's' is ignored for float |
+| ippiMul_8u_C1RSfs                     | mul(In, const ValueArray&, Out, int s)   |                          |
+| ippiNormInf                           |                                          |                          |
+| ippiOr_8u_C1R                         | logical_or(In a, In b, Out c)            |                          |
+| ippiOr_8u_C3R                         | logical_or(In a, In b, Out c)            |                          |
+| ippiResizeCenter_8u_C1R               |                                          |                          |
+| ippiResize_32f_C1R                    |                                          |                          |
+| ippiResize_8u_C1R                     |                                          |                          |
+| ippiSet_32f_C1R                       |                                          |                          |
+| ippiSet_8u_C1R                        |                                          |                          |
+| ippiSize                              |                                          |                          |
+| ippiSqr_16u_C1RSfs                    |                                          |                          |
+| ippiSqr_32f_C1IR                      |                                          |                          |
+| ippiSqr_32f_C1R                       |                                          |                          |
+| ippiSqr_8u_C1IRSfs                    |                                          |                          |
+| ippiSqr_8u_C1RSfs                     |                                          |                          |
+| ippiSqrt_32f_C1R                      |                                          |                          |
+| ippiSubC_32f_C1IR                     |                                          |                          |
+| ippiSubC_8u_C1IRSfs                   |                                          |                          |
+| ippiSub_32f_C1IR                      |                                          |                          |
+| ippiSub_32f_C1R                       |                                          |                          |
+| ippiSub_8u_C1IRSfs                    |                                          |                          |
+| ippiSub_8u_C1R                        |                                          |                          |
+| ippiSub_8u_C1RSfs                     |                                          |                          |
+| ippiSum_16u_C1R                       |                                          |                          |
+| ippiSum_32f_C1R                       |                                          |                          |
+| ippiSum_8u_C1R                        |                                          |                          |
+| ippiSwapChannels_8u_C3R               |                                          |                          |
+| ippiThreshold_GTVal_32f_C1R           |                                          |                          |
+| ippiThreshold_GTVal_8u_C1IR           |                                          |                          |
+| ippiThreshold_GTVal_8u_C1R            |                                          |                          |
+| ippiThreshold_LTValGTVal_8u_C1IR      |                                          |                          |
+| ippiThreshold_LTValGTVal_8u_C1R       |                                          |                          |
+| ippiThreshold_LTVal_8u_C1IR           |                                          |                          |
+| ippiThreshold_LTVal_8u_C1R            |                                          |                          |
+| ippiThreshold_Val_8u_C1R              |                                          |                          |
+| ippsConvert_8u32f                     |                                          |                          |
+| ippsCopy_16s                          |                                          |                          |
+| ippsDCTFwdFree_32f                    |                                          |                          |
+| ippsDCTFwdInitAlloc_32f               |                                          |                          |
+| ippsDCTFwd_32f                        |                                          |                          |
+| ippsFFTFree_R_32f                     |                                          |                          |
+| ippsFFTFwd_RToCCS_32f                 |                                          |                          |
+| ippsFilterMedian_32f                  |                                          |                          |
+| ippsMeanStdDev_32f                    |                                          |                          |
+| ippsMinMax_32f                        |                                          |                          |
+| ippsSortAscend_16u_I                  |                                          |                          |
+| ippsSortAscend_32f_I                  |                                          |                          |
+| ippsZero_16s                          |                                          |                          |
+| ippsZero_32f                          |                                          |                          |
