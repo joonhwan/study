@@ -2,7 +2,7 @@
 
 #include "wimage_t.h"
 
-typedef WImageBufferT<uchar, 3> ColorImage;
+typedef WImageBufferT<uchar, 3> ColorBuffer;
 
-void test(ColorImage::In image, ColorImage::Out result);
+void test(ColorBuffer::In image, ColorBuffer::Out result);
 

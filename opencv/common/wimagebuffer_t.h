@@ -4,6 +4,7 @@
 #include "wconstimage_t.h"
 #include "wimage_t.h"
 #include "wimage_t_traits.h"
+#include "wpixel.h"
 
 class QRect;
 
@@ -26,6 +27,8 @@ public:
 	typedef WImageT<T,C> Image;
 	typedef WImageT<T,C> Out;
 	typedef WImageT<T,C> InOut;
+	typedef WPixelValue<T,C> PixelValue;
+	typedef WPixelPosition<T,C> PixelPosition;
 	typedef cv::Vec<T,C> Value;
 	WImageBufferT()
 	{

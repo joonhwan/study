@@ -2,6 +2,7 @@
 
 #include "wimagebuffer_t.h"
 #include "wimage_util.h"
+#include "wpixel.h"
 #include <QRect>
 #include <QSize>
 #include <ippi.h>
@@ -15,6 +16,9 @@ class WConstImageT
 	WConstImageT(); // cannot use thi ctor
 public:
 	typedef const WImageBufferT<T,C> ImageType;
+	typedef WPixelValue<T,C> PixelValue;
+	typedef WPixelPosition<T,C> PixelPosition;
+
 	WConstImageT(const ImageType& _const_image,
 				 const QPoint& _topLeft)
 		: m_roi(_topLeft, QSize(0,0))

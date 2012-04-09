@@ -35,7 +35,7 @@ int main(int argc, char** argv)
 
 	MonoImage bufferD = bufferA;
 	// bufferA - 50
-	MonoImage::Processor::sub(bufferD, 50);
+	MonoImage::Processor::subValueFromImage(50, bufferD);
 
 	cout << "A" << endl << bufferA.matrix() << endl;
 	cout << "B" << endl << bufferB.matrix() << endl;

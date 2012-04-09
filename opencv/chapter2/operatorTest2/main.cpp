@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 		ColorImage image1(IMAGE_DIR "castle.jpg");
 
 		ColorImage result1 = image1;
-		ColorImage::Processor::logical_and(ColorImage::Value(255, 0, 0), result1);
+		ColorImage::Processor::logical_and(ColorImage::PixelValue(255, 0, 0), result1);
 		// test(image1, result1);
 
 		cv::namedWindow("image1");

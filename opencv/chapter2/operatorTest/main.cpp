@@ -19,26 +19,26 @@ int main(int argc, char** argv)
 
 	WStopWatch stopWatch;
 
-	ColorImage image1(IMAGE_DIR "tiger.jpg");
-	ColorImage image2 = image1;
-	ColorImage image3 = image1;
-	// test(image1, result1);
+	ColorBuffer imagebuffer1(IMAGE_DIR "tiger.jpg");
+	ColorBuffer imagebuffer2 = imagebuffer1;
+	ColorBuffer imagebuffer3 = imagebuffer1;
+	// test(imagebuffer1, result1);
 
-	ColorImage result1;
+	ColorBuffer result1;
 	const int count = 50;
 	double time1 = 0.;
 	for (int i = 0; i < count; ++i) {
-		result1.copyFrom(image1);
+		result1.copyFrom(imagebuffer1);
 		stopWatch.start();
-		result1 = (image1 + 100)*0.5;
+		result1 = (imagebuffer1 + 100)*0.5;
 		time1 += stopWatch.elapsedTime();
 	}
 	std::cout << "test1 : " << time1/count << "msec" << std::endl;
 
-	ColorImage result2;
+	ColorBuffer result2;
 	double time2 = 0.;
 	for (int i = 0; i < count; ++i) {
-		result2.copyFrom(image2);
+		result2.copyFrom(imagebuffer2);
 		stopWatch.start();
 		cv::add(result2, cv::Scalar::all(100), result2);
 		cv::multiply(result2, cv::Scalar::all(0.5), result2);
@@ -46,21 +46,22 @@ int main(int argc, char** argv)
 	}
 	std::cout << "test2 : " << time2/count << "msec" << std::endl;
 
-	ColorImage result3;
+	ColorBuffer result3;
 	double time3 = 0.;
 	for (int i = 0; i < count; ++i) {
-		result3.copyFrom(image3);
+		result3.copyFrom(imagebuffer3);
 		stopWatch.start();
-		ColorImage::Processor::add(result3, 100);
+		ColorBuffer::Processor::add(ColorBuffer::Processor::PixelValue(100,100,100), result3);
+		ColorBuffer::Processor::div(ColorBuffer::Processor::PixelValue(2,2,2), result3);
 		time3 += stopWatch.elapsedTime();
 	}
 	std::cout << "test3 : " << time3/count << "msec" << std::endl;
 
-	cv::namedWindow("image1");
+	cv::namedWindow("imagebuffer1");
 	cv::namedWindow("result1");
 	cv::namedWindow("result2");
 	cv::namedWindow("result3");
-	cv::imshow("image1", image1);
+	cv::imshow("imagebuffer1", imagebuffer1);
 	cv::imshow("result1", result1);
 	cv::imshow("result2", result2);
 	cv::imshow("result3", result3);
