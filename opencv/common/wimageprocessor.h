@@ -4,6 +4,7 @@
 #include "ippi+.hpp"
 #include "wlookuptable.h"
 #include "wpixel.h"
+#include "wippkernel.h"
 
 // hijacked from log4cxx.
 // see apache-log4cxx-x.y.z/src/main/include/log4cxx/spi/location/locationinfo.h
@@ -52,6 +53,9 @@ public:
 	typedef WPixelValue<T,C> PixelValue;
 	typedef WPixelPosition<T,C> PixelPosition;
 	typedef WPixelValue<double, C> RealValue;
+	typedef WIppIntKernel<1,3> IntKernel3x3;
+	typedef WIppIntKernel<1,5> IntKernel5x5;
+	// typedef WCvKernel CvKernel;
 	struct PixelValueRange
 	{
 		PixelValue min;
@@ -63,12 +67,16 @@ public:
 	static void add(In a, In b, Out c, int scaleFactor=0);
 	static void add(In a, InOut b, int scaleFactor=0);
 	static void add(const PixelValue& a, InOut b, int scaleFator=0);
+	static void addWeight(In a, In b, Out c
 	static void copy(In a, Out b);
 	static void copySubpixel(In a, Out b);
 	static void copySubpixelToFloatBuffer(In a, WImageT<float,1> b);
 	static void div(const PixelValue& a, InOut b, int scaleFactor=0);
 	static void div(In a, const PixelValue& b, Out c, int scaleFactor=0);
 	static void div(In a, In b, Out c, int scaleFactor=0);
+	static void filter(In a, const IntKernel3x3& b, Out c);
+	static void filter(In a, const IntKernel5x5& b, Out c);
+	// static void filter(In a, const CvKernel& b, Out c);
 	static void findMaxIntensity(In a, PixelPosition& value);
 	static void findMinIntensity(In a, PixelPosition& value);
 	static void ramp(Out c, float offset, float slope, Wf::Direction direction);

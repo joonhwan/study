@@ -60,7 +60,7 @@ public:
 	// ...
 	//
 	// 주의 : pixel wise하게 접근하는 경우, refcount확인 루틴이
-	// overhead. 이 경우를 위한 visitor pattern의 도입
+	// overhead.
 	cv::Mat* operator->()
 	{
 		return &d->m_buffer;

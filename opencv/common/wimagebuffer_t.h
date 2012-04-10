@@ -1,9 +1,10 @@
 #pragma once
 
-#include "wimagebuffer.h"
 #include "wconstimage_t.h"
 #include "wimage_t.h"
 #include "wimage_t_traits.h"
+#include "wimagebuffer.h"
+#include "wippkernel.h"
 #include "wpixel.h"
 
 class QRect;
@@ -29,6 +30,8 @@ public:
 	typedef WImageT<T,C> InOut;
 	typedef WPixelValue<T,C> PixelValue;
 	typedef WPixelPosition<T,C> PixelPosition;
+	typedef WIppIntKernel<1,3> IppKernel3x3;
+	typedef WIppIntKernel<1,5> IppKernel5x5;
 	typedef cv::Vec<T,C> Value;
 	WImageBufferT()
 	{
@@ -74,6 +77,7 @@ public:
 		(cv::Mat_<T>&)(this->matrix()) = expr;
 		return *this;
 	}
+	PixelValue pixel(int x, int y) const;
 	// ConstImage,Image,ImageInOut accessor creation operators
 	ConstImage from(const QPoint& topLeft) const
 	{

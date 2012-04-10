@@ -1,6 +1,7 @@
 #pragma once
 
 #include "wimagebuffer_t.h"
+#include "wippkernel.h"
 
 class QRect;
 

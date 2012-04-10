@@ -121,3 +121,36 @@ ASSIGN_DEPTH_CHANGE_OPENCV(float, uchar, 1)
 ASSIGN_DEPTH_CHANGE_OPENCV(float, ushort, 1)
 ASSIGN_DEPTH_CHANGE_OPENCV(float, uchar, 3)
 ASSIGN_DEPTH_CHANGE_OPENCV(float, ushort, 3)
+
+
+#define PIXEL_VALUE_C1(TYPE)											\
+	template<>															\
+	WImageBufferT<TYPE,1>::PixelValue WImageBufferT<TYPE,1>::pixel(int x, int y) const \
+	{																	\
+		const cv::Mat& mat = this->matrix();							\
+		WImageBufferT<TYPE,1>::PixelValue value(mat.at<TYPE>(y, x));								\
+		return value;													\
+	}
+
+PIXEL_VALUE_C1(uchar)
+PIXEL_VALUE_C1(ushort)
+PIXEL_VALUE_C1(short)
+PIXEL_VALUE_C1(float)
+
+#define PIXEL_VALUE_C3(TYPE)							\
+	template<>											\
+	WPixelValue<TYPE,3>									\
+	WImageBufferT<TYPE,3>::pixel(int _x, int y) const	\
+	{													\
+		int x = _x * 3;									\
+		const cv::Mat& mat = this->matrix();			\
+		PixelValue value(mat.at<TYPE>(y, x),			\
+						 mat.at<TYPE>(y, x+1),			\
+						 mat.at<TYPE>(y, x+2));			\
+		return value;									\
+	}
+
+PIXEL_VALUE_C3(uchar)
+PIXEL_VALUE_C3(ushort)
+PIXEL_VALUE_C3(short)
+PIXEL_VALUE_C3(float)

@@ -110,6 +110,33 @@ FUNC_IN_IN_OUT_SCALE(short, 3, div, Div)
 FUNC_IN_IN_OUT_SCALE(ushort, 3, div, Div)
 FUNC_IN_IN_OUT_SCALE(float, 3, div, Div)
 
+#define FILTER_IN_IKERNEL_OUT(TYPE,CHAN,N)								\
+	template<>															\
+	void WImageProcess<TYPE, CHAN>::									\
+	filter(In a, const IntKernel##N##x##N& b, Out c)					\
+	{																	\
+	    IPPIP::ippiFilter_C##CHAN##R									\
+			(a, a.step(),												\
+			 c, c.step(), c.ippRoiSize(),								\
+			 b, b.ippSize(), b.ippAnchor(), b.divisor());				\
+	}
+
+// static void filter(In a, const Kernel3x3& b, Out c);
+FILTER_IN_IKERNEL_OUT(uchar, 1, 3)
+FILTER_IN_IKERNEL_OUT(ushort, 1, 3)
+FILTER_IN_IKERNEL_OUT(short, 1, 3)
+FILTER_IN_IKERNEL_OUT(uchar, 3, 3)
+FILTER_IN_IKERNEL_OUT(ushort, 3, 3)
+FILTER_IN_IKERNEL_OUT(short, 3, 3)
+
+// static void filter(In a, const Kernel5x5& b, Out c);
+FILTER_IN_IKERNEL_OUT(uchar, 1, 5)
+FILTER_IN_IKERNEL_OUT(ushort, 1, 5)
+FILTER_IN_IKERNEL_OUT(short, 1, 5)
+FILTER_IN_IKERNEL_OUT(uchar, 3, 5)
+FILTER_IN_IKERNEL_OUT(ushort, 3, 5)
+FILTER_IN_IKERNEL_OUT(short, 3, 5)
+
 // static void findMaxIntensity(In a, PixelPosPosition& value);
 FUNC_IN_POS(uchar, 1, findMaxIntensity, MaxIndx)
 FUNC_IN_POS(ushort, 1, findMaxIntensity, MaxIndx)

@@ -16,6 +16,14 @@ struct WPixelValue
 	T& getDataRef() {
 		return data;
 	}
+	bool operator == (const WPixelValue<T,C>& rhs) const
+	{
+		return 0 == memcmp(data, rhs.data, sizeof (data));
+	}
+	bool operator != (const WPixelValue<T,C>& rhs) const
+	{
+		return 0 != memcmp(data, rhs.data, sizeof (data));
+	}
 };
 
 template<typename T>
@@ -34,6 +42,14 @@ struct WPixelValue<T,1>
 	}
 	T& getDataRef() {
 		return data;
+	}
+	bool operator == (const WPixelValue<T,1>& rhs) const
+	{
+		return data == rhs.data;
+	}
+	bool operator != (const WPixelValue<T,1>& rhs) const
+	{
+		return data != rhs.data;
 	}
 };
 
@@ -60,6 +76,22 @@ struct WPixelValue<T,3>
 	}
 	const PixelValueArray& getDataRef() const {
 		return data;
+	}
+	bool operator == (const WPixelValue<T,3>& rhs) const
+	{
+		return data[0] == rhs.data[0]
+			&& data[1] == rhs.data[1]
+			&& data[2] == rhs.data[2];
+	}
+	bool operator != (const WPixelValue<T,3>& rhs) const
+	{
+		return !(*this==rhs);
+	}
+	void getValue(T& v0, T& v1, T& v2) const
+	{
+		v0 = data[0];
+		v1 = data[1];
+		v2 = data[2];
 	}
 };
 
