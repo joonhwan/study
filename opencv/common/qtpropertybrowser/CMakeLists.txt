@@ -84,8 +84,8 @@ set(${PROJECT_NAME}_MOC_H_INCLUDED_BY_SOURCE
 set(${PROJECT_NAME}_MOC_CPP_INCLUDED_BY_SOURCE "")
 foreach(moc_from_cpp ${${PROJECT_NAME}_MOC_H_INCLUDED_BY_SOURCE})
   get_filename_component(moc_from_cpp_filetitle ${moc_from_cpp} NAME_WE)
-  set(target_moc_name "${moc_from_cpp_filetitle}.moc")
-  # message("generating ${target_moc_name}")
+  set(target_moc_name "moc_${moc_from_cpp_filetitle}.cpp")
+  message("generating ${target_moc_name}")
   qt4_generate_moc(${moc_from_cpp} ${target_moc_name})
   set(${PROJECT_NAME}_MOC_CPP_INCLUDED_BY_SOURCE ${${PROJECT_NAME}_MOC_CPP_INCLUDED_BY_SOURCE} ${target_moc_name})
 endforeach(moc_from_cpp)
@@ -103,17 +103,21 @@ set(${PROJECT_NAME}_CPP_WITH_MOC
 set(${PROJECT_NAME}_MOC_FROM_CPP "")
 foreach(moc_from_cpp ${${PROJECT_NAME}_CPP_WITH_MOC})
   get_filename_component(moc_from_cpp_filetitle ${moc_from_cpp} NAME_WE)
-  set(target_moc_name "moc_${moc_from_cpp_filetitle}.cpp")
-  # message("generating ${target_moc_name}")
+  set(target_moc_name "${moc_from_cpp_filetitle}.moc")
+  message("generating ${target_moc_name}")
   qt4_generate_moc(${moc_from_cpp} ${target_moc_name})
   set(${PROJECT_NAME}_MOC_FROM_CPP ${${PROJECT_NAME}_MOC_FROM_CPP} ${target_moc_name})
 endforeach(moc_from_cpp)
 
 # not to re-include source file to be compiled
-set_source_files_properties(${${PROJECT_NAME}_MOC_FROM_CPP}
+set_source_files_properties(${${PROJECT_NAME}_MOC_CPP_INCLUDED_BY_SOURCE}
   PROPERTIES
   HEADER_FILE_ONLY ON
   )
+# set_source_files_properties(${${PROJECT_NAME}_MOC_FROM_CPP}
+#   PROPERTIES
+#   HEADER_FILE_ONLY ON
+#   )
 
 qt4_wrap_cpp(${PROJECT_NAME}_MOC_CPP ${${PROJECT_NAME}_MOC_H})
 qt4_add_resources(${PROJECT_NAME}_QRC_CPP ${${PROJECT_NAME}_QRC})

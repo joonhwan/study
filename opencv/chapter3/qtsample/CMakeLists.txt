@@ -12,11 +12,13 @@ SET(sources
   ColorDetector.cpp
   ColorIcon.cpp
   MainWindow.cpp
+  PropertyManager.cpp
   )
 
 SET(moc_header
   ColorDetector.h
   MainWindow.h
+  PropertyManager.h
   )
 
 SET(header

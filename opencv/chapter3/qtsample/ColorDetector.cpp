@@ -2,8 +2,12 @@
 #include <math.h>
 
 ColorDetector::ColorDetector(QObject* parent)
-	: QObject(parent)
+	: PropertyManager(parent)
+	, m_targetColor(tr("Target Color"), ColorPixel(0,255,0))
+	, m_threshold(tr("Threshold"), 100, 0, 10000)
 {
+	addProperty(m_threshold);
+	addProperty(m_targetColor);
 }
 
 //virtual
@@ -45,7 +49,7 @@ void ColorDetector::setTargetColor(const ColorPixel& targetColor)
 
 QColor ColorDetector::targetColor() const
 {
-	return m_targetColor.toQColor();
+	return m_targetColor.value().toQColor();
 }
 
 int ColorDetector::threshold() const
@@ -73,13 +77,6 @@ const MonoBuffer& ColorDetector::process(ColorBuffer& image)
 	return m_outBuffer;
 }
 
-void ColorDetector::process()
-{
-	if (m_inBuffer.isValid()) {
-		process(m_inBuffer);
-	}
-}
-
 void ColorDetector::setThreshold(int threshold)
 {
 	if (m_threshold != threshold) {
@@ -92,7 +89,7 @@ void ColorDetector::setThreshold(int threshold)
 
 void ColorDetector::setTargetColor(const QColor& targetColor)
 {
-	if (m_targetColor.toQColor() != targetColor) {
+	if (m_targetColor.value().toQColor() != targetColor) {
 		m_targetColor = targetColor;
 		emit targetColorChanged(targetColor);
 
@@ -100,10 +97,31 @@ void ColorDetector::setTargetColor(const QColor& targetColor)
 	}
 }
 
+void ColorDetector::process()
+{
+	if (m_inBuffer.isValid()) {
+		process(m_inBuffer);
+	}
+}
+
 int ColorDetector::getDistance(const ColorPixel& pixel) const
 {
 	return
-		abs(pixel.r() - m_targetColor.r())
-		+ abs(pixel.g() - m_targetColor.g())
-		+ abs(pixel.b() - m_targetColor.b());
+		abs(pixel.r() - m_targetColor.value().r())
+		+ abs(pixel.g() - m_targetColor.value().g())
+		+ abs(pixel.b() - m_targetColor.value().b());
+}
+
+//virtual
+void ColorDetector::onValueChanged(QtVariantProperty* property,
+								   void* id,
+								   const QVariant& variant)
+{
+	// addIntProperty(tr("Threshold"), m_threshold, 0, 1000);
+	// addColorProperty(tr("Target Color"), m_targetColor.toQColor());
+	if (id == &m_threshold) {
+		setThreshold(variant.value<int>());
+	} else if (id == &m_targetColor) {
+		setTargetColor(variant.value<QColor>());
+	}
 }

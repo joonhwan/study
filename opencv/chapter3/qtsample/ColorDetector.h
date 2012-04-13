@@ -1,9 +1,9 @@
 #pragma once
 
 #include "types.h"
-#include <QObject>
+#include "PropertyManager.h"
 
-class ColorDetector : public QObject
+class ColorDetector : public PropertyManager
 {
     Q_OBJECT
 public:
@@ -30,9 +30,12 @@ protected:
 	MonoBuffer m_outBuffer;
 
 	// parameter
-	ColorPixel m_targetColor;
-	int m_threshold;
+	Property<ColorPixel> m_targetColor;
+	Property<int> m_threshold;
 
+	virtual void onValueChanged(QtVariantProperty* property,
+								void* id,
+								const QVariant& value);
 	const MonoBuffer& process(ColorBuffer& image);
 	int getDistance(const ColorPixel& pixel) const;
 };

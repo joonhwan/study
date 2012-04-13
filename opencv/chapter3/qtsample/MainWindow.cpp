@@ -44,12 +44,16 @@ void MainWindow::createUi()
 	m_originalImageLabel = new QLabel;
 	m_processedImageLabel = new QLabel;
 
-	QVBoxLayout* leftLayout = new QVBoxLayout;
-	leftLayout->addWidget(m_openButton);
-	leftLayout->addWidget(m_selectColorButton);
-	leftLayout->addWidget(m_thresholdSlider);
-	leftLayout->addWidget(m_thresholdLabel);
-	leftLayout->addWidget(m_processButton);
+	QVBoxLayout* left1Layout = new QVBoxLayout;
+	left1Layout->addWidget(m_openButton);
+	left1Layout->addWidget(m_selectColorButton);
+	left1Layout->addWidget(m_thresholdSlider);
+	left1Layout->addWidget(m_thresholdLabel);
+	left1Layout->addWidget(m_processButton);
+
+	QHBoxLayout* leftLayout = new QHBoxLayout;
+	leftLayout->addLayout(left1Layout);
+	leftLayout->addWidget(m_colorDetector->createEditor(0));
 
 	QVBoxLayout* rightLayout = new QVBoxLayout;
 	rightLayout->addWidget(m_originalImageLabel);
