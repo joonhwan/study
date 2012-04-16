@@ -1,0 +1,5 @@
+ADD_SUBDIRECTORY(external)
+ADD_SUBDIRECTORY(framework)
+ADD_SUBDIRECTORY(common)
+ADD_SUBDIRECTORY(examples)
+
