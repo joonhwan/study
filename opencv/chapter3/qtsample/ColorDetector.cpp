@@ -2,7 +2,7 @@
 #include <math.h>
 
 ColorDetector::ColorDetector(QObject* parent)
-	: PropertyManager(parent)
+	: PropertyManager(tr("Color Detector"), parent)
 	, m_targetColor(tr("Target Color"), ColorPixel(0,255,0))
 	, m_threshold(tr("Threshold"), 100, 0, 10000)
 {

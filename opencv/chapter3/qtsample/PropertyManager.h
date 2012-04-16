@@ -11,7 +11,8 @@ class PropertyManager : public QObject
 {
     Q_OBJECT
 public:
-    PropertyManager(QObject* parent=0);
+    PropertyManager(const QString& title,
+					QObject* parent=0);
     virtual ~PropertyManager();
 
 	QtVariantProperty* addProperty(Property<int>& property);
@@ -24,9 +25,9 @@ protected:
 private slots:
 	void valueChanged(QtProperty *property, const QVariant &value);
 private:
+	QString m_title;
 	QtVariantPropertyManager* m_propertyManager;
 	QtVariantEditorFactory* m_propertyEditorFactory;
-
 	typedef QHash<QtProperty*, void*> QPropertyIdMap;
 	QPropertyIdMap m_idMap;
 };

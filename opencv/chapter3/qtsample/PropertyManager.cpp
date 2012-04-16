@@ -2,13 +2,17 @@
 #include "qtpropertybrowser/QtProperty"
 #include "qtpropertybrowser/QtVariantEditorFactory"
 #include "qtpropertybrowser/QtGroupBoxPropertyBrowser"
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QFrame>
 
-PropertyManager::PropertyManager(QObject* parent)
+PropertyManager::PropertyManager(const QString& title,
+								 QObject* parent)
 	: QObject(parent)
+	, m_title(title)
 {
 	m_propertyManager = new QtVariantPropertyManager(this);
 	m_propertyEditorFactory = new QtVariantEditorFactory(this);
-
 	connect(m_propertyManager, SIGNAL(valueChanged(QtProperty*,const QVariant&)),
 			SLOT(valueChanged(QtProperty*,const QVariant&)));
 }
@@ -66,7 +70,7 @@ QWidget* PropertyManager::createEditor(QWidget* parent)
 {
 	QSet<QtProperty*> properties = m_propertyManager->properties();
 
-	QtGroupBoxPropertyBrowser* editor = new QtGroupBoxPropertyBrowser(parent);
+	QtGroupBoxPropertyBrowser* editor = new QtGroupBoxPropertyBrowser(0);
 	editor->setFactoryForManager(m_propertyManager, m_propertyEditorFactory);
 
 	for (QPropertyIdMap::iterator it = m_idMap.begin(); it != m_idMap.end(); ++it) {
@@ -74,10 +78,19 @@ QWidget* PropertyManager::createEditor(QWidget* parent)
 		editor->addProperty(property);
 	}
 
-	return editor;
+	QFrame* widget = new QFrame;
+	widget->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	QVBoxLayout* layout = new QVBoxLayout;
+	layout->addWidget(new QLabel(m_title));
+	layout->addWidget(editor);
+	widget->setLayout(layout);
+
+	return widget;
 }
 
 void PropertyManager::valueChanged(QtProperty *property, const QVariant &value)
 {
-	onValueChanged((QtVariantProperty*)property, m_idMap[property], value);
+	if (m_idMap.contains(property)) {
+		onValueChanged((QtVariantProperty*)property, m_idMap[property], value);
+	}
 }
