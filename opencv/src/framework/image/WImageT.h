@@ -10,13 +10,13 @@ class WImageT : public WConstImageT<T,C>
 {
 	WImageT(); // cannot use this ctor
 public:
-	typedef WImageBufferT<T,C> ImageType;
-	WImageT(ImageType& _image, const QRect& _roi)
-		: WConstImageT<T,C>(_image, _roi)
+	typedef WImageBufferT<T,C> BufferType;
+	WImageT(BufferType& _image, const QRect& _roi)
+		: WConstImageT<T,C>(_image.matrix(), _roi)
 	{
 	}
-	WImageT(ImageType& _image)
-		: WConstImageT<T,C>(_image)
+	WImageT(BufferType& _image)
+		: WConstImageT<T,C>(_image.matrix())
 	{
 	}
 	operator T* ()

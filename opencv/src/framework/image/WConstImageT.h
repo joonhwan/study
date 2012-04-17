@@ -15,29 +15,29 @@ class WConstImageT
 {
 	WConstImageT(); // cannot use thi ctor
 public:
-	typedef const WImageBufferT<T,C> ImageType;
+	typedef const WImageBufferT<T,C> BufferType;
 	typedef WPixelValue<T,C> PixelValue;
 	typedef WPixelPosition<T,C> PixelPosition;
 
-	WConstImageT(const ImageType& _const_image,
+	WConstImageT(const BufferType& _const_buffer,
 				 const QPoint& _topLeft)
 		: m_roi(_topLeft, QSize(0,0))
 		, m_roiTopLeftFractionalPart(0,0)
 	{
-		const cv::Mat& mat = (const cv::Mat&)_const_image;
+		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_roi.setRight(mat.cols-1);
 		m_roi.setBottom(mat.rows-1);
 		m_matrix = mat(qRectToCvRect(m_roi));
 	}
-	WConstImageT(const ImageType& _const_image,
+	WConstImageT(const BufferType& _const_buffer,
 				 const QRect& roi)
 		: m_roi(roi)
 		, m_roiTopLeftFractionalPart(0,0)
 	{
-		const cv::Mat& mat = (const cv::Mat&)_const_image;
+		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_matrix = mat(qRectToCvRect(m_roi));
 	}
-	WConstImageT(const ImageType& _const_image,
+	WConstImageT(const BufferType& _const_buffer,
 				 const QPointF& topLeftF,
 				 const QSize& size)
 	{
@@ -46,16 +46,28 @@ public:
 		m_roi = QRect(topLeft, size);
 		m_roiTopLeftFractionalPart = topLeftF - topLeft;
 
-		const cv::Mat& mat = (const cv::Mat&)_const_image;
+		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_matrix = mat(qRectToCvRect(m_roi));
 	}
-	WConstImageT(const ImageType& _const_image)
+	WConstImageT(const BufferType& _const_buffer)
 		: m_roiTopLeftFractionalPart(0,0)
 	{
 		// full roi
-		const cv::Mat& mat = (const cv::Mat&)_const_image;
+		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_roi = QRect(0,0,mat.cols,mat.rows);
 		m_matrix = mat(qRectToCvRect(m_roi));
+	}
+	WConstImageT(cv::Mat& matrix, const QRect& roi)
+		: m_roi(roi)
+		, m_roiTopLeftFractionalPart(0,0)
+	{
+		m_matrix = matrix(qRectToCvRect(roi));
+	}
+	WConstImageT(cv::Mat& matrix)
+		: m_matrix(matrix)
+		, m_roiTopLeftFractionalPart(0,0)
+	{
+		m_roi = QRect(0,0,m_matrix.cols,m_matrix.rows);
 	}
 	cv::Mat matrix(int width, int height) const
 	{

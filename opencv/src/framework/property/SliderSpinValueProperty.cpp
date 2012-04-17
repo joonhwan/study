@@ -5,6 +5,7 @@
 #include <QSpinBox>
 #include <QSlider>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 
 // Set a hard coded left margin to account for the indentation
 // of the tree view icon when switching to an editor
@@ -39,7 +40,7 @@ SliderSpinValueEditWidget::SliderSpinValueEditWidget(QWidget *parent)
     connect(m_slider, SIGNAL(valueChanged(int)), SLOT(setValue(int)));
 	connect(m_spinBox, SIGNAL(valueChanged(int)), SLOT(setValue(int)));
 
-	QVBoxLayout *layout = new QVBoxLayout;
+	QHBoxLayout *layout = new QHBoxLayout;
     setupTreeViewEditorMargin(layout);
     layout->setSpacing(0);
     layout->addWidget(m_slider);

@@ -48,8 +48,11 @@ int main(int argc, char** argv)
 		float delta = 20;
 		float fraction = 0.;
 		QPointF topLeft(delta+fraction,delta+fraction);
+		QSize adjust(delta+fraction,delta+fraction);
+		size -= adjust;
+		MonoImage::Processor::set(MonoImage::PixelValue(0), output1);
 		MonoImage::Processor::copySubpixel(monoImage1.from(topLeft, size),
-										   output1.to(QRect(QPoint(0,0), size)));
+										   output1.to(0,0, size));
 
 		cv::Point2f center = monoImage1.centerCv();
 		center.x += (delta+fraction);
