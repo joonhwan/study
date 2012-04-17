@@ -1,4 +1,5 @@
 #include "PropertyManager.h"
+#include "PlainColorProperty.h"
 #include "qtpropertybrowser/QtProperty"
 #include "qtpropertybrowser/QtVariantEditorFactory"
 #include "qtpropertybrowser/QtGroupBoxPropertyBrowser"
@@ -7,64 +8,81 @@
 #include <QFrame>
 
 PropertyManager::PropertyManager(const QString& title,
+								 PropertySystem* propertySystem,
 								 QObject* parent)
 	: QObject(parent)
 	, m_title(title)
+	, m_system(propertySystem)
+	, m_systemAttached(propertySystem ? true : false)
 {
-	m_propertyManager = new QtVariantPropertyManager(this);
-	m_propertyEditorFactory = new QtVariantEditorFactory(this);
-	connect(m_propertyManager, SIGNAL(valueChanged(QtProperty*,const QVariant&)),
-			SLOT(valueChanged(QtProperty*,const QVariant&)));
+	if (!m_system) {
+		m_system = createDefaultSystem();
+	}
+	Q_ASSERT(m_system);
 }
 
 //virtual
 PropertyManager::~PropertyManager()
 {
+	// TODO notify of destruction to any pre-created editor widget
+
+	// remove properies
+	m_system->unmapProperty(this);
+
+	if (!m_systemAttached) {
+		delete m_system;
+		m_system = 0;
+	}
 }
 
-QtVariantProperty* PropertyManager::addProperty(RangedProperty<int>& prop)
+QtProperty* PropertyManager::addProperty(RangedProperty<int>& prop)
 {
-	QtVariantProperty* qtProperty = m_propertyManager->addProperty(QVariant::Int, prop.name());
+	QtProperty* qtProperty = m_system->intManager->addProperty(prop.name());
 	if (qtProperty) {
-		qtProperty->setAttribute(QLatin1String("minimum"), prop.min());
-		qtProperty->setAttribute(QLatin1String("maximum"), prop.max());
-		qtProperty->setValue(prop.value());
-		m_idMap[qtProperty] = prop.key();
+		m_system->intManager->setMinimum(qtProperty, prop.min());
+		m_system->intManager->setMaximum(qtProperty, prop.max());
+		m_system->intManager->setValue(qtProperty, prop.value());
+		// prop->setToolTip(prop.tooltip())
+		// prop->setPropertyName(prop.name())
+
+		m_system->mapProperty(this, prop.id(), qtProperty);
 	}
 	return qtProperty;
 }
 
-QtVariantProperty* PropertyManager::addProperty(RangedProperty<double>& prop)
+QtProperty* PropertyManager::addProperty(RangedProperty<double>& prop)
 {
-	QtVariantProperty* qtProperty = m_propertyManager->addProperty(QVariant::Double, prop.name());
+	QtProperty* qtProperty = m_system->doubleManager->addProperty(prop.name());
 	if (qtProperty) {
-		qtProperty->setAttribute(QLatin1String("minimum"), prop.min());
-		qtProperty->setAttribute(QLatin1String("maximum"), prop.max());
-		qtProperty->setValue(prop.value());
-		m_idMap[qtProperty] = prop.key();
+		m_system->doubleManager->setMinimum(qtProperty, prop.min());
+		m_system->doubleManager->setMaximum(qtProperty, prop.max());
+		m_system->doubleManager->setValue(qtProperty, prop.value());
+
+		m_system->mapProperty(this, prop.id(), qtProperty);
 	}
 	return qtProperty;
 }
 
-QtVariantProperty* PropertyManager::addProperty(SimpleProperty<QColor>& prop)
+QtProperty* PropertyManager::addProperty(SimpleProperty<QColor>& prop)
 {
-	QtVariantProperty* qtProperty = m_propertyManager->addProperty(QVariant::Color, prop.name());
+	QtProperty* qtProperty = m_system->colorManager->addProperty(prop.name());
 	if (qtProperty) {
-		qtProperty->setValue(prop.value());
-		m_idMap[qtProperty] = prop.key();
+		m_system->colorManager->setValue(qtProperty, prop.value());
+
+		m_system->mapProperty(this, prop.id(), qtProperty);
 	}
 	return qtProperty;
 }
 
 QWidget* PropertyManager::createEditor(QWidget* parent)
 {
-	QSet<QtProperty*> properties = m_propertyManager->properties();
-
 	QtGroupBoxPropertyBrowser* editor = new QtGroupBoxPropertyBrowser(0);
-	editor->setFactoryForManager(m_propertyManager, m_propertyEditorFactory);
+	m_system->prepareEditor(editor);
 
-	for (QPropertyIdMap::iterator it = m_idMap.begin(); it != m_idMap.end(); ++it) {
-		QtVariantProperty* prop = (QtVariantProperty*)it.key();
+	QList<QtProperty*> myProperties = m_system->propertiesOf(this);
+	QListIterator<QtProperty*> it(myProperties);
+	while (it.hasNext()) {
+		QtProperty* prop = it.next();
 		editor->addProperty(prop);
 	}
 
@@ -78,9 +96,26 @@ QWidget* PropertyManager::createEditor(QWidget* parent)
 	return widget;
 }
 
-void PropertyManager::valueChanged(QtProperty *prop, const QVariant &value)
+//virtual
+PropertySystem* PropertyManager::createDefaultSystem() const
 {
-	if (m_idMap.contains(prop)) {
-		onValueChanged((QtVariantProperty*)prop, m_idMap[prop], value);
-	}
+	return new PropertySystem;
 }
+
+// void PropertyManager::valueChanged(QtProperty *prop, const QVariant &value)
+// {
+// 	if (m_idMap.contains(prop)) {
+// 		onValueChanged((QtProperty*)prop, m_idMap[prop], value);
+// 	}
+// }
+
+// void PropertyManager::forgetEditor(QObject* maybeEditor)
+// {
+// 	if (QtAbstractPropertyBrowser* editor =
+// 		qobject_cast<QtAbstractPropertyBrowser*>(maybeEditor))
+// 	{
+// 		if (m_createdEditors.contains(editor)) {
+// 			m_createdEditors.remove(editor);
+// 		}
+// 	}
+// }

@@ -6,16 +6,23 @@ INCLUDE(${QT_USE_FILE})
 
 SET(sources
   PropertyManager.cpp
+  PropertySystem.cpp
+  PlainColorProperty.cpp
+  SliderSpinValueProperty.cpp
   )
 
 SET(moc_header
   PropertyManager.h
+  PropertySystem.h
+  PlainColorProperty.h
+  SliderSpinValueProperty.h
   )
 
 SET(header
   PropertyBase.h
   RangedProperty.h
   SimpleProperty.h
+  SliderSpinEditor.h
   )
 
 SET(forms

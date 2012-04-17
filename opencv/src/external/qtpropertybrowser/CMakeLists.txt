@@ -91,13 +91,13 @@ foreach(moc_from_cpp ${${PROJECT_NAME}_MOC_H_INCLUDED_BY_SOURCE})
 endforeach(moc_from_cpp)
 
 set(${PROJECT_NAME}_CPP_WITH_MOC
-  # qtbuttonpropertybrowser.cpp
+  qtbuttonpropertybrowser.cpp
   qteditorfactory.cpp
-  # qtgroupboxpropertybrowser.cpp
-  # qtpropertybrowser.cpp
+  qtgroupboxpropertybrowser.cpp
+  qtpropertybrowser.cpp
   qtpropertymanager.cpp
   qttreepropertybrowser.cpp
-  # qtvariantproperty.cpp
+  qtvariantproperty.cpp
   )
 
 set(${PROJECT_NAME}_MOC_FROM_CPP "")

@@ -1,10 +1,13 @@
 #include "ColorDetector.h"
+#include "AlgoPropertySystem.h"
+
 #include <math.h>
 
-ColorDetector::ColorDetector(QObject* parent)
-	: AlgoPropertyManager(tr("Color Detector"), parent)
+ColorDetector::ColorDetector(AlgoPropertySystem* system,
+							 QObject* parent)
+	: AlgoPropertyManager(tr("Color Detector"), system, parent)
 	, m_targetColor(tr("Target Color"), ColorPixel(0,255,0))
-	, m_threshold(tr("Threshold"), 100, 0, 10000)
+	, m_threshold(tr("Threshold"), 100, 0, 1000)
 {
 	addProperty(m_targetColor);
 	addProperty(m_threshold);
@@ -113,15 +116,15 @@ int ColorDetector::getDistance(const ColorPixel& pixel) const
 }
 
 //virtual
-void ColorDetector::onValueChanged(QtVariantProperty* property,
+void ColorDetector::onValueChanged(QtProperty* property,
 								   void* id,
 								   const QVariant& variant)
 {
 	// addIntProperty(tr("Threshold"), m_threshold, 0, 1000);
 	// addColorProperty(tr("Target Color"), m_targetColor.toQColor());
-	if (id == &m_threshold) {
+	if (id == m_threshold.id()) {
 		setThreshold(variant.value<int>());
-	} else if (id == &m_targetColor) {
+	} else if (id == m_targetColor.id()) {
 		setTargetColor(variant.value<QColor>());
 	}
 }

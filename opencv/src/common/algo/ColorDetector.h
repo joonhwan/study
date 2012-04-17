@@ -3,12 +3,17 @@
 #include "algo/AlgoTypes.h"
 #include "algo/AlgoPropertyManager.h"
 
+class AlgoPropertySystem;
+
 class ColorDetector : public AlgoPropertyManager
 {
     Q_OBJECT
 public:
-    ColorDetector(QObject* parent=0);
+    ColorDetector(AlgoPropertySystem* system, QObject* parent=0);
     virtual ~ColorDetector();
+	virtual void onValueChanged(QtProperty* property,
+								void* id,
+								const QVariant& value);
 	void setImage(ColorBuffer& imageBuffer);
 	bool setImageFile(const QString& fileNamePath);
 	void setTargetColor(const ColorPixel& targetColor);
@@ -32,10 +37,6 @@ protected:
 	// parameter
 	SimpleProperty<ColorPixel> m_targetColor;
 	RangedProperty<int> m_threshold;
-
-	virtual void onValueChanged(QtVariantProperty* property,
-								void* id,
-								const QVariant& value);
 	const MonoBuffer& process(ColorBuffer& image);
 	int getDistance(const ColorPixel& pixel) const;
 };

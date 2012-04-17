@@ -12,7 +12,7 @@ public:
 		, m_value(value)
 	{
 	}
-	void* key() {
+	void* id() {
 		return this;
 	}
 	const T& value() const {

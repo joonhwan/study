@@ -6,11 +6,13 @@ INCLUDE(${QT_USE_FILE})
 
 SET(sources
   AlgoPropertyManager.cpp
+  AlgoPropertySystem.cpp
   ColorDetector.cpp
   )
 
 SET(moc_header
   AlgoPropertyManager.h
+  AlgoPropertySystem.h
   ColorDetector.h
   )
 

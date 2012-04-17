@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "algo/ColorDetector.h"
+#include "algo/AlgoPropertySystem.h"
 #include "ColorIcon.h"
 
 #include <QColorDialog>
@@ -15,7 +16,8 @@
 
 MainWindow::MainWindow(QObject* parent)
 {
-	m_colorDetector = new ColorDetector(this);
+	m_propertySystem = new AlgoPropertySystem(this);
+	m_colorDetector = new ColorDetector(m_propertySystem, this);
 	m_colorIcon = new ColorIcon(10,10,QColor(0,200,0));
 	createUi();
 	createConnection();
@@ -31,6 +33,7 @@ MainWindow::~MainWindow()
 
 	delete m_colorIcon;
 	delete m_colorDetector;
+	delete m_propertySystem;
 }
 
 void MainWindow::createUi()

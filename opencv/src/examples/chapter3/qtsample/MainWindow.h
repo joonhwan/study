@@ -28,6 +28,7 @@ protected:
 	QLabel* m_originalImageLabel;
 	QLabel* m_processedImageLabel;
 
+	class AlgoPropertySystem* m_propertySystem;
 	ColorDetector* m_colorDetector;
 	QImage* m_targetColorIcon;
 	QString m_lastDirectoryName;
