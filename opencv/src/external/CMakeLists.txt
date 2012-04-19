@@ -1,1 +1,2 @@
 ADD_SUBDIRECTORY(qtpropertybrowser)
+ADD_SUBDIRECTORY(qwt)

@@ -39,8 +39,8 @@ QtProperty* PropertyManager::addProperty(RangedProperty<int>& prop)
 {
 	QtProperty* qtProperty = m_system->intManager->addProperty(prop.name());
 	if (qtProperty) {
-		m_system->intManager->setMinimum(qtProperty, prop.min());
-		m_system->intManager->setMaximum(qtProperty, prop.max());
+		m_system->intManager->setMinimum(qtProperty, prop.valueMaxLimit());
+		m_system->intManager->setMaximum(qtProperty, prop.valueMaxLimit());
 		m_system->intManager->setValue(qtProperty, prop.value());
 		// prop->setToolTip(prop.tooltip())
 		// prop->setPropertyName(prop.name())
@@ -54,8 +54,8 @@ QtProperty* PropertyManager::addProperty(RangedProperty<double>& prop)
 {
 	QtProperty* qtProperty = m_system->doubleManager->addProperty(prop.name());
 	if (qtProperty) {
-		m_system->doubleManager->setMinimum(qtProperty, prop.min());
-		m_system->doubleManager->setMaximum(qtProperty, prop.max());
+		m_system->doubleManager->setMinimum(qtProperty, prop.valueMaxLimit());
+		m_system->doubleManager->setMaximum(qtProperty, prop.valueMaxLimit());
 		m_system->doubleManager->setValue(qtProperty, prop.value());
 
 		m_system->mapProperty(this, prop.id(), qtProperty);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "property/propertybase.h"
+#include "property/PropertyBase.h"
 
 template<typename T>
 class RangedProperty : public PropertyBase<T>
@@ -8,22 +8,22 @@ class RangedProperty : public PropertyBase<T>
 public:
     RangedProperty(const QString& name,
 				   const T& value,
-				   T min,
-				   T max)
+				   T valueMinLimit,
+				   T valueMaxLimit)
 		: PropertyBase<T>(name, value)
-		, m_min(min)
-		, m_max(max)
+		, m_valueMinLimit(valueMinLimit)
+		, m_valueMaxLimit(valueMaxLimit)
 	{
 	}
-	const T& max() const {
-		return m_max;
+	const T& valueMaxLimit() const {
+		return m_valueMaxLimit;
 	}
-	const T& min() const {
-		return m_min;
+	const T& valueMinLimit() const {
+		return m_valueMinLimit;
 	}
 	bool isValid() const {
-		return (m_value <= m_max)
-			&& (m_value >= m_min);
+		return (m_value <= m_valueMaxLimit)
+			&& (m_value >= m_valueMinLimit);
 	}
 	RangedProperty<T>& operator = (const T& rhs)
 	{
@@ -31,6 +31,6 @@ public:
 		return *this;
 	}
 protected:
-	T m_min;
-	T m_max;
+	T m_valueMinLimit;
+	T m_valueMaxLimit;
 };
