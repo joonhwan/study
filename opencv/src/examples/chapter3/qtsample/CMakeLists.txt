@@ -52,6 +52,6 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME}
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
   # COMPILE_DEFINITIONS _AFXDLL,UNICODE
-  FOLDER "examples"
+  FOLDER "examples/chapter3"
   )
 

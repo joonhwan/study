@@ -1,29 +1,11 @@
 #pragma once
 
+#include "image/WImageGlobal.h"
 #include "image/WImageT.h"
 #include "image/WLookupTable.h"
 #include "image/wpixel.h"
 #include "image/WIppKernel.h"
-
-// hijacked from log4cxx.
-// see apache-log4cxx-x.y.z/src/main/include/log4cxx/spi/location/locationinfo.h
-#if !defined(WLOG_LOCATION)
-#if defined(_MSC_VER)
-#if _MSC_VER >= 1300
-#define __WLOG_FUNC__ __FUNCSIG__
-#endif
-#else
-#if defined(__GNUC__)
-#define __WLOG_FUNC__ __PRETTY_FUNCTION__
-#endif
-#endif
-#if !defined(__WLOG_FUNC__)
-#define __WLOG_FUNC__ ""
-#endif
-#define WLOG_LOCATION __FILE__,__WLOG_FUNC__,__LINE__
-#endif
-
-class WImageHistogram;
+#include "image/WHistogram.h"
 
 namespace Wf {
 
@@ -33,6 +15,7 @@ enum LutMode
 	Linear,
 	Cubic,
 };
+
 enum Direction
 {
 	Horizontal = 0,
@@ -47,7 +30,16 @@ enum RoundMode
 	RoundAccurate,
 };
 
-} // namespace wf
+enum InterpolationMode
+{
+	InterNearest = 0,
+	InterLinear,
+	InterCubic,
+	InterSuper,
+	InterLanczos,
+}; // namespace wf
+
+};
 
 template<typename T, int C>
 class WImageProcess
@@ -62,12 +54,13 @@ public:
 	typedef WPixelValue<double, C> RealValue;
 	typedef WIppIntKernel<1,3> IntKernel3x3;
 	typedef WIppIntKernel<1,5> IntKernel5x5;
-	// typedef WCvKernel CvKernel;
+
 	struct PixelValueRange
 	{
 		PixelValue min;
 		PixelValue max;
 	};
+	// typedef WCvKernel CvKernel;
 	static void abs(InOut a);
 	static void abs(In a, Out b);
 	static void absDiff(In a, In b, Out c);
@@ -85,6 +78,9 @@ public:
 	// static void filter(In a, const CvKernel& b, Out c);
 	static void findMaxIntensity(In a, PixelPosition& value);
 	static void findMinIntensity(In a, PixelPosition& value);
+    static void calculateHistogram(In a, IppHistogramParameter<C>& parameter, WHistogramResult<int, C>& result);
+	// static void calculateHistogram(In a, CvHistogramParameter<C>& parameter, CvHistogramResult& result);
+	// static void calculateHistogram(In a, HistogramParameter& parameter, FloatHistogramResult& result);
 	static void ramp(Out c, float offset, float slope, Wf::Direction direction);
 	static void lut(InOut a, const LutData& data, Wf::LutMode mode=Linear);
 	static void lut(In a, Out b, const LutData& data, Wf::LutMode mode=Linear);
@@ -104,6 +100,7 @@ public:
 	static void mul(const PixelValue& a, InOut b, int scaleFactor=0);
 	static void mul(In a, const PixelValue& b, Out c, int scaleFactor=0);
 	static void mul(In a, In b, Out c, int scaleFactor=0);
+	static void resize(In a, Out c, Wf::InterpolationMode mode=Wf::InterLinear);
 	static void set(const PixelValue& a, Out b);
 	static void sqr(In a, Out b, int scaleFactor=0);
 	static void sqr(InOut a, int scaleFactor=0);

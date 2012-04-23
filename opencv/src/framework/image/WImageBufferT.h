@@ -39,6 +39,10 @@ public:
 	WImageBufferT()
 	{
 	}
+	WImageBufferT(const cv::Mat& matrix)
+		: WImageBuffer(matrix)
+	{
+	}
 	WImageBufferT(const QString& filePathName)
 	{
 		loadFromFile(filePathName);

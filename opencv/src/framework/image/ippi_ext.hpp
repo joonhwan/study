@@ -6,6 +6,7 @@
 #pragma warning(pop)
 
 #include <ippcv.h>
+#include <QtGlobal>
 
 #ifdef __cplusplus
 

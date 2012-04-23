@@ -3,11 +3,11 @@
 #include "algo/AlgoTypes.h"
 #include "algo/AlgoPropertyManager.h"
 
-class Histogram : public AlgoPropertyManager
+class ColorHistogram : public AlgoPropertyManager
 {
     Q_OBJECT
 public:
-    Histogram(AlgoPropertySystem* system,
+    ColorHistogram(AlgoPropertySystem* system,
 			  QObject* parent=0);
     virtual ~Histogram();
 	virtual void onValueChanged(QtProperty* property,
@@ -16,6 +16,6 @@ public:
 signals:
 public slots:
 protected:
-	RangedProperty<int> m_minLevel;
-	RangedProperty<int> m_maxLevel;
+	RangedProperty<int> m_channel;
+	ColorBuffer m_buffer
 };

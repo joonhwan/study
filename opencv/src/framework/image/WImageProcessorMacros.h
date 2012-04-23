@@ -9,7 +9,7 @@
 // RANGE : Non-Constant Pixel Range(min/max pixel value)
 // DIR : Direction info(Horizontal, Vertical, Both)
 // REAL : Non-Constant Real Pixel Value(double or 64bit-real pixel value)
-
+// INTER : Interpolcation Mode
 #define FUNC_IN_VALUE(TYPE,CHAN,MEMBER_NAME,IPP_NAME)	\
 	template<>											\
 	void WImageProcess<TYPE,CHAN>::						\
@@ -41,6 +41,16 @@
 			 c, c.step(), c.ippRoiSize(),						\
 			 scaleFactor);										\
 	}
+
+#define FUNC_IN_OUT_INTER_CVRESIZE(TYPE,CHAN,MEMBER_NAME)				\
+	template<> void														\
+	WImageProcess<TYPE,CHAN>::MEMBER_NAME(In a, Out b,					\
+										  Wf::InterpolationMode mode)	\
+	{																	\
+		cv::resize(a, b,												\
+				   qSizeToCvSize(b.roiSize()),							\
+				   interpolationMode2Cv(mode));							\
+	}																	\
 
 #define FUNC_IN_OUT(TYPE,CHAN,MEMBER_NAME,IPP_NAME)			\
 	template<>												\

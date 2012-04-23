@@ -15,6 +15,10 @@ class WConstImageT
 {
 	WConstImageT(); // cannot use thi ctor
 public:
+	enum {
+		Channels = C
+	};
+	typedef T DataType;
 	typedef const WImageBufferT<T,C> BufferType;
 	typedef WPixelValue<T,C> PixelValue;
 	typedef WPixelPosition<T,C> PixelPosition;

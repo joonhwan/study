@@ -20,8 +20,8 @@ AlgoPropertyManager::addProperty(RangedProperty<int>& prop)
 {
 	QtProperty* qtProperty = m_system->sliderSpinManager->addProperty(prop.name());
 	if (qtProperty) {
-		m_system->sliderSpinManager->setMinimum(qtProperty, prop.min());
-		m_system->sliderSpinManager->setMaximum(qtProperty, prop.max());
+		m_system->sliderSpinManager->setMinimum(qtProperty, prop.valueMinLimit());
+		m_system->sliderSpinManager->setMaximum(qtProperty, prop.valueMaxLimit());
 		m_system->sliderSpinManager->setValue(qtProperty, prop.value());
 		// prop->setToolTip(prop.tooltip())
 		// prop->setPropertyName(prop.name())

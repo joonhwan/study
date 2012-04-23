@@ -36,6 +36,26 @@ IppRoundMode RoundMode2IppRoundMode(Wf::RoundMode mode)
 	}
 }
 
+int interpolationMode2Cv(Wf::InterpolationMode mode)
+{
+	switch (mode)
+	{
+	case Wf::InterNearest:
+		return cv::INTER_NEAREST;
+	case Wf::InterLinear:
+		return cv::INTER_LINEAR;
+	case Wf::InterCubic:
+		return cv::INTER_CUBIC;
+	case Wf::InterSuper:
+		return cv::INTER_AREA;
+	case Wf::InterLanczos:
+		return cv::INTER_LANCZOS4;
+	default:
+		Q_ASSERT(FALSE);
+		return cv::INTER_LINEAR;
+	}
+}
+
 } // nonamed namespace
 
 // static void abs(InOut a)
@@ -172,6 +192,24 @@ FUNC_IN_POS(uchar, 3, findMinIntensity, MinIndx)
 FUNC_IN_POS(ushort, 3, findMinIntensity, MinIndx)
 FUNC_IN_POS(short, 3, findMinIntensity, MinIndx)
 FUNC_IN_POS(float, 3, findMinIntensity, MinIndx)
+
+// static void calculateHistogram(In a, HistogramParameter& parameter, IntHistogramResult& result);
+template<>
+void WImageProcess<uchar, 3>::calculateHistogram(In a,
+												 IppHistogramParameter<3>& parameter,
+												 WHistogramResult<int, 3>& result)
+{
+	result.resize(parameter.levelsCount());
+
+	WImageBufferT<uchar, 3> inBuffer(640,480);
+	WConstImageT<uchar, 3> inImage = inBuffer;
+	IppHistogramParameter<3> ippParam = parameter;
+
+	IPPIP::ippiHistogramRange_C3R(a, a.step(), a.ippRoiSize(),
+								  result.getDataRef(),
+								  ippParam.levels(),
+								  ippParam.levelsCount());
+}
 
 FUNC_RAMP(signed char, 1)
 FUNC_RAMP(uchar, 1)
@@ -347,6 +385,16 @@ FUNC_IN_IN_OUT_SCALE(uchar, 3, mul, Mul)
 FUNC_IN_IN_OUT_SCALE(short, 3, mul, Mul)
 FUNC_IN_IN_OUT_SCALE(ushort, 3, mul, Mul)
 FUNC_IN_IN_OUT_SCALE(float, 3, mul, Mul)
+
+// static void resize(In a, Out c)
+FUNC_IN_OUT_INTER_CVRESIZE(uchar, 1, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(short, 1, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(ushort, 1, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(float, 1, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(uchar, 3, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(short, 3, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(ushort, 3, resize)
+FUNC_IN_OUT_INTER_CVRESIZE(float, 3, resize)
 
 // static void set(const PixelValue& a, Out b);
 FUNC_CVALUE_OUT(uchar, 1, set, Set)

@@ -5,6 +5,7 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE(${QT_USE_FILE})
 
 SET(sources
+  WHistogram.cpp
   WImageBuffer.cpp
   WImageBufferT.cpp
   WImageProcessor.cpp
@@ -18,6 +19,7 @@ SET(header
   ippi_ext.hpp
   Vld.h
   WConstImageT.h
+  WHistogram.h
   WImageBuffer.h
   WImageBuffer.inl
   WImageBufferT.h
