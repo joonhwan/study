@@ -1,20 +1,25 @@
 #include "WImageViewer.h"
 #include "WImageViewerPixelItem.h"
-#include <QToolButton>
-#include <QSlider>
-#include <QHBoxLayout>
-#include <QGridLayout>
-#include <QGraphicsView>
-#include <QGraphicsScene>
+#include "WIntensityProfileWidget.h"
+#include "WCrossSplitter.h"
+
 #include <QDebug>
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QSlider>
+#include <QToolButton>
 #include <QtCore/qmath.h>
+#include <QScrollBar>
+#include <QSplitter>
 
 namespace {
 
 const int MAXZOOM = 500;
 
 }
-
 
 class WImageViewerGraphicsScene : public QGraphicsScene
 {
@@ -31,6 +36,41 @@ protected:
 		QGraphicsScene::drawBackground(painter, rect);
 		m_viewer->drawImage(painter, rect);
 	}
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
+	{
+		QGraphicsScene::mouseMoveEvent(mouseEvent);
+	}
+};
+
+class WImageViewerGraphicsView : public QGraphicsView
+{
+public:
+	WImageViewerGraphicsView(WImageViewer* viewer)
+		: QGraphicsView(viewer)
+		, m_viewer(viewer)
+	{
+	}
+protected:
+	WImageViewer* m_viewer;
+	virtual void scrollContentsBy(int dx, int dy)
+	{
+		QGraphicsView::scrollContentsBy(dx, dy);
+
+		QScrollBar* hb = this->horizontalScrollBar();
+		QScrollBar* vb = this->verticalScrollBar();
+		QPoint viewableTopLeft(hb->value(), vb->value());
+		QSize viewableSize = this->size() -
+							 QSize(vb->sizeHint().width(),
+								   hb->sizeHint().height()) -
+							 QSize(2*this->frameWidth(),
+								   2*this->frameWidth());
+		QRect _viewableRect(viewableTopLeft, viewableSize);
+
+		QPolygonF viewableRegion = mapToScene(_viewableRect);
+		QRectF viewableRect = viewableRegion.boundingRect();
+
+		m_viewer->updateProfile(viewableRect);
+	}
 };
 
 WImageViewer::WImageViewer(QWidget* parent)
@@ -40,7 +80,7 @@ WImageViewer::WImageViewer(QWidget* parent)
 
 	setFrameStyle(Sunken | StyledPanel);
 
-	m_graphicsView = new QGraphicsView(this);
+	m_graphicsView = new WImageViewerGraphicsView(this);
     m_graphicsView->setRenderHint(QPainter::Antialiasing, false);
     m_graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
     m_graphicsView->setOptimizationFlags(QGraphicsView::DontSavePainterState);
@@ -74,6 +114,8 @@ WImageViewer::WImageViewer(QWidget* parent)
     m_zoomSlider->setValue(MAXZOOM/2);
     m_zoomSlider->setTickPosition(QSlider::TicksRight);
 
+	m_horzProfile = new WIntensityProfileWidget;
+
 	connect(zoomInButton, SIGNAL(clicked()), SLOT(zoomIn()));
 	connect(zoomOutButton, SIGNAL(clicked()), SLOT(zoomOut()));
 	connect(m_zoomResetButton, SIGNAL(clicked()), SLOT(zoomReset()));
@@ -85,9 +127,15 @@ WImageViewer::WImageViewer(QWidget* parent)
 	zoomLayout->addWidget(m_zoomResetButton);
 	zoomLayout->addWidget(m_zoomSlider);
 
-	QGridLayout* layout = new QGridLayout;
-	layout->addLayout(zoomLayout, 0, 0);
-	layout->addWidget(m_graphicsView, 1, 0);
+	WCrossSplitter* splitter = new WCrossSplitter;
+	splitter->addUpperWidget(m_graphicsView);
+	splitter->addUpperWidget(new QWidget);
+	splitter->addLowerWidget(m_horzProfile);
+	splitter->addLowerWidget(new QWidget);
+
+	QVBoxLayout* layout = new QVBoxLayout;
+	layout->addLayout(zoomLayout);//, 0, 0);
+	layout->addWidget(splitter);//, 1, 0);
 	setLayout(layout);
 }
 
@@ -96,10 +144,11 @@ WImageViewer::~WImageViewer()
 {
 }
 
-void WImageViewer::setPixmap(const QPixmap& pixmap)
+void WImageViewer::setImage(const QImage& image)
 {
 	//m_scene->setImage(pixmap.toImage());
-	m_image = pixmap.toImage();
+	m_image = image;
+	QImage::Format format = m_image.format();
 	m_scene->setSceneRect(QRectF(QPointF(0,0), m_image.size()));
 	zoomReset();
 	m_scene->update();
@@ -140,6 +189,12 @@ void WImageViewer::zoomReset()
 	m_zoomResetButton->setEnabled(false);
 }
 
+//virtual
+void WImageViewer::mouseMoveEvent(QMouseEvent* e)
+{
+	qDebug() << "moved..";
+}
+
 void WImageViewer::setupMatrix()
 {
 	qreal scale = this->scale();
@@ -177,6 +232,7 @@ void WImageViewer::drawImage(QPainter* painter, const QRectF& rect)
 		QPoint to = QPointF(rect.bottomRight() + QPointF(0.5,0.5)).toPoint();
 		qreal outlineThreshold = 180.;
 		QPointF pixelCorner[5];
+		bool isMono = (QImage::Format_Indexed8 == m_image.format());
 
 		qDebug() << "draw pixel info (x " << scale << ")  : " << from << " - " << to;
 		for (int x = from.x(); x < to.x(); ++x) {
@@ -189,7 +245,6 @@ void WImageViewer::drawImage(QPainter* painter, const QRectF& rect)
 				}
 
 				QColor value = m_image.pixel(x,y);
-				// painter->drawText(QRectF(x,y+1,1,1)/fontScale, Qt::AlignCenter, value.name());
 
 				QRectF pixelBox(x/fontScale, y/fontScale, 1./fontScale, 1./fontScale);
 				pixelCorner[0] = pixelBox.topLeft();
@@ -202,33 +257,46 @@ void WImageViewer::drawImage(QPainter* painter, const QRectF& rect)
 				painter->drawPolygon(pixelCorner, 4);
 
 				QRectF textRect = pixelBox;
-				textRect.setHeight(pixelBox.height() / 3.);
-
-				if (scale >= outlineThreshold) {
-					painter->setPen(Qt::black);
-					painter->setBrush(Qt::red);
-					drawTextPath(painter, font, textRect, QString("%1").arg(value.red(), 3));
+				if (isMono) {
+					if (scale >= outlineThreshold) {
+						painter->setPen(Qt::black);
+						painter->setBrush(QColor(0,255-value.red(),0));
+						drawTextPath(painter, font, textRect, QString("%1").arg(value.red(), 3));
+					} else {
+						textRect.setHeight(pixelBox.height() / 3.);
+						textRect.translate(0, pixelBox.height() / 3.);
+						painter->setPen(QColor(0,255-value.red(),0));
+						painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.red(), 3));
+					}
 				} else {
-					painter->setPen(Qt::red);
-					painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.red(), 3));
-				}
+					textRect.setHeight(pixelBox.height() / 3.);
 
-				textRect.translate(0, pixelBox.height()/3.);
-				if (scale >= outlineThreshold) {
-					painter->setBrush(Qt::green);
-					drawTextPath(painter, font, textRect, QString("%1").arg(value.green(), 3));
-				} else {
-					painter->setPen(Qt::green);
-					painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.green(), 3));
-				}
+					if (scale >= outlineThreshold) {
+						painter->setPen(Qt::black);
+						painter->setBrush(Qt::red);
+						drawTextPath(painter, font, textRect, QString("%1").arg(value.red(), 3));
+					} else {
+						painter->setPen(Qt::red);
+						painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.red(), 3));
+					}
 
-				textRect.translate(0, pixelBox.height()/3.);
-				if (scale >=outlineThreshold) {
-					painter->setBrush(Qt::blue);
-					drawTextPath(painter, font, textRect, QString("%1").arg(value.blue(), 3));
-				} else {
-					painter->setPen(Qt::blue);
-					painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.blue(), 3));
+					textRect.translate(0, pixelBox.height()/3.);
+					if (scale >= outlineThreshold) {
+						painter->setBrush(Qt::green);
+						drawTextPath(painter, font, textRect, QString("%1").arg(value.green(), 3));
+					} else {
+						painter->setPen(Qt::green);
+						painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.green(), 3));
+					}
+
+					textRect.translate(0, pixelBox.height()/3.);
+					if (scale >=outlineThreshold) {
+						painter->setBrush(Qt::blue);
+						drawTextPath(painter, font, textRect, QString("%1").arg(value.blue(), 3));
+					} else {
+						painter->setPen(Qt::blue);
+						painter->drawText(textRect, Qt::AlignCenter, QString("%1").arg(value.blue(), 3));
+					}
 				}
 			}
 		}
@@ -246,6 +314,73 @@ void WImageViewer::drawTextPath(QPainter* painter, const QFont& font, const QRec
 	QRectF bound = path.boundingRect();
 	path.translate(rect.center() - bound.center());
 	painter->drawPath(path);
+}
+
+
+void WImageViewer::drawOverview(QPainter* painter)
+{
+	// QSize viewSize = m_graphicsView->size();
+	// // aspect raion는 유지. 폭/높이중 그 어떤것도 100은 넘지 않음.
+	// viewSize.scale(100, 100, Qt::KeepAspectRatio);
+
+	// QRect _outerBox( QPoint(0,0), viewSize );
+
+	// QScrollBar* hb = m_graphicsView->horizontalScrollBar();
+	// QScrollBar* vb = m_graphicsView->verticalScrollBar();
+	// QPoint viewableTopLeft(hb->value(), vb->value());
+	// QSize viewableSize = m_graphicsView->size() -
+	// 					 QSize(vb->sizeHint().width(),
+	// 						   hb->sizeHint().height()) -
+	// 					 QSize(2*m_graphicsView->frameWidth(),
+	// 						   2*m_graphicsView->frameWidth());
+	// QRect viewableRect(viewableTopLeft, viewableSize);
+
+	// QPolygonF viewableRegion = m_graphicsView->mapToScene(viewableRect);
+
+
+	// const int margin = 5;
+
+	// painter->setBrush(QColor(0, 0, 0, 127)); // half-transparent.
+	// painter->setPen(Qt::darkGreen);
+	// painter->drawRect(QRect(QPoint(width() - viewSize.width() - margin, 0),
+	// 						viewSize));
+
+	// qreal ratioSize = scale();
+}
+
+void WImageViewer::updateProfile(const QRectF& viewableRect)
+{
+	QSize imageSize = m_image.size();
+
+	QList<int> profileVert;
+	for (int x = viewableRect.left(); x < viewableRect.right(); ++x) {
+		int sum = 0;
+		for (int y = viewableRect.top(); y < viewableRect.bottom(); ++y) {
+			if (x >= 0 && x < imageSize.width()
+				&& y >=0 && x < imageSize.height()) {
+				QColor color = m_image.pixel(x,y);
+				sum += color.red();
+				sum += color.green();
+				sum += color.blue();
+			}
+			profileVert.push_back(sum);
+		}
+	}
+
+	QList<int> profileHorz;
+	for (int y = viewableRect.top(); y < viewableRect.bottom(); ++y) {
+		int sum = 0;
+		for (int x = viewableRect.left(); x < viewableRect.right(); ++x) {
+			if (x >= 0 && x < imageSize.width()
+				&& y >=0 && x < imageSize.height()) {
+				QColor color = m_image.pixel(x,y);
+				sum += color.red();
+				sum += color.green();
+				sum += color.blue();
+			}
+			profileHorz.push_back(sum);
+		}
+	}
 }
 
 qreal WImageViewer::scale() const

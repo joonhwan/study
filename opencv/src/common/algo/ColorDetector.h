@@ -23,7 +23,7 @@ signals:
 	void thresholdChanged(int threshold);
 	void targetColorChanged(QColor color);
 	void sourceImageChanged(const ColorBuffer& buffer);
-	void sourceImageChanged(const QPixmap& pixmap);
+	void sourceImageChanged(const QImage& image);
 	void processed(const MonoBuffer& buffer);
 public slots:
 	void process();

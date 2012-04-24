@@ -170,6 +170,7 @@ public:
 	}
 	// Qt support
 	QPixmap toPixmap() const;
+	QImage toImage() const;
 };
 
 #include "image/WImageBufferT.inl"

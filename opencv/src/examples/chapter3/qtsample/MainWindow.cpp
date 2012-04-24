@@ -67,8 +67,8 @@ void MainWindow::createConnection()
 			SLOT(openImageFile()));
 	connect(m_processButton, SIGNAL(clicked()),
 			SLOT(processImage()));
-	connect(m_colorDetector, SIGNAL(sourceImageChanged(const QPixmap&)),
-			m_originalImageLabel, SLOT(setPixmap(const QPixmap&)));
+	connect(m_colorDetector, SIGNAL(sourceImageChanged(const QImage&)),
+			m_originalImageLabel, SLOT(setImage(const QImage&)));
 	connect(m_colorDetector, SIGNAL(targetColorChanged(QColor)),
 			SLOT(setButtonColor(QColor)));
 	connect(m_colorDetector, SIGNAL(processed(const MonoBuffer&)),
@@ -117,5 +117,5 @@ void MainWindow::processImage()
 
 void MainWindow::updateResult(MonoBuffer result)
 {
-	m_processedImageLabel->setPixmap(result.toPixmap());
+	m_processedImageLabel->setImage(result.toImage());
 }

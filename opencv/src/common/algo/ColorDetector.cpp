@@ -23,7 +23,7 @@ void ColorDetector::setImage(ColorBuffer& imageBuffer)
 	m_inBuffer = imageBuffer;
 	if (m_inBuffer.isValid()) {
 		emit sourceImageChanged(m_inBuffer);
-		emit sourceImageChanged(m_inBuffer.toPixmap());
+		emit sourceImageChanged(m_inBuffer.toImage());
 		process();
 	}
 }
@@ -33,7 +33,7 @@ bool ColorDetector::setImageFile(const QString& filePathName)
 	bool done = m_inBuffer.loadFromFile(filePathName);
 	if (done && m_inBuffer.isValid()) {
 		emit sourceImageChanged(m_inBuffer);
-		emit sourceImageChanged(m_inBuffer.toPixmap());
+		emit sourceImageChanged(m_inBuffer.toImage());
 		process();
 	}
 	return done;

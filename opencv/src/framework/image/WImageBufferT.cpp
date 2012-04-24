@@ -201,3 +201,30 @@ WImageBufferT<uchar,1>::toPixmap() const
 	pixmap.convertFromImage(tmpImage);
 	return pixmap;
 }
+
+template<>
+QImage
+WImageBufferT<uchar,3>::toImage() const
+{
+	const cv::Mat& mat = this->matrix();
+	QImage image(mat.data,
+				 mat.cols, mat.rows,
+				 mat.step,
+				 QImage::Format_RGB888);
+	(uchar*)image.bits(); // ensure deep copy
+	return image;
+}
+
+template<>
+QImage
+WImageBufferT<uchar,1>::toImage() const
+{
+	const cv::Mat& mat = this->matrix();
+	QImage image(mat.data,
+				 mat.cols, mat.rows,
+				 mat.step,
+				 QImage::Format_Indexed8);
+	image.setColorTable(_colorTableForMonoImage);
+	(uchar*)image.bits(); // ensure deep copy
+	return image;
+}

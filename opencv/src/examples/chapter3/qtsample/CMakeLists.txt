@@ -11,12 +11,16 @@ SET(sources
   main.cpp
   ColorIcon.cpp
   MainWindow.cpp
+  WCrossSplitter.cpp
+  WIntensityProfileWidget.cpp
   WImageViewer.cpp
   WImageViewerPixelItem.cpp
   )
 
 SET(moc_header
   MainWindow.h
+  WCrossSplitter.h
+  WIntensityProfileWidget.h
   WImageViewer.h
   )
 
