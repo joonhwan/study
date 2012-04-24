@@ -31,7 +31,7 @@ public:
 		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_roi.setRight(mat.cols-1);
 		m_roi.setBottom(mat.rows-1);
-		m_matrix = mat(qRectToCvRect(m_roi));
+		m_matrix = mat; // mat(qRectToCvRect(m_roi));
 	}
 	WConstImageT(const BufferType& _const_buffer,
 				 const QRect& roi)
@@ -39,7 +39,7 @@ public:
 		, m_roiTopLeftFractionalPart(0,0)
 	{
 		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
-		m_matrix = mat(qRectToCvRect(m_roi));
+		m_matrix = mat; // mat(qRectToCvRect(m_roi));
 	}
 	WConstImageT(const BufferType& _const_buffer,
 				 const QPointF& topLeftF,
@@ -51,7 +51,7 @@ public:
 		m_roiTopLeftFractionalPart = topLeftF - topLeft;
 
 		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
-		m_matrix = mat(qRectToCvRect(m_roi));
+		m_matrix = mat; //mat(qRectToCvRect(m_roi));
 	}
 	WConstImageT(const BufferType& _const_buffer)
 		: m_roiTopLeftFractionalPart(0,0)
@@ -59,13 +59,13 @@ public:
 		// full roi
 		const cv::Mat& mat = (const cv::Mat&)_const_buffer;
 		m_roi = QRect(0,0,mat.cols,mat.rows);
-		m_matrix = mat(qRectToCvRect(m_roi));
+		m_matrix = mat; // mat(qRectToCvRect(m_roi));
 	}
 	WConstImageT(cv::Mat& matrix, const QRect& roi)
 		: m_roi(roi)
 		, m_roiTopLeftFractionalPart(0,0)
 	{
-		m_matrix = matrix(qRectToCvRect(roi));
+		m_matrix = matrix; // matrix(qRectToCvRect(roi));
 	}
 	WConstImageT(cv::Mat& matrix)
 		: m_matrix(matrix)
@@ -106,7 +106,7 @@ public:
 	}
 	operator cv::_InputArray() const
 	{
-		return cv::_InputArray(m_matrix);
+		return cv::_InputArray(matrix(m_roi)/*m_matrix*/);
 	}
 	int channels() const
 	{
@@ -124,7 +124,7 @@ public:
 			&& mat.cols > 0
 			&& mat.rows > 0
 			&& mat.data
-			&& QRect(0,0,mat.cols,mat.rows).canInclude(m_roi);
+			&& QRect(0,0,mat.cols,mat.rows).contains(m_roi);
 	}
 	// dimension 에 대한 check도 canInclude로 된다.(side effect).
 	// 2차원인경우에만, rows > 0 , cols > 0 이다.

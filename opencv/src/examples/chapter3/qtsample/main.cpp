@@ -1,5 +1,5 @@
 #include "imagedir.h"
-#include "image/Vld.h"
+//#include "image/Vld.h"
 #include "image/WStopwatch.h"
 #include "image/wimageprocessor.h"
 #include "mainwindow.h"

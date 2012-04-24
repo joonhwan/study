@@ -2,11 +2,11 @@
 #include "algo/ColorDetector.h"
 #include "algo/AlgoPropertySystem.h"
 #include "ColorIcon.h"
+#include "WImageViewer.h"
 
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPushButton>
@@ -40,8 +40,8 @@ void MainWindow::createUi()
 {
 	m_openButton = new QPushButton(tr("&Open"));
 	m_processButton = new QPushButton(tr("&Process"));
-	m_originalImageLabel = new QLabel;
-	m_processedImageLabel = new QLabel;
+	m_originalImageLabel = new WImageViewer;
+	m_processedImageLabel = new WImageViewer;
 
 	QVBoxLayout* leftLayout = new QVBoxLayout;
 	leftLayout->addWidget(m_openButton);

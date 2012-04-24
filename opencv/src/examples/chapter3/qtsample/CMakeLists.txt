@@ -11,14 +11,18 @@ SET(sources
   main.cpp
   ColorIcon.cpp
   MainWindow.cpp
+  WImageViewer.cpp
+  WImageViewerPixelItem.cpp
   )
 
 SET(moc_header
   MainWindow.h
+  WImageViewer.h
   )
 
 SET(header
   ColorIcon.h
+  WImageViewerPixelItem.h
   )
 
 SET(forms

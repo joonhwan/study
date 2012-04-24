@@ -7,7 +7,7 @@ class ColorDetector;
 class ColorIcon;
 class QPushButton;
 class QSlider;
-class QLabel;
+class WImageViewer;
 
 class MainWindow : public QMainWindow
 {
@@ -25,8 +25,8 @@ protected slots:
 protected:
 	QPushButton* m_processButton;
 	QPushButton* m_openButton;
-	QLabel* m_originalImageLabel;
-	QLabel* m_processedImageLabel;
+	WImageViewer* m_originalImageLabel;
+	WImageViewer* m_processedImageLabel;
 
 	class AlgoPropertySystem* m_propertySystem;
 	ColorDetector* m_colorDetector;
