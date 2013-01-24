@@ -12,14 +12,17 @@ public:
 signals:
 	void testSignal(const MyEnum::Type& value);
 	void testSignal2(const TestDataClass& tdc);
+	void testSignal2_NonConst(TestDataClass& tdc);
 	void testSignal3(TestDataClass* tdc);
 public slots:
 	void onClicked();
 	void onClicked2();
 	void testSlot(const MyEnum::Type& value);
 	void testSlot2(const TestDataClass& tdc);
+	void testSlot2_NonConst(TestDataClass& tdc);
 	void testSlot2_Queued(const TestDataClass& tdc);
-	void testSlot3_Queued(TestDataClass* tdc);
+	void testSlot_Pointer_Queued(TestDataClass* tdc);
 protected:
+	MyEnum::Type m_enum;
 	TestDataClass m_tdc;
 };

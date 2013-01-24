@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QVariant>
 #include <QDebug>
+#include <QTextCodec>
 
 int main(int argc, char** argv)
 {
@@ -10,6 +11,8 @@ int main(int argc, char** argv)
 	QCoreApplication::setOrganizationName("joonhwan");
 	QCoreApplication::setOrganizationDomain("www.joonhwan.org");
 	QCoreApplication::setApplicationName("metatype");
+
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForLocale());
 
 	QVariant v1 = MyEnum::TRAIN;
 	qDebug() << "v1 can convert enum ? : " << (v1.canConvert<MyEnum::Type>());
