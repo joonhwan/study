@@ -1,6 +1,11 @@
 set(QT_USE_QTMAIN ON)
 include(${QT_USE_FILE})
 
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+
 set(sources
   main.cpp mainwindow.cpp ReplWidget.cpp
   )
