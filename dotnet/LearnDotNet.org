@@ -1062,8 +1062,213 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       }
 	#+end_src
 
-	
+	배열은 함수의 인자로도, 리턴값으로도 사용가능하단다.
 
+	#+begin_src csharp
+      static void PrintArray(int[] intArray);
+      static string[] GetStringArray();
+	#+end_src
+
+*** .net에서 배열은 System.Array 클래스 객체
+
+	- Clear(): 지우기(전체 혹은 일부구간)
+	- CopyTo(): 배열요소 복사하기
+	- Length: 배열항목갯수
+	- Rank: 몇차원 배열?
+	- Reverse(): 정작메소드. 1차원배열인 경우 순서를 역순으로 만듬
+	- Sort() : 정적메소드. 정렬.
+
+*** enum
+
+	C# 에서는 enum의 underlying type을 지정이 가능. 아래는 그걸
+	int형으로 함.
+
+	#+begin_src csharp
+      enum EmpType : int
+      {
+          Manager, // =0
+          Manager =10,
+          Contractor, // 11
+          VicePresident, // 12
+      }
+	#+end_src
+
+*** System.Enum
+
+	enum형으로 정의된 타입에 대한 introspection이 가능.
+
+	*모든 enum 값은 System.Object의 파생클래스인 System.Enum 클래스의
+     객체*. 따라서 그 어떤 enum 같이라도 다음과 같은 함수에 넘겨서
+     정보를 쭈욱 뽑아낼 수 있다.
+
+	 #+begin_src csharp
+       static void EvaluateEnum(Enum e)
+       {
+           Type enumType = e.GetType();
+           Console.WriteLine("Enum Type Name: {0} (underlying type={1}",
+                             enumType.Name, Enum.GetUnderlyingType(enumType));
+           var enumValueList = Enum.GetValues(enumType);
+           Console.WriteLine("--> has {0} values.", enumValueList.Length);
+           foreach (var enumValue in enumValueList)
+           {
+               Console.WriteLine("Name:{0}, Value:{0:D}", enumValue);
+           }
+       }
+       // EvaluateEnum(MyEnum.FirstEnumValue)
+	 #+end_src
+
+*** .Net struct 형 --> 값 타입(Value Type) (cf. class형은 참조타입(Reference Type))
+
+	일반적인 객체지향언어에서 경량클래스타입으로 여겨지는 바로 그것.
+	수학적/지리학적/원자적 단위의 데이터. 상속을 통해서 무언가를
+	이루어 내려는 경우에는 사용이 안됨(그런경우는 class를 사용).
+
+	struct와 class의 스택/힙상에서의 존재, 대입시 참조가 대입되는지
+	값이 복사되는지...등등에 대한 내용은 .NetBookZero 에서 배움.
+
+	패스.
+
+***  값타입과 패스타입의 차이점 정리 
+
+	- 객체가 어디에 정의되는가?
+	- 변수는 어떤 것을 표현하는가?
+	- 어느 클래스에서 상속 받았는가?
+	- 다른 타입의 부모가 될 수 있는가?
+	- 파라메터로 전달될때 디폴터 거동에 무슨 차이가 있나?
+	- System.Object.Finalize() 를 오버라이드 할 수 있나?
+	- 생성자를 정의할 수 있나?
+	- 언제 소멸되나?
+
+*** Nullable Type
+
+	보통 값타입의 경우 null 값을 대입할 수 없지만, 물음표(?)를 접미사로
+	붙인 값타입은 nullable type 이 되어 null 을 대입할 수 있다.
+	물음표(?) 를 붙이면 System.Nullable<T> 형이 된다.
+
+	#+begin_src csharp
+      int? nullableInt = null;
+      // 위와 아래는 같음
+      System.Nullable<int> nullableInt = null;
+	#+end_src
+
+	어떤 nullable type의 값이 null 인지를 확인한 후, null이면 기본값을
+	사용하는 패턴은 많이들 사용하는데 그때 유용한게 이중물음표(??)
+	연산자이다.
+
+	#+begin_src csharp
+      public static int? GetNullableValue();
+      // 위와 같은 함수가 있을때...아래 구문은 null 이 반환될 경우 기본값 10
+      // 이 notNullableValue 에 대입된다.
+      int notNullableValue = GetNullableValue() ?? 10;
+	#+end_src
+
+** 5장. 캡슐화
+
+*** 생성자(즉, "인스턴스 생성자(instance constructor)")
+   생성자에 관한 얘기가 주욱 나온다. 생성자를 명시적으로 생성하지
+   않으면, 컴파일러가 기본 생성자를 만들고 거기서 모든 멤버의 값을
+   기본값으로 채운다(Value Type은 0/false, 참조타입은 null).
+
+   *파라메터를 받는 사용자 정의 생성자를 하나라도 정의하면 컴파일러는
+    더이상 기본제공 생성자를 만들지 않는다* !
+
+	왜 그럴까? 파라메터 커스텀 생성자는 객체의 멤버가 특수한 방식으로
+	초기화될 필요가 있다고 여겨지기 때문에 정의하는 것이다.
+	그런경우에는 컴파일러의 기본 디폴트생성자는 아무 의미가 없다. 즉,
+	사용자가 따로 인자 없는 디폴트 생성자를 받아서 'this' 키워드를
+	사용해서 생성자 초기화 호출을 이어주는 식으로 구성해야
+	한다(*constructor chaining*)
+
+	--> objc 에서는 *designated constructor* 라고 하는 유사개념.
+	--> 이책에서는 *master constructor* 라고 하는 개념
+	--> 가장 많은 인자를 받는 생성자.
+	--> 모든 생성자가 이 생성자를 this 키워드를 사용해 호출하도록 함.
+
+*** 정적 생성자(static constructor)
+
+	정적 멤버를 초기화하는 방법은
+
+	=static int staticMemberVar = 18;=
+
+	그런데, 데이터베이스에서 값을 가져와야 하는 식으로 초기화해야
+	하는경우는? (즉, 런타임에서야만 값을 초기화할 수 있는 경우는?)
+
+	--> *정적 생성자*를 쓴다.
+
+	정적생성자의 특징
+
+	- 클래스당 오직 1개만 정의할 수 있다(즉, 오버로딩이 불가)
+	- 접근제한자("access modifier" ex: public /protected /private
+      /internal ...)등의 사용 불가
+	- 그 어떤 해당 클래스 객체가 생성되기 직전에 단 1번만 호출됨
+	- 그 클래스의 정적멤버에 접근을 맨 처음 할 때 단 1번만 호출됨
+
+*** 정적 클래스(static class)
+
+	정적 멤버만 가질 수 있고, new 해서 인스턴스를 만들수 없는
+	클래스가 정적클래스.
+
+*** 접근 한정자(access modifier)
+
+	- 5가지가 있음 : public/protected/private/internal/protected internal.
+
+	- public/protected/private 의 접근방식은 c++ 과 같다.
+	- *nested type 은 절대 public/internal 이 될 수 없는 것 같다*.
+	- *Type 자체는 절대 private/protected/protected internal 이 될 수
+      없다*. public 혹은 internal 이어야 한다.
+	- internal : 동일 .net assembly 에서만 public으로 사용될 수 있다. 
+	- protected internal 은 internal과 같지만 protected로 된다. 따라서
+      nested type에 사용이 가능
+
+	- 접근 한정자를 지정하지 않은 경우
+      --> 멤버: 암시적으로 private
+	  --> 타입: 암시적으로 internal
+	  
+	  클래스 라이브러리를 만들때는 =public class ClassName= 이런식이
+      되어야 되겠다.
+
+*** accessor(getter)/mutator(setter) 와 property(속성)
+
+	이미 아는 얘기. 다만, 속성의 set 을 정의할 때 사용되는 "value"
+	라는 단어가 C# 키워드가 아니란다. *contextual keyword* 란다.
+	즉, 다른 곳에서는 value 라는 이름의 변수를 만들수 는 있지만,
+	=property set {}= 안에서는 특수한 의미를 가진단다.
+
+	이걸 잘 쓰는 법.
+
+	생성자에서 올바른 범위의 초기값을 입력받을 때 종종 C++ 에서는
+	생성자에서 그런걸 하는데, C# 에서는 property set 에서 그런 일을
+	하고, 생성자에서는 변수에 접근하는게 아니라 속성에 접근하도록
+	코딩하는 게 바람직 하단다.
+
+	*정적 속성(static property)* 개념 : Data Encapsulation 을 생각하면
+	정적 멤버변수에 직접 접근하는 것 보다는 이게 낳다는...
+
+	#+begin_src csharp
+      class Savings
+      {
+          private static double interest = 0.04;
+          public static double Interest
+          {
+              get { return interest; }
+              set { intereset = value; }
+          }
+      }
+	#+end_src
+
+	*자동 속성(automatic properties)* 개념 : 그냥 =get;set;= 만 넣으면
+     속성이 정의된다는... 그렇다고 =get;= 혹은 =set;= 의 형태로는 안된다
+
+	 #+begin_src csharp
+       public string MyProperty { get; set; } // OK
+       // public string MyProperty { get;} // 오류
+       // public string MyProperty { set;} // 오류
+	 #+end_src
+
+	 근데, =get;set;= 형태로는 Read/Write 속성이 정의되는데,
+	 *이런식으로는 readonly / writeonly 속성의 정의는 불가하다* 
+	
+	
 * 기타 메모
 
 ** string 키워드

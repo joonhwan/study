@@ -28,8 +28,21 @@ class Chap3
 		// SwitchOnString();
 		// CalcAvg(10, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 		// VarArrayTest();
-		ObjectArrayTest();
+		// ObjectArrayTest();
+		EvaluateEnum(MyEnum.Farther);
 		return 0;
+	}
+	static void EvaluateEnum(Enum e)
+	{
+		Type enumType = e.GetType();
+		Console.WriteLine("Enum Type Name: {0} (underlying type={1}",
+						  enumType.Name, Enum.GetUnderlyingType(enumType));
+		var enumValueList = Enum.GetValues(enumType);
+		Console.WriteLine("--> has {0} values.", enumValueList.Length);
+		foreach (var enumValue in enumValueList)
+		{
+			Console.WriteLine("Name:{0}, Value:{0:D}", enumValue);
+		}
 	}
 	static void ObjectArrayTest()
 	{
