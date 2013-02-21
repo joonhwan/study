@@ -1,0 +1,72 @@
+#+TITLE: ocv
+
+* Chapter 1
+
+** cv::Mat class
+- 이미지를 표현(버퍼데이터형과 가로세로 매트릭스).
+- copy-on-write !!! shallow copy가 이루어질 수 있다!
+- *주의* : 대입으로는 shallow copy만 되므로, 명시적으로 copyTo()를 해야
+  할 경우도 있다. 아래의 경우, method()를 호출해 받은 cv::Mat 객체에
+  수정을 가해 버리면 원래 Test객체의 멤버데이터까지 변경된다.
+
+#+begin_src c++
+  // However, in the case of classes, you should be careful and not
+  // return image class attributes.  Here is an example of an
+  // error-prone implementation:
+  class Test {
+      // image attribute
+      cv::Mat ima;
+  public:
+      // constructor creating a gray-level image
+      Test() : ima(240,320,CV_8U,cv::Scalar(100)) {}
+      // method return a class attribute, not a good idea...
+      cv::Mat method() { return ima; }
+  };
+  // Here, if a function calls the method of this class, it obtains a
+  // shallow copy of the image attributes. If later, this copy is
+  // modified, the class attribute will also be modified which can
+  // affect the subsequent behavior of the class (and vice versa). To
+  // avoid these kinds of errors, you should instead return a copy of
+  // the attribute.
+  
+#+end_src
+
+- 이전 C interface 의 IplImage를 받는 코드에서도 shallow/deep copy를
+  제어할 수 있다. 아래의 경우, cvReleaseImage() 를 호출하지 않으면
+  메모리 누수이다.
+#+begin_src c++
+  IplImage* iplImage = cvLoadImage("img.jpg");
+  bool isDeepCopy = false;        // deep copy인 경우에는 true로 
+  cv::Mat image(iplImage, isDeepCopy);
+#+end_src
+
+- 주요멤버(디버거창에서 가져옴) : 데이터 타입, 행렬차원(2차원이
+  주로..), 참조카운트, 할당정보 같은 것이 있음.
+#+begin_example
+		flags	1124024336	int
+		dims	2	int
+		rows	512	int
+		cols	512	int
++		data	0x02100050 ""	unsigned char *
++		refcount	0x021c0050	int *
++		datastart	0x02100050 ""	unsigned char *
++		dataend	0x021c0050 ""	unsigned char *
++		datalimit	0x021c0050 ""	unsigned char *
++		allocator	0x00000000	cv::MatAllocator *
++		size	{p=0x00d9ff18 }	cv::Mat::MSize
++		step	{p=0x00d9ff40 buf=0x00d9ff40 }	cv::Mat::MStep
+#+end_example
+
+- 픽셀접근은 아래와 같으며, 보통의 이미지는 2차원이고, 이때, x, y 가
+  순서가 바뀌어 있음에 유의.
+#+begin_src c++
+  // 컬러영상의 경우
+  image.at<cv::Vec3b>(y,x)[channel]= value;
+  // 흑백영상의 경우
+  image.at<uchar>(y,x) = value;
+#+end_src
+
+** cv::Mat_<T> class
+- cv::Mat 에 대한 thin wrapper template class. 다른 무엇 보다도,
+  버퍼의 데이터형 T 가 명기되어, 각 픽셀의 데이터참조를 할 수 있는
+  operator() 연산자가 제공되어 코드가 깔끔해진다.
