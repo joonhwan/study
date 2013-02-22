@@ -1267,6 +1267,110 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 	 근데, =get;set;= 형태로는 Read/Write 속성이 정의되는데,
 	 *이런식으로는 readonly / writeonly 속성의 정의는 불가하다* 
+
+	 자동 속성의 경우, 모든 hidden-member-variable 을 컴파일러가
+	 구성할 텐데, 이들은 초기 값이 0/false(ValueType의 경우) 및
+	 null(RefType의 경우)이 된다. RefType 의 경우 자동속성의 값은
+	 생성자에서 반드시 =new T= 해 주는 것이 바람직하다.
+
+	 속성값의 지정시 validation이나 기타 처리가 필요한 경우는
+	 자동속성이 아닌 직접 만든 속성함수를 사용해야 한다(당연).
+
+*** 객체 초기화 구문(Object Initializer)
+
+	이건 정말, 객체 생성 코드를 깔끔하게 정리해 주는 구문이다.
+
+	원하는 객체 생성자를 선택해서 new 해 준다음, 세미콜론(;) 으로
+	구문을 끝내기 전에 중괄호 scope(={}=)를 만들어 그 안에 객체의
+	속성값을 설정하는 구문이다.
+
+	이건 has-a 관계로 객체를 포함하고는 있는 타입의 경우에 nested 로
+	수행할 수 있다.
+
+	아래의 예를 한번 읽어보되, TestOjbInitr()에서
+	- 중괄호들이 nested 로 된점
+	- 콤마가 찍힌 위치들(마지막 콤마는 optional이지만, 그냥 찍어두는
+      게 나을듯)
+	- 생성자 시그너쳐가 그냥 =()= 를 붙였지만, 특수한 생성자를 써도
+      된다는 점(또는 아예 =()= 를 생략하여 암시적 기본 생성자가
+      사용하도록 할 수 있다는 점)
+	  
+	에 유념하고 코드를 이해한다.
+
+	#+begin_src csharp
+      class Point {
+          public int X { get; set; }
+          public int Y { get; set; }
+      }
+      class Rectangle {
+          public Point TopLeft { get; set; }
+          public Point BottomRight { get; set; }
+          public Rectangle() {
+              TopLeft = new Point();
+              TopLeft = new Point();
+          }
+          public void PrintInfo() {
+              Console.WriteLine("({0},{1}) ~ ({2},{3})",
+                                TopLeft.X, TopLeft.Y,
+                                BottomRight.X, BottomRight.Y);
+          }
+      }
+      // 어떤 함수에서 아래와 같이 객체 초기화가 가능
+      static void TestObjIniter()
+      {
+          Rectangle r = new Rectangle() {
+              TopLeft = new Point() {
+                  X = 10, Y = 20,
+              },
+              BottomRight = new Point() {
+                  X = 20, Y = 30,
+              },
+          };
+          r.PrintInfo();
+      }
+	#+end_src
+
+*** 상수필드(constant field data)
+
+	컴파일시 값이 결정되고 그 이후로는 절대 수정불가한 상수값의 정의가
+	가능하다. 겉보기로는 인스턴스 멤버같지만 실제로는 *암시적으로
+	static 변수* 이다. 따라서 접근 할 때는 static 멤버와 같은 방식으로
+	접근한다.
+
+	#+begin_src csharp
+      class MyMath {
+          public const double PI = 3.141592;
+      };
+      static void PrintPi() {
+          MyMath mm = new MyMath();
+          // Console.WriteLine("pi = {0}", mm.PI); // 컴파일 오류!
+          Console.WriteLine("pi = {0}", MyMath.PI); // static멤버처럼 사용!
+      }
+	#+end_src
+
+*** 읽기전용 필드(readonly field)
+
+	멤버변수 선언하듯이 선언할 때 타입명 앞에 =readonly= 를 넣어주면
+	*생성자에서만 값의 대입이 가능하고 그 외에는 쓰기가 불가한* 변수가
+	탄생한다.
+
+	#+begin_src csharp
+      class MyMath {
+          public readonly double PI;
+          // 생성자 : 쓰기동작 OK
+          MyMath() {
+              PI = 3.141592;
+          }
+          // 기타함수 : 쓰기 불가! ERROR!
+          public void TryChangePI() {
+              PI = 3.141592; 
+          }
+      }
+	#+end_src
+
+*** Partial Class
+
+	
 	
 	
 * 기타 메모

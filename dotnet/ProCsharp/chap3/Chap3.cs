@@ -29,8 +29,22 @@ class Chap3
 		// CalcAvg(10, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 		// VarArrayTest();
 		// ObjectArrayTest();
-		EvaluateEnum(MyEnum.Farther);
+		// EvaluateEnum(MyEnum.Farther);
+		TestObjIniter();
 		return 0;
+	}
+	// 어떤 함수에서 아래와 같이 객체 초기화가 가능
+	static void TestObjIniter()
+	{
+		Rectangle r = new Rectangle() {
+			TopLeft = new Point() {
+				X = 10, Y = 20,
+			},
+			BottomRight = new Point() {
+				X = 20, Y = 30,
+			},
+		};
+		r.PrintInfo();
 	}
 	static void EvaluateEnum(Enum e)
 	{
