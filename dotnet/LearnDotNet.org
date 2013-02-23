@@ -613,11 +613,16 @@ Subtract, Multiply, Divide 같은 이름을 사용한 함수를 만들어야 할
      void(Object,EventArags) 시그너쳐를 가지는 함수포인터같은 개념을
      정의했다는 의미
 
-   - =public event EventHandler InformationAlert;= 라고 하면,
-     EventHandler 라는 시그너쳐를 가지는 InformationAlert 라는
-     메소드의 정의를 말함.
+   - 이벤트를 정의하려면...
+	 
+	 #+begin_src csharp
+       public event EventHandler InformationAlert;
+	 #+end_src
 
-   - Event처리기의 등록
+     EventHandler 라는 시그너쳐를 가지는 InformationAlert 라는
+     이벤트를 클래스 정의에 추가함.
+
+   - Event처리기의 등록과 호출
 	 
 	 #+begin_src csharp
        // B 쪽 생성자 등에서 핸들러와 이벤트를 연계할때 2가지 방법이 모두 가능
@@ -644,7 +649,7 @@ Subtract, Multiply, Divide 같은 이름을 사용한 함수를 만들어야 할
 	 #+end_src
 	 
 	 등록 시의 구문이 += 연산자를 써서 여러개의 핸들러를 등록시킬 수
-     있기 때문에, InformationAlert.Lenght 같은 식으로 확인해야 할 것
+     있기 때문에, InformationAlert.Length 같은 식으로 확인해야 할 것
      같은데, null 로 확인하는 점이 헛갈린다.
 	 
 	 등록 해제 하려면 -= 연산자를 써서 할 수 있다.
