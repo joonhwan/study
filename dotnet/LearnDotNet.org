@@ -2197,7 +2197,14 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
    #+begin_src csharp
      // 실제로 존재하지 않는 개념적 클래스 sealed class Box<T>:
-     System.ValueType { T value; public Box(T t) { value = t; } }
+     System.ValueType<Type T>
+     {
+         T value;
+         public Box(T t)
+         {
+             value = t;
+         }
+     }
      
      // 아래와 같이 하면.
      int i = 123;
