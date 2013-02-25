@@ -1881,7 +1881,8 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       property인데, 읽기쓰기,읽기전용,쓰기전용 모두 된다! class에서는
       auto property는 읽기쓰기만 되었지만!)*
 	- 생성자를 정의할 수 없다.
-	- 메소드는 암묵적으로 'public abstract'
+	- 메소드는 암묵적으로 'public abstract'. *굳이 public 을 명시하지
+      않아도 됨*
 	- 메소드 구현을 포함하면 안된다.
 
 	#+begin_src csharp
@@ -1895,6 +1896,280 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
           byte Points { get; }
       }
 	#+end_src
+
+	- 인터페이스 정의자체로는 인스턴스 생성못함(C++의 ABC와 동일한 개념)
+	
+*** 인터페이스 상속받아 구현하기.
+
+	- all or nothing 방식 : 인터페이스의 모든 내용이 전부 구현되기
+      전에는 해당 인터페이스 상속 class/struct 는 생성하지 못한다.
+	- *인터페이스의 선언은 public을 쓰지 않지만*, 실제로 이를 구현할
+      class/struct 의 정의에서는 *public을 명시해야 한다*.
+	- 단, *명시적 인터페이스 정의* 의 경우 암시적으로 private 이되므로
+      구현시 *오히려 public 을 사용하지 않는다*.
+	- 인터페이스 정의시 *override 키워드를 쓰지 않는다*
+
+*** /is/ , /as/ 키워드 및 InvalidCastException
+
+	- /is/ : 역시 형격상 및 형격하 문제. /is/ 를 사용하여 다른 언어에서
+      /isKindOfClass(클래스명)/ 방식의 형 유추를 할 수 있다.
+	- /as/ : VB 에서 사용하던 개념과 비슷하네. 형 유추가 되지 않으면
+      null 값이 반환된다.
+	  
+	  #+begin_src csharp
+        IPointy pointy = hex as IPointy;
+        if (pointy != null)
+        {
+            Console.WriteLine("hex는 IPointy 형을 지원");
+        }
+	  #+end_src
+
+	- InvalidCastExcpetion 예외
+   
+	  /is/ 나 /as/ 를 사용하지 않고, 일단 강제적으로 형변환을 시키는
+      경우, 형이 맞지 않으면 이 예외가 던져진다. /is/ 나 /as/ 는 이
+      예외를 발생시키지 않는다.
+
+*** 인터페이스간 이름충돌해결 및 명시적 인터페이스 구현(Explicit Interface Impl)
+
+	2개 이상의 인터페이스로 부터 상속받는 경우, 그 2개 이상의
+	인터페이스에 동일한 시그너쳐의 메소드, 속성이 있는 경우, 단순한
+	방법으로는 이들을 구분할 방법이 없다. 그런 경우,
+
+	=returnType InterfaceName.MethodName(params) {}=
+
+	의 방식으로 "어떤 인터페이스의 메소드를 정의하는지"를 명확히 할 수
+	있다. *단, 이 경우 구현된 메소드는 자동으로 private 이 되므로,
+	public 접근자를 붙이면 안된다*.
+
+	좀 긴 예를 만들어봄.
+
+	#+begin_src csharp
+      using System;
+      
+      public interface IGdiDrawer {
+          void Draw();
+      }
+      public interface IQtDrawer {
+          void Draw();
+      }
+      public interface IWxDrawer {
+          void Draw();
+      }
+      
+      class UltraDrawer : IGdiDrawer, IQtDrawer, IWxDrawer {
+          void IGdiDrawer.Draw() {
+              Console.WriteLine("IGdiDrawer.Draw()");
+          }
+          void IQtDrawer.Draw() {
+              Console.WriteLine("IQtDrawer.Draw()");
+          }
+          void IWxDrawer.Draw() {
+              Console.WriteLine("IWxDrawer.Draw()");
+          }
+      }
+      
+      class ExplicitInterfaceImpl {
+          static void DrawQt(IQtDrawer drawer) {
+              drawer.Draw();
+          }
+          public static void Main() {
+              UltraDrawer drawer = new UltraDrawer();
+              DrawQt(drawer);
+          }
+      }
+	#+end_src
+
+	추가로, *명시적 인터페이스 구현은 이름 충둘이 없는 경우에도
+	쓰인다는 점* 이다. 명시적 인터페이스 구현을 할 경우, 자동으로 그
+	메소드는 외부로 노출이 되지 않기 때문에(기본이 protected 이며,
+	public 을 지정할 수 없기때문에), 어떤 인터페이스의 구현을 외부로
+	노출하지 않고자 하는 경우에도 사용된다.
+
+
+*** 인터페이스로 상속계층 구성하기
+
+	- 어떤 인터페이스 'B' 는 다른 인터페이스 'A' 로 부터 상속받은
+      상태에서 인터페이스를 선언/정의할 수 있다. 그런 경우, 이 새로운
+      'B' 인터페이스를 구현할 때는 부모 'A' 인터페이스를 포함한 모든
+      메소드/속성을 정의해야 한다.
+	- 다중상속시 name clash (이름 충돌)을 대비하기 위해 명시적
+      인터페이스 구현(explicit interface implementation)을 항상 염두에
+      두자.
+	  
+*** 실제예 : IEnumerable 과 IEnumerator 인터페이스
+
+	어느 객체든 =IEnumerable= 의 =IEnumerator GetEnumerator()= 을
+	구현하는 놈이면 =foreach= 구문을 사용해 순회할 수 있다.
+
+	#+begin_src csharp
+      public interface IEnumerable
+      {
+          IEnumerator GetEnumerator();
+      }
+      public interface IEnumerator
+      {
+          bool MoveNext(); // 커서를 다음 항목으로
+          object Current { get; } // 현재 항목 얻기(읽기 전용)
+          void Reset(); // 첫번째 항목 바로 앞으로 커서 이동(past to start)
+      }
+	#+end_src
+
+	- *반드시 IEnuemrable로 부터 상속받지 않아도 되더라.*
+	- *단순히 IEnumerator GetEnumerator() 만 추가하면 되더라*
+	- *yield 를 쓰면 구체적으로 IEnumerator의 여러 메소드를 구현하지
+      않아도 쉽게 구현을 마칠 수 있더라*
+
+	- 이름이 있는 named enumerator 의 구현을 쓰면 좀 더 특이한
+      순회방법을 제공할 수 있더라(예: 역순으로 순회, 어떤 값을 가지는
+      놈들만 순회,...) *단, 반환타입이 IEnumerator 가 아니라
+      IEnumerable 임에 유의*
+
+	  #+begin_src csharp
+        public class Garage// : IEnumerable
+        {
+            Car[] carArray;
+            public Garage()
+            {
+                carArray = new Car[] {
+                    new Car("Rusty", 30),
+                    new Car("Clunker", 55),
+                    new Car("Shiny", 90),
+                    new Car("OldTred", 10)
+                };
+            }
+            // 디폴트 enumerator 반환자. 전체를 순서대로 순회. 
+            public IEnumerator GetEnumerator()
+            {
+                foreach (Car car in carArray)
+                {
+                    yield return car;
+                }
+            }
+            // 이름있는 enumerator. 속도가 어느 이상되는 놈들만 순회
+            // 반환 타입이 IEnumerable 임에 유의!!!!!
+            public IEnumerable CarsFasterThan(int maxSpeed)
+            {
+                foreach (Car car in carArray)
+                {
+                    if (car.MaxSpeed >= maxSpeed)
+                    {
+                        yield return car;
+                    }
+                }
+            }
+        }
+	  #+end_src
+
+*** 실제예 : ICloneable 인터페이스
+
+	
+
+	ICloneable 는 다음과 같은 인터페이스
+
+	#+begin_src csharp
+      public interface ICloneable
+      {
+          object Clone();
+      }
+	#+end_src
+
+	의 메소드는 아니지만, 이 인터페이스는 =System.Object=
+	의 =MemberWiseClone()= 메소드와 연관지어 알아두어야 한다.
+	*MemberWiseClone() 은 클래스 내부에서만 사용되는 protected
+	메소드이며, deep copy 가 아니라 shallow copy 를 수행한다*
+	하지만, shallow copy 라는 말의 의미가 ValueType 멤버에 대해서는
+	조금 다른 의미가 된다.
+
+	실제 MSDN 의 MemberwiseClone() 의 설명을 보면 다음과 같다. 
+
+	#+begin_example
+	 MemberwiseClone 메서드는 새 개체를 만들고 현재 개체의 비정적
+	 필드를 새 개체로 복사하여 단순 복사본을 만듭니다.필드가 값 형식인
+	 경우 필드의 비트별 복사가 수행됩니다.필드가 참조 형식인 경우
+	 참조는 복사되지만 참조되는 개체는 복사되지 않으므로 원본 개체와
+	 복사된 개체는 동일한 개체를 참조합니다
+	#+end_example
+
+	즉, MemberwiseClone 으로 복제된 ValueType 은 복제된 객체에서의 값
+	변경이 원본의 값변경을 의미하지 않지만, RefType 은 복제된
+	객체에서의 값 변경이 원본의 값변경을 의미하게 된다.
+
+	완전한 DeepCopy 를 수행하려면, RefType 에 대한 명시적 복제가
+	이루어져야 한다.
+
+	즉,
+
+	#+begin_src csharp
+      using System;
+      
+      public class IdInfo {
+          public int IdNumber; 
+          public IdInfo(int IdNumber) {
+              this.IdNumber = IdNumber;
+          }
+      }
+      
+      public class Person  {
+          public int Age;
+          public string Name;
+          public IdInfo IdInfo;
+          public Person ShallowCopy() {
+             return (Person)this.MemberwiseClone();
+          }
+          // 전체객체를 독립적으로 새로 생성
+          public Person StandAloneDeppCopy() {
+              Person other = new Person();
+              other.Age = this.Age;
+              other.Name = this.Name;
+              other.IdInfo = new IdInfo(this.IdInfo.idNumber);
+              return other;
+          }
+          // 얕은 복사후 bitwise copy 된 ValueType을 제외한 나머지 RefType에
+          // 대해서만 새로운 객체를 수작업 생성/복제
+          public Person DeepCopy() {
+             Person other = (Person) this.MemberwiseClone(); 
+             other.IdInfo = new IdInfo(this.IdInfo.IdNumber);
+             return other;
+          }
+      }    
+	#+end_src
+
+*** 실제예 : IComparable 인터페이스
+
+	객체 목록을 =Sort()= 할 때 predicator 역할을 하게되는 인터페이스
+
+	#+begin_src csharp
+      public interface IComparable
+      {
+          int CompareTo(Object o);
+      }
+	#+end_src
+
+    | CompareTo()의 반환값 | 설명                                            |
+    |----------------------+-------------------------------------------------|
+    | 0 보다 작은 값       | 이 객체가 인자로 넘어온 객체보다 앞에 오게 된다 |
+    | 0                    | 동일 위치                                       |
+    | 0 보다 큰 값         | 이 객체가 인자로 넘어온 객체보다 뒤에 오게 된다 |
+
+	구현 예는 다음과 같다.
+
+	#+begin_src csharp
+      class Car : IComparable
+      {
+          int IComparable.CompareTo(object obj)
+          {
+              Car rhs = obj as Car;
+              if (rhs!=null)
+              {
+                  if (this.CarID > temp.CarId
+              }
+          }
+      }
+	#+end_src
+
+	
+
 
 * 기타 메모
 
