@@ -1,7 +1,6 @@
 #+TITLE:LearnDotNet
 
 * .NetBookZero
-
 ** 1장 ~ 11장
 *** static readonly/const 그리고, c++에서의 local static 변수
 
@@ -1986,7 +1985,6 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 	public 을 지정할 수 없기때문에), 어떤 인터페이스의 구현을 외부로
 	노출하지 않고자 하는 경우에도 사용된다.
 
-
 *** 인터페이스로 상속계층 구성하기
 
 	- 어떤 인터페이스 'B' 는 다른 인터페이스 'A' 로 부터 상속받은
@@ -2168,11 +2166,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       }
 	#+end_src
 
-	
-
-
 * 기타 메모
-
 ** string 키워드
 
    System.String 의 alias 에 불과하다. 유니코드 캐릭터 집합이고, @""
@@ -2361,7 +2355,6 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
    #+end_src
 
 ** 숫자 리터럴의 suffix들
-
    [[http://www.dotnetperls.com/suffix][여기]] 에 정리가 잘됨.
 
    - m 또는 M : =decimal myMoney = 300.5m;=
@@ -2373,8 +2366,6 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 	 가급적이면 대문자를 쓰는게 덜 헛갈릴 수 있다(ex: l vs L ==> l 은
      숫자 1과 비슷해 보인다).
 
-
-   
 ** C# 에서 {void|int} Main([string[] args])
 
    C# 에서는
