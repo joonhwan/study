@@ -625,9 +625,10 @@ Subtract, Multiply, Divide 같은 이름을 사용한 함수를 만들어야 할
 	 
 	 #+begin_src csharp
        // B 쪽 생성자 등에서 핸들러와 이벤트를 연계할때 2가지 방법이 모두 가능
+       // .NET 2.0 이하에서 
        a.InformationAlert += new EventHandler(MyInformationAlertHandler);
-       // 또는
-       a.InformationAlert += MyInformationAlertHandler; // .NET 2.0 이상에서 가능구문
+       // 또는 .NET 2.0 이상에서 가능구문을 사용.
+       a.InformationAlert += MyInformationAlertHandler;
        
        // B 클래스의 메소드
        void MyInformationAlertHandler(object sender, EventArgs e)
@@ -1205,7 +1206,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 	그런데, 데이터베이스에서 값을 가져와야 하는 식으로 초기화해야
 	하는경우는? (즉, 런타임에서야만 값을 초기화할 수 있는 경우는?)
 
-	--> *정적 생성자*를 쓴다.
+	--> *정적 생성자* 를 쓴다.
 
 	정적생성자의 특징
 
@@ -1295,7 +1296,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 *** 객체 초기화 구문(Object Initializer)
 
-	이건 정말, 객체 생성 코드를 깔끔하게 정리해 주는 구문이다.
+	*이건 정말, 객체 생성 코드를 깔끔하게 정리해 주는 구문* 이다.
 
 	원하는 객체 생성자를 선택해서 new 해 준다음, 세미콜론(;) 으로
 	구문을 끝내기 전에 중괄호 scope(={}=)를 만들어 그 안에 객체의
@@ -2222,16 +2223,16 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 *** 컬렉션(그리고 제네릭)이 등장한 이유.
 	자료구조를 담는 용도로 가장 기초적인 "배열"은 *고정크기* 의
 	컨테이너이기 때문. 추가/삭제에 용이하고 성능이 좋은 어떤
-	컨테이너가 필요하게 됨. --> System.Collection 등장 --> .NET 2.0
-	부터는 System.Collection.Generic 등장
+	컨테이너가 필요하게 됨. --> System.Collections 등장 --> .NET 2.0
+	부터는 System.Collections.Generic 등장
 
 	Generic 은 NonGeneric 에 비해 TypeSafe 하고, 메모리효율을 좋게한
 	컨테이너이다. 
-*** System.Collection 네임스페이스
-	최근 추세(?)는 *더이상 System.Collection 네임스페이스를 안쓴다* 는
-	것이다. 대부분 *System.Collection.Generic 네임스페이스* 를 쓴다.
+*** System.Collections 네임스페이스
+	최근 추세(?)는 *더이상 System.Collections 네임스페이스를 안쓴다* 는
+	것이다. 대부분 *System.Collections.Generic 네임스페이스* 를 쓴다.
 
-	System.Collection 의 모든 컬렉션은 ICollection(IEnumarable
+	System.Collections 의 모든 컬렉션은 ICollection(IEnumarable
 	파생클래스), ICloneable 의 인터페이스를 구현한다
 
     | 클래스     | 실생활에서의 예    | 주요 인터페이스 |
@@ -2274,7 +2275,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
     | IEnumerator | foreach 순회방법 구현           |
     | IList       | add/remove/index접근            |
 
-*** System.Collection.Specialized 네임스페이스
+*** System.Collections.Specialized 네임스페이스
 
 	결국 Generic 을 쓰게 되겠지만, 이런 것도 있다.
 
@@ -2292,13 +2293,528 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       일어나 성능저하를 일으킨다.
 	- TypeSafe 하지 않게된다. 
 	
+*** Generic Collection 기초
+	전반적으로 C++ template class와 거의 동일 개념. IEnumerable<T> 는
+	"IEnumerable of type T" 라고 읽는다.
+	=T= 라는 것을 보통 *placeholder* 라고 하는데, 그 이름은 개발자가
+	마음대로 지을 수 있으나(즉, T 가 아닌 다른 이름), 일반적으로 T 는
+	Type을, TKey 나 K 는 /key/ 의 type을 TValue 나 V 는 /value/ 의
+	type을 지칭하도록 하는게 일반적이다.
 
+	#+begin_src csharp
+      public class Car : IComparable<Car>
+      {
+          // ...
+      
+          // 입력 인자가 Object형이 아니라 Car형이 된다.
+          int IComparable<Car>.CompareTo(Car otherCar)
+          {
+              // object형을 car 로 unboxing할 필요가 없다.
+              if (this.CarId > otherCar.CarId) {
+                  return 1; // out-of-order
+              } else if (this.CarId < otherCar.CarId) {
+                  return -1; // in-order
+              } else {
+                  return 0; // same
+              }
+          }
+      }
+      // 실제 사용시..
+      Array<Car> carList;
+      carList.Add (new Car(...));
+      // ...추가
+      Array.Sort(carList);
+	#+end_src
+
+	System.Collections.Generic 네임스페이스에는 다음과 같은
+	인터페이스와 클래스가 있다.
+
+
+    |---------------------------+---------------------------------------|
+    | 인터페이스                | 실생활 예                             |
+    |---------------------------+---------------------------------------|
+    | ICollection<T>            | size, enum, thread의 특징을 구현      |
+    | IComparer<T>              | 2 객체를 비교하는 방법                |
+    | IDictionary<TKey, TValue> | Key/Value 쌍으로 된 내용을 집합       |
+    | IEnumerable<T>            | IEnumerator<T> 를 반환                |
+    | IEnumerator<T>            | foreach 형태로 순회하도록 구현        |
+    | IList<T>                  | 순차객체 목록을 add/remove/index 처리 |
+    | ISet<T>                   | 집합 개념을 처리                      |
+    |---------------------------+---------------------------------------|
+
+	모든 Collections.Generic 클래스는 위 인터페이스 중 ICollection<T>,
+	IEnumerable<T> 는 반드시 구현한다( 단, *Queue<T> 와 Stack<T> 는
+	ICollection<T> 가 아니라 ICollection 을 구현한다* ).
+
+	(MSDN 을 보니, List<T> 는 IList<T>뿐 아니라, IList도,
+	ICollection<T> 뿐 아니라 ICollection 도, IEnumerable<T> 뿐 아니라
+	IEnumerable 도 구현하고 있네!)
+
+    |-------------------------------+--------------------------+----------------------------|
+    | 클래스                        | 추가 구현 인터페이스     | 실생활 예                  |
+    |-------------------------------+--------------------------+----------------------------|
+    | Dictionary<TKey, TValue>      | IDictionary<TKey,TValue> | key/value 집합             |
+    | LinkedList<T>                 |                          | 이중연결목록               |
+    | List<T>                       | IList<T>                 | 동적크기 변경가능 순차목록 |
+    | Queue<T>                      | ICollection(! <T>아님!!) | FIFO 목록                  |
+    | SortedDictionary<TKey,TValue> | IDictionary<TKey,TValue> | 정렬된 key/value 집합      |
+    | SortedSet<T>                  | ISet<T>                  | 중복없이 정열된 객체 집합  |
+    | Stack<T>                      | ICollection(! <T>아님!!) | LIFO 목록                      |
+
+	얘들은 모두 mscorlib.dll, System.dll, System.Core.dll 에 구현이
+	흩어져 있다.
+
+*** Generic 사용법 기초 : 컬렉션 초기화 구문(Collection Initialization Syntax)
+	객체 초기화 구문(Object initialization syntax)에 대한 Generic 의
+	counterpart. /new/ 로 객체생성 바로 직후 세미콜론 찍기 전에
+	중괄호를 사용해 초기화할 객체의 목록을 기록. 객체 초기화 구문과
+	유사함. 객체 초기화 구문을 사용해 각각의 항목을 초기화 가능.
+
+	#+begin_src csharp
+      List<Point> myPointList = new List<Point>
+      {
+          new Point { X=2, Y=3 }, 
+          new Point { X=10, y=4 },
+          new Point(PointColor.BloodRed) { X=4, Y=5},
+      };
+      // 위의 초기화 구문이 없었다면, 아래처럼 ...
+      myPointList.Add (new Point { X=2, Y=3 });
+      myPointList.Add (new Point { X=10, y=4 });
+      myPointList.Add (new Point(PointColor.BloodRed) { X=4, Y=5});
+	#+end_src
+
+*** List<T> 사용법
+
+	- 생성자 : List<T>(IEnumerable<T>) 는 다른 컬렉션에서 요소 복사,
+      List<T>(Int32) 는 초기용량을 지정하여 생성
+	- 속성 : Count 는 갯수, Capacity 는 용량, Item 은 Index 속성
+	- 메소드 : 
+      Add/AddRange 는 항목1개/여러항목을 뒤에 추가,
+	  Insert/InsertRange 는 항목1개/여러항목을 특정위치에 추가,
+	  RemoveAt/RemoveRange 는 항목1개/여러항목을 특정위치에서 제거,
+	  Remove/RemoveAll 는 넘겨진 객체와 같은(EqualityComparer<T>)
+      객체를 먼 처음1개 또는 전체 삭제
+	  IndexOf 는 특정개체를 찾아 위치를 반환.
+	  Sort/Reverse 는 정렬/역정렬
+	  Clear 는 전체 삭제ㄱ
+	
+	#+begin_src csharp
+      List<Person> people = new List<Person>() {
+          // 컬렉션 초기화 구문으로 초기화
+      };
+      people.Insert(2, new Person("준환", 42));
+      
+      // 어느때라도 배열로 변환이 가능.
+      Person[] personArray = people.ToArray();
+      Console.WriteLine("first person = {0}", personArray[0]);
+	#+end_src
+
+*** Stack<T> 사용법
+
+	- Push : 객체를 stack 에 밀어넣음.
+	- Pop : 맨 마지막에 넣은 객체를 빼내옴.
+	- Peek : 맨 마지막에 넣은 객체를 확인함.
+
+*** Queue<T> 사용법
+
+    - Enqueue : 맨 뒤쪽에 항목을 추가함
+	- Dequeue : 맨 앞쪽의 항목을 빼내옴
+	- Peek    : 맨 앞쪽의 항목을 확인함
+
+*** SortedSet<T> 사용법
+
+	T 형의 클래스가 IComparer<T> 형을 구현하고 있다면, SortedSet<T>
+	컬렉션을 써서, 정렬된 상태를 위지하며 중복이 되지 않는 목록을
+	구성한다.
+
+	#+begin_src csharp
+      class SortByAgeComparer : IComparer<Person> {
+          int IComparer<Person>.Compare(Person lhs, Person rhs) {
+              if (lhs.Age < rhs.Age)
+                  return -1; // in order
+              else if (lhs.Age > rhs.Age)
+                  return 1; // out of order
+              else
+                  return 0; // same
+          }
+      }
+      public static void Main()
+      {
+          // Person 의 IComparable.CompareTo()에 따라 정렬된 Set
+          SortedSet<Person> personSet = new SortedSet<Person> {
+              new Person("준환", 42),
+              new Person("신영", 38),
+              new Person("서연", 11),
+              new Person("은서", 5)
+          };
+          // 나이 순서로 정렬된 Set
+          SortedSet<Person> personSet = new SortedSet<Person>(new SortByAgeComparer()) {
+              new Person("준환", 42),
+              new Person("신영", 38),
+              new Person("서연", 11),
+              new Person("은서", 5)
+          };
+      }
+	#+end_src
+
+*** System.Collections.ObjectModel 네임스페이스
+	어떤 컬렉션에 항목이 추가/삭제/전체Referesh등의 동작이 수행될 경우
+	외부에 그 사실을 통지해 줄 수 있는 class 들이 들어있는
+	네임스페이스.
+
+    | Type                            | 실제 예                                                   |
+    |---------------------------------+-----------------------------------------------------------|
+    | ObservableCollection<T>         | 항목추가/삭제/전체갱신등이 이루어 질 때                   |
+    |                                 | 외부에 그 사실을 통지할 수 있는 동적 데이터 컬렉션을 구현 |
+    | ReadOnlyObservableCollection<T> | ObservableCollection<T> 와 동일하지만, 읽기 전용 버젼     |
+
+*** ObservableController<T> 사용하기
+	이 클래스는 /CollectionChanged/ 라는 이벤트를 지원한다. 컬렉션에
+	변경이 가해지면 이 이벤트가 fire 된다.
+
+	아래는 가장 간단한 예제.
+
+	#+begin_src csharp
+      class People : ObservableCollection<Person> {
+          public People() {
+              CollectionChanged += LogChange;
+          }
+          public void LogChange(object sender,
+                                System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
+              // e.Action -> NotifyCollectionChangedAction.Add/Remove/Replace/Move/Reset..
+              Console.WriteLine("CollectionChanged : reason={0}", e.Action.ToString());
+              var people = sender as ObservableCollection<Person>;
+              foreach (var person in people) {
+                  Console.WriteLine("{0}", person);
+              }
+          }
+      }
+      class ObserverTest {
+          public static void Main() {
+              var people = new People() {
+                  new Person("준환", 42),
+                  new Person("신영", 38),
+                  new Person("서연", 11),
+                  new Person("은서", 5)
+              };
+              foreach (var person in people) {
+                  Console.WriteLine("{0}", person);
+              }
+      
+              Console.WriteLine("가족을 추가합니다..");
+              people.Add (new Person("가은", 7));
+      
+              Console.WriteLine("가족을 삭제합니다..");
+              people.RemoveAt(people.Count-1);
+      
+              Console.WriteLine("가족을 클리어합니다...");
+              people.Clear();
+          }
+      }
+	#+end_src
+
+	System.Collections.Specialized.NotifyCollectionChangedEventArgs
+	타입은
+	- /Action/ 속성 :(NotifyCollectionChangedAction enum값) -->
+      Add,Remove,Reset,..
+	- /OldItems/ 속성 : Remove 된 항목들의 목록
+	- /NewItems/ 속성 : Add 된 항목들의 목록
+*** 사용자 정의 제네릭 메소드(Custom Generic Method)
+	C++ template function 에서와 마찬가지로 생각하면 된다.
+	다만, 전역함수를 만들 수가 없네 C# 에서는?
+	어쨌든 정적 멤버/인스턴스 멤버 메소드를 template 으로 만들 수
+	있다. 이렇게 만들어진 제네릭 메소드를 호출할 때 /<T>/ 에 해당하는
+	타입을 명시적으로 넣어서 호출해야 하지만, 종종 타입유추가 뻔한
+	경우에는 생략해도 *컴파일러가 알아서 <T> 부분을 넣어준다*
+
+	#+begin_src csharp
+      public static class MyGenerics
+      {
+          public static void Swap<T>(ref T a, ref T b)
+          {
+              Console.WriteLine("Instance Swaping object of {0} type", a.GetType());
+              T temp = a;
+              a = b;
+              b = temp;
+          }    
+      }
+      
+      // 사용할 때 <T> 를 명시해도 되고...
+      MyGenerics.Swap<Person>(ref me, ref you);
+      // 유추가 가능한 경우에는 그냥 <T> 없이 호출해도 된다.
+      MyGenerics.Swap(ref me, ref you);
+	#+end_src
+*** /default/ 키워드
+	/default/ 키워드는 switch/case 문에서도 사용되지만, 어떤 타입에
+	대해 함수처럼 호출하면
+
+	- Numeric 의 경우 : 0
+	- RefType 의 경우 : null
+	- ValueType 의 경우 : 모든 멤버가 0 또는 nil
+
+	  의 값을 가지도록 한 디폴트 값을 반환한다. 
+
+	#+begin_src csharp
+      var defaultPoint = default(Point<int>); // x=0, y=0
+      int defaultInt = default (int); // 0
+	#+end_src
+
+	어떤 타입의 ResetValue() 같은 멤버를 구현할 때 유용.
+
+*** /where/ 키워드로 <T> 의 형식에 제한을 걸기
+	종종 <T> 타입이 "...어떠어떠한 타입인 경우에만 사용할 수 있다"는
+	식으로 제한을 둘 수 있다.
+
+	- /where T : class/  --> T 는 RefType 이어야 한다.
+	- /where T : struct/ --> T 는 ValueType 이어야 한다.
+	- /where T : new()/ --> T 는 기본생성자를 가져야 한다. 다시말해,
+                /new T()/ 할 수 있어야 한다.
+	- /where T : IDrawable/ --> T 는 어떤 인터페이스를 구현해야 한다.
+	- /where T : GdiDrawable/ --> T 는 어떤 타입에서 상속된 타입이어야 한다.
+    
+	이걸 여러개 나열하여 복합 제한을 만들 수 있다. 또한 여러개의 타입
+	placeholder 들에 대해서 따로 따로 제한을 둘 수 있다. 최대한
+	복잡한(?) 예를 들어보면.
+
+	#+begin_src csharp
+      // K 는 SomeBaseClass 의 파생클래스이면서 기본생성자를 가져야 한다.
+      // T 는 ValueType 이면서 IComparable<T> 를 구현해야 한다.
+      public class MyGenericClass<K, T>
+          where K : SomeBaseClass, new ()
+          where T : struct, IComparable<T>
+      {
+          // 구현
+      }
+      
+      // T 가 ValueType이어야 한다.
+      static void SwapValueTypeOnly<T>(ref T a, ref T b) 
+          where T : struct
+      {
+          // 
+      }
+	#+end_src
+
+	이 제약사항이 코드에서 지켜지지 않으면, 컴파일러가 오류 메시지를 뿜는다.
+
+*** Generic 코드에서는 4칙연산을 오버로딩하기가 어렵다.
+
+	Add/Subtract/Divide/Multiply 를 구현을 어떻게 하지? 나중에 알게된단다.
+	
+
+** 10장. Delegate(대리자), Event, 그리고 람다표현(Lambda Expression)
+*** Delgate 이해하기
+	Delegate란 다음의 3가지 정보(혹은 그 목록)를 담고 있는 TypeSafe
+	객체.
+
+	1) 호출할 메소드의 어드레스(*정적 메소드 / 인스턴스 메소드 모두 포함*)
+	2) 메소드의 파라메터들
+	3) 메소드의 반환값
+	
+	Delegate 를 통해 런타임에 저장된 메소드를 호출하는 방식도
+
+	- *비동기 호출* (오 예!)
+	- 동기 호출
+   
+	*모두* 가능하다.
+
+*** Delegate 정의하는 법 : /delegate/ 키워드
+
+	#+begin_src csharp
+      // MyOtherDelegate 라는 이름의 delegate 를 정의
+      public delegate string MyOtherDelegate(out bool a, ref bool b, int c);
+	#+end_src
+
+	위와 같이 하면 delegate가 정의된다. 실제로 위의 코드를 C#
+	컴파일러가 컴파일 하면, /System.MultiCaseDelegate/
+	(/System.Delegate/ 의 파생클래스) 로 부터 파생된 Delegate이름(즉,
+	MyOtherDelegate)의 *클래스가 정의* 된다. ( *함수처럼 보이지만,
+	실제로는 클래스 타입이 정의된다!*)
+
+	#+begin_src csharp
+      sealed class MyDelegate: System.MulticastDelegate 
+      { 
+          public string Invoke(bool a, bool b, bool c); 
+          public IAsyncResult BeginInvoke(bool a, bool b, bool c, 
+                                          AsyncCallback cb, object state); 
+          public string EndInvoke(IAsyncResult result); 
+      } 
+	#+end_src
+
+	이 중 Invoke() 메소드는 동기호출을, BeginInvoke/EndInvoke 는
+	비동기 호출시 사용된다. 하지만, 컴파일러가 생성한 이 클래스의
+	객체를 만들어 이들 메소드를 호출 할 일은 없다. C# 이 제공하는
+	별도의 구문을 써서 하게 될 것이다.
+
+*** System.MulticastDelegate 와 System.Delegate 기반클래스
+
+	요약하면 아래와 같이 생긴 클래스(일부 멤버만 있음!)
+
+	#+begin_src csharp
+      public abstract class Delegate : ICloneable, ISerializable 
+      { 
+          // 호출할 함수들의 목록을 추가/삭제하는 기능
+          public static Delegate Combine(params Delegate[] delegates);
+          public static Delegate Combine(Delegate a, Delegate b); 
+          public static Delegate Remove(Delegate source, Delegate value); 
+          public static Delegate RemoveAll(Delegate source, Delegate value); 
+      
+          // 오버로딩된 연산자들
+          public static bool operator ==(Delegate d1, Delegate d2); 
+          public static bool operator !=(Delegate d1, Delegate d2); 
+      
+          // delegate의 대상에 대한 정보
+          public MethodInfo Method { get; } // 함수 포인터 역할
+          public object Target { get; }  // static 함수가 아닌 경우 객체의 포인터가 필요하다.
+      }
+      
+      public abstract class MulticastDelegate : Delegate 
+      { 
+          // 가리키고 있는 메소드들의 목록
+          public sealed override Delegate[] GetInvocationList();
+      
+          // 오버로딩된 연산자
+          public static bool operator ==(MulticastDelegate d1, MulticastDelegate d2); 
+          public static bool operator !=(MulticastDelegate d1, MulticastDelegate d2); 
+      
+          // Delegate가 관리하는 메소드 목록의 관리를 위한 내부적으로 사용되는 것들
+          private IntPtr invocationCount; 
+          private object invocationList; 
+      }     
+	#+end_src
+
+	앞서 보았던 이벤트 처리시 *+=* 연산자는 Combine() 메소드와, *-=*
+	연산자는 Remove() 메소드와 관련이 있음.
+
+*** 초간단 Delegate 사용해보기
+	#+begin_src csharp
+      public delegate int BinaryOp(int x, int y);
+      
+      class SimpleMath {
+          public static int Add (int a, int b) {
+              return a + b;
+          }
+          public static int Subtract(int a, int b) {
+              return a - b;
+          }
+      }
+      class SimpleDelegateTest {
+          public static void Main() {
+              BinaryOp b = new BinaryOp(SimpleMath.Add);
+              // b(10,5) 하면 실제로는 b.Invoke(15,5) 가 수행
+              Console.WriteLine("b(10,5) = {0}",b(10,5)); // = 15
+              b = new BinaryOp(SimpleMath.Subtract);
+              Console.WriteLine("b(10,5) = {0}", b(10,5)); // = 5
+          }
+      }
+	#+end_src
+*** Delegate 실제예
+
+	실무에서 사용하는 작업수순은 다음과 같다.
+
+	#+begin_src csharp
+      class Car {
+          public Car() {
+              speed = 0;
+          }
+          public int Speed {
+              get {
+                  return speed;
+              }
+              set {
+                  Console.WriteLine("speed configured : {0}", value);
+                  if (speed != value) {
+                      OnSpeedChanged(speed, value);
+                      speed = value;
+                  }
+              }
+          }
+          private int speed;
+      
+          // 1. Delegate 정의하기(SpeedChangeHandler 라는 클래스가 만들어진다)
+          public delegate void SpeedChangeHandler(int beforeSpeed, int afterSpeed);
+          // 2. Delegate 객체 정의하기(private 필드 + 접근메소드)
+          private SpeedChangeHandler speedChangeHandler;
+          public void RegisterSpeedChangeHandler(SpeedChangeHandler handler) {
+              speedChangeHandler += handler;
+          }
+          public void UnregisterSpeedChangeHandler(SpeedChangeHandler handler) {
+              speedChangeHandler -= handler;
+          }
+          // 3. 어떤 상황에서 호출되어 Delegate를 호출하는 함수 만들기.
+          public virtual void OnSpeedChanged(int beforeSpeed, int afterSpeed) {
+              if (speedChangeHandler != null) {
+                  speedChangeHandler(beforeSpeed, afterSpeed);
+              }
+          }
+      }
+      
+      class PracticalDelegateTest {
+          // 4. 핸들러 만들기
+          public static void LogSpeedChange(int beforeSpeed, int afterSpeed) {
+              Console.WriteLine("speed change : {0} --> {1}", beforeSpeed, afterSpeed);
+          }
+          public static void Main() {
+              Car tucson = new Car();
+      
+              tucson.Speed = 10;
+              // 5. 핸들러 등록하기
+              Car.SpeedChangeHandler handler = new Car.SpeedChangeHandler(LogSpeedChange);
+              tucson.RegisterSpeedChangeHandler(handler);
+      
+              tucson.Speed = 20;
+              tucson.Speed = 30;
+      
+              // 5.1 핸들러 등록 해제하기
+              tucson.UnregisterSpeedChangeHandler(handler);
+      
+              tucson.Speed = 40;
+          }
+      }
+	#+end_src
+
+	위 코드에서 SpeedChangeHandler 를 그냥 public 필드로 놓고 써도
+	되었겠지만, 필자는 필드는 무조건 private 로 하고 속성이나 접근자를
+	만드는게 원칙이라는.. 쿨럭.
+
+*** 메소드 그룹 변환(Method Group Conversion) 문법 : 가독성이 좋음
+	대리자가 실은 클래스 타입이라는 점에서는 객체로 생성하여 전달하는
+	것이 자연스럽지만, 읽고 쓰기에는 번잡하다.
+
+	#+begin_src csharp
+      // 객체로 대리자를 보는 경우
+      car.RegisterSpeedChangeHandler(new Car.SpeedChangeHandler(logger.LogSpeedChange));
+      // 함수 포인터로 대리자를 보는 경우(=메소드 그룹 변환 문법)
+      car.RegisterSpeedChangeHandler(logger.LogSpeedChange);
+	#+end_src
+
+	위의 두 줄은 동일한 일을 한다. /new DelegateType()/ 부분이
+	불필요하게 된다. 마치 C/C++ 에서 함수 포인터를 넘기는 느낌.
+	이 구문은 C# /event/ 처리시 유용하게 사용된다. 
+	
+*** 제네릭 대리자(Generic Delegate)
+	Delegate 를 <T> 를 써서 타입 중립적으로 만든다.
+
+	#+begin_src csharp
+      public delegate void MyGenericDelegateInt(int arg);
+      public delegate void MyGenericDelegateString(string arg);
+      // ...
+      // 이런 종류의 정의들을 한방에 끝낸다. 
+      public delegate void MyGenericDelegate<T>(T arg);
+      
+      // 사용시에는
+      var intFunction = new MyGenericDelegate<int>(functionForInt);
+      var stringFunction = new MyGenericDelegate<string>(functionForString);
+      
+      
+	#+end_src
+	
+	
 * 기타 메모
 ** string 키워드
 
    System.String 의 alias 에 불과하다. 유니코드 캐릭터 집합이고, @""
    문자열을 쓰면 이스케이프 특수문자를 그대로 입력받을 수 있단다.
-   그리고, 중요한 사실은 *immutable(변경불가)* 타입이다. 
+   그리고, 중요한 사실은 *immutable(변경불가)* 타입이다.
 
 ** System.Object 와 System.ValueType, 그리고, System.Enum
 
