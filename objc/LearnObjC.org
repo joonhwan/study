@@ -326,9 +326,7 @@
      name begins with new unless you specify a different getter:
 
 * IOS.Nerd.Ranch.Guide 제3판...
-
   4장 위임(Delegation)부터 다시 시작 :(
-
 ** 4장 위임
 *** 프로젝트를 구성하는 것.
 **** project
@@ -913,7 +911,6 @@
 
 ** 13장 UIPopoverController 와 Modal View Controller들
    이 chapter 부터 iPad 에 대한 내용이 시작됨.
-
 *** 유니버설 바이너리
 	프로젝트 설정에서 iPhone 으로 되어 있던 Device를 Universal 로
     바꾸고 Run/Stop버튼 옆의 Scheme에서 iPad 를 선택하면 됨.
@@ -925,7 +922,7 @@
       전달했다면, 생성될 때 기기 상태에 따라 서로 다른 xib 파일을 찾아
       로딩하고 객체생성을 하게된다.
 
-*** 기기 상태 코드로 확인하기 : UIDevice 의 userInterfaceIdiom 속성
+*** 기기 상태 코드로 확인하기 : UIDevice 의 userInterfaceIdiom 속성--
 	보통 UIViewControllerDelegate 의 viewDidLoad 함수에서 아래와 같이
 	수행
 
@@ -1012,7 +1009,243 @@
         }
         
 	  #+end_src
+
+*** View Controller 간의 관계 : Parent/Child 그리고 Presenting/Presenter
+**** View Controller Container
+	UIViewController 들 중 다른 UIViewController 를 담을 수 있는 view
+	controller container 가 존재한다.
+
+	- UINavigationController : Back 버튼이 나오는...
+	- UITabBarController : 전화어플에서 맨 밑의 즐겨찾기/최근통화/연락처...
+	- UISplitViewController : IPad 에서만 볼 수 있는 splitter view :(
+   
+   얘들은 모두 /viewControllers/ 라는 NSArray 객체를 가지며, 이 속성에
+   자신이 담고 있는 view controller 들을 관리(?)한다. 관리되는 놈들과
+   관리하는 놈사이에는 Parent/Child 관계가 성립한다.
+
+   UIViewController 는
+
+   - (UIViewController*) /parentViewController/ 속성 : 부모 view controller 포인터
+	  
+   View controller container 는
+   
+   - (NSArray*) /viewControllers/ 속성 : 자식 view controller 객체목록
+
+
+**** View Controller Family
+	 어떤 UIViewController 에서도 자신의 부모쪽으로 존재할 가능성이
+	 있는 view controller container에 대한 포인터 속성이 존재한다.
+
+	 - /navigationController/ 속성
+	 - /tabBarController/ 속성
+	 - /splitViewController/ 속성
+
+	 이 속성값은 자신의 /parentViewController/ 의 연결고리를 주욱
+	 따라가다가 해당하는 type 의 view controller 를 만나면 그 놈의
+	 객체를 반환한다. 만일 그런게 없으면, nil반환.
+
+	 동일한 view controller container 를 이들 3개중 하나의 값으로
+	 반환받는 놈들을 묶으면 Family 가 된다.
+
+**** Presenting-Presenter 관계	 
+
+	 View controller 가 modally 하게 present 되면 presenting-presenter
+	 관계가 성립된다.
+
+	 *Modally 하게 Present 된다?* --> 어떤 View Controller 의 /view/ 가
+     다른 View controller 의 /view/ *위에* 추가되면 그걸 modally
+     presented 되었다고 한단다.
+
+	 *그 어떤 View Controller 라도 다른 View Controller 를 modally
+     present 할 수 있다*
+
+	 그 결과 상호간에 pointer/back-pointer 가 이 2 view controller에
+	 존재하는데...
+
+	 - /presentedVeiwController/ 속성 : present하는 놈이 자신이
+       present한 view controller 객체에 대한 포인터를 가진다.
+	 - /presentingViewController/ 속성 : present 당하는 놈이 자신을
+       present 한 view controller 객체에 대한 포인터를 가진다. 단,
+       어떤 UIViewController 가 위 3종 부모 view controller 중
+       하나라도 가지면 그놈이 presentingViewController가 된다. 
+	   
+	 Presenting-Presenter 관계는
+	 presnetViewController:animated:completion: 을 누가 호출했는지가
+	 아니라, view controller container 관계에 따라 최종 결정된다. 
+
+	 *주의* 여기 설명은 원래 책의 그림 13.8 을 보고 정확히 이해해야
+      한다. 여기의 설명은 그림 없이 하려니 조금 잘못이해될 수 있는
+      부분이 있다. 
+
+**** Family 간 관계(Presenting-Presenter관계에서)
+
+	 Presented view controller 는 자신의 presenter 와 반드시 동일한
+	 family 에 있어야 할 필요가 없음.
+
+	 각 UIViewController 가 자신의 /view/ 가 어느 View Controller 의
+	 view 위에 올라가느냐에 따라 관계가 정해진다. 그리고, 거기에 따라
+	 화면상의 실제 표시도 달라진다.
+
+	 디폴트의 동작을 바꾸고, 중간에 자신만의 frame 을 가지는 view 를
+	 만들려면, /definesPresentationContext/ 속성을 YES 로 하면 된다.
+	 (기본값은 NO 이다). 그러면, 최상위 계층의 3종 view controller
+	 container 가 아니라 이 YES로 설정된 view controller 가
+	 presenter가 된다.
+
+	 
+** 14장 Saving, Loading 및 Application States
+*** 어플의 세션간 데이터 유지
+	파일 시스템에 객체를 Archiving함으로써 가능.
+*** NSCoding protocol
+	어떤 객체를 파일시스템등에 저장하기 위한 프로토콜. 딱 2개의 필수
+	메소드가 존재한다.
+	#+begin_src objc
+      @protocol NSCoding
+      -(void)encodeWithCoder:(NSCoder *)aCoder;
+      -(id)initWithCoder:(NSCoder *)aDecoder;
+      @end
+	#+end_src
+	NSCoder 는 NSCoding을 confirm 하는 클래스의 객체들을
+	저장/불러오기를 할 수 있는 놈이다.
+	=encodeWithCoder:= 를 호출하면 aCoder 를 통해 각 멤버를
+	key/value쌍으로 저장한다. 그럼 저장시에 각 멤버 클래스의
+	=encodeWithCoder:= 가 호출된다.... 재귀적인 느낌으로 저장이
+	진행된다.
+	불러오기는 =initWithCoder:= 를 호출하여 aDecoder 를 통해 각 맴버를
+	생성한다. 
+	#+begin_src objc
+      @interface BNRItem : NSObject<NSCoding>
+      
+      -(id)initWithCoder:(NSCoder *)aDecoder
+      {
+          self = [super init];
+          if (self) {
+              [self setItemName:[aDecoder decodeObjectForKey:@"itemName"]];
+              // --> NSString 객체를 alloc
+              // --> NSString 의 initWithCoder 를 호출한다.
+              [self setValueInDollars:[aDecoder decodeIntForKey:@"valueInDollars"]];
+              // --> 객체가 아닌 경우 decodeIntForKey, decodeBlaBlaTypeForKey 를 호출
+          }
+          return self;
+      }
+      
+      -(void)encodeWithCoder:(NSCoder *)aCoder
+      {
+          [aCoder encodeObject:itemName forKey:@"itemName"];
+          // --> NSString객체 'itemName'이 "itemName" key의 값으로 저장
+          // --> NSString 이 구현하는 encodeWithCoder: 가 호출된다.
+      
+          // ...
+      
+          [aCoder encodeInt:valueInDollars forKey:@"valueInDollars"];
+          // --> 객체가 아닌경우 encodeInt, encodeBlaBlaType 을 호출
+      }
+      @end
+	#+end_src
+
+	XCode 문서를 보면 iOS 6.0 부터 NSSecureCoding 이 추가되었고,
+	NSString, NSDate 같은 자료형들이 NSCoding > NSSecureCoding >
+	NSString 이런 식으로 상속을 받는다. 그 이유는 =decodeObjectForKey:= 에
+	있다. 이 메소드는 일단 해당 클래스를 어떤식으로든 만들어 id 형으로
+	반환하는데 문제는 원래의 저장된 타입인지 어쩐지를 확인하는 식으로
+	구현되는 경우가 많이 있었다(그 과정에서 object subst attack을
+	당한단다). --> =decodeObjectOfClass:forKey:= 메소드를 대신
+	사용하도록 유도하고 있다.
+
+	#+begin_src objc
+      // iOS 6.0 이전 방식(NSCoding)
+      id obj = [aDecoder decodeObjectForKey:@"myKey"];
+      if (![obj isKindOfClass:[MyClass class]]) {
+          // fail...
+      }
+      
+      // iOS 6.0 이후 방식(NSSecureCoding)
+      id obj = [aDecoder decodeObjectOfClass:[MyClass class] forKey:@"myKey"];
+	#+end_src
+
 	
+*** Application Sandbox
+	iOS 는 모든 어플이 Application Sandbox 를 가진다. 이것은
+	파일시스템상의 디렉토리로서 나머지 파일 시스템으로 부터 완전히
+	격리된 공간이다. 단 1개의 어플만이 접근 가능하고 다른 어플들로
+	부터는 접근이 불가능한 파일시스템인 셈이다.
+	여기에는 다음과 같은 디렉토리가 있다.
+
+    | 디렉토리 명          | 사용 용도               | iTunes/iCloud저장여부 |
+    |----------------------+-------------------------+-----------------------|
+    | Library/Preferences/ | 어플 설정이 저장된다.   | 저장 됨               |
+    |                      | NSUserDefaults 클래스로 |                       |
+    |                      | 자동처리된다(?)         |                       |
+    |----------------------+-------------------------+-----------------------|
+    | tmp/                 | 어플 실행시 임시파일    | 저장 안됨             |
+    |                      | NSTemporaryDirection    |                       |
+    |                      | 함수로 쉽게 얻음.       |                       |
+    |----------------------+-------------------------+-----------------------|
+    | Documents/           | 어플 실행시 세션간      | 저장 됨               |
+    |                      | 상태유지를 위한 파일    |                       |
+    |                      | 저장 공간               |                       |
+    |----------------------+-------------------------+-----------------------|
+    | Library/Caches       | Documents 와 유사한     | 저장 안됨             |
+    |                      | 용도이지만, Cache따위만 |                       |
+    |                      | 저장(실제는 원격서버    |                       |
+    |                      | 에 저장될 데이터 등)    |                       |
+*** 파일경로 생성방법
+	XCode 문서에서는 권장하는 방법은 아니나
+	=NSSearchPathForDirectoriesInDomain()= 함수를 사용하여 특정
+	영역관련된 디렉토리들의 목록을 얻어온 다음 선택해 사용하는 방법이
+	있다. 이 함수의 첫번째 인자가 중요하다.
+	
+	#+begin_src objc
+      enum {
+         NSApplicationDirectory = 1,
+         NSDemoApplicationDirectory,
+         NSDeveloperApplicationDirectory,
+         NSAdminApplicationDirectory,
+         NSLibraryDirectory,
+         NSDeveloperDirectory,
+         NSUserDirectory,
+         NSDocumentationDirectory,
+         NSDocumentDirectory,
+         NSCoreServiceDirectory,
+         NSAutosavedInformationDirectory = 11,
+         NSDesktopDirectory = 12,
+         NSCachesDirectory = 13,
+         NSApplicationSupportDirectory = 14,
+         NSDownloadsDirectory = 15,
+         NSInputMethodsDirectory = 16,
+         NSMoviesDirectory = 17,
+         NSMusicDirectory = 18,
+         NSPicturesDirectory = 19,
+         NSPrinterDescriptionDirectory = 20,
+         NSSharedPublicDirectory = 21,
+         NSPreferencePanesDirectory = 22,
+         NSApplicationScriptsDirectory = 23,
+         NSItemReplacementDirectory = 99,
+         NSAllApplicationsDirectory = 100,
+         NSAllLibrariesDirectory = 101,
+         NSTrashDirectory = 102
+      };
+      typedef NSUInteger NSSearchPathDirectory;
+      
+      -(NSString *)itemArchivePath
+      {
+          NSArray *documentDirectories =
+              NSSearchPathForDirectoriesInDomain(
+                      // 첫번째 인자가 중요함.
+                      NSDocumentDirectory,
+                      // iOS 에서는 아래 2 인자는
+                      // 거의 바뀌지 않음.
+                      NSUserDomainMask,
+                      YES);
+          // iOS 에서는 sandbox 되어 아래의 경로 목록은 거의 1개 만 있다. 이
+          // 경로에 어플의 데이터파일을 저장한다.
+          NSString *documentDirectory  =
+              [documentDirectories objectAtIndex:0];
+      
+          // 디렉토리명에 "item.archive" 라는 파일명을 붙인다
+          return [documentDirectory stringByAppendingPathComponent:@"item.archive"];
+      }
+	#+end_src
 
 * 학습메모
 
@@ -1165,4 +1398,348 @@
 ** Target-Action 은 누가 구현하고 있는가.
    UIControl. 마침표! (참고로 NSObject > UIResponder > UIView >
    UIControl 순으로 클래스상속이 이루어졌다).
-** 
+**
+
+** NSString 이 파일경로 문자열의 parse/manipulate 을 한다.
+   #+begin_example
+     + pathWithComponents:
+     – pathComponents
+     – completePathIntoString:caseSensitive:matchesIntoArray:filterTypes:
+     – fileSystemRepresentation
+     – getFileSystemRepresentation:maxLength:
+     – isAbsolutePath
+     – lastPathComponent
+     – pathExtension
+     – stringByAbbreviatingWithTildeInPath
+     – stringByAppendingPathComponent:
+     – stringByAppendingPathExtension:
+     – stringByDeletingLastPathComponent
+     – stringByDeletingPathExtension
+     – stringByExpandingTildeInPath
+     – stringByResolvingSymlinksInPath
+     – stringByStandardizingPath
+     – stringsByAppendingPaths:
+   #+end_example
+** NSString 이 하는 일의 종류
+*** Creating and Initializing Strings
+   #+begin_example
+     + string
+     – init
+     – initWithBytes:length:encoding:
+     – initWithBytesNoCopy:length:encoding:freeWhenDone:
+     – initWithCharacters:length:
+     – initWithCharactersNoCopy:length:freeWhenDone:
+     – initWithString:
+     – initWithCString:encoding:
+     – initWithUTF8String:
+     – initWithFormat:
+     – initWithFormat:arguments:
+     – initWithFormat:locale:
+     – initWithFormat:locale:arguments:
+     – initWithData:encoding:
+     + stringWithFormat:
+     + localizedStringWithFormat:
+     + stringWithCharacters:length:
+     + stringWithString:
+     + stringWithCString:encoding:
+     + stringWithUTF8String:
+     + stringWithCString: Deprecated in iOS 2.0
+     + stringWithCString:length: Deprecated in iOS 2.0
+     – initWithCString: Deprecated in iOS 2.0
+     – initWithCString:length: Deprecated in iOS 2.0
+     – initWithCStringNoCopy:length:freeWhenDone: Deprecated in iOS 2.0
+   #+end_example
+
+*** Creating and Initializing a String from a File
+   #+begin_example
+     + stringWithContentsOfFile:encoding:error:
+     – initWithContentsOfFile:encoding:error:
+     + stringWithContentsOfFile:usedEncoding:error:
+     – initWithContentsOfFile:usedEncoding:error:
+     + stringWithContentsOfFile: Deprecated in iOS 2.0
+     – initWithContentsOfFile: Deprecated in iOS 2.0
+   #+end_example
+
+*** Creating and Initializing a String from an URL
+   #+begin_example
+     + stringWithContentsOfURL:encoding:error:
+     – initWithContentsOfURL:encoding:error:
+     + stringWithContentsOfURL:usedEncoding:error:
+     – initWithContentsOfURL:usedEncoding:error:
+     + stringWithContentsOfURL: Deprecated in iOS 2.0
+     – initWithContentsOfURL: Deprecated in iOS 2.0
+   #+end_example
+
+*** Writing to a File or URL
+   #+begin_example
+     – writeToFile:atomically:encoding:error:
+     – writeToURL:atomically:encoding:error:
+     – writeToFile:atomically: Deprecated in iOS 2.0
+     – writeToURL:atomically: Deprecated in iOS 2.0
+   #+end_example
+
+*** Getting a String’s Length
+   #+begin_example
+     – length
+     – lengthOfBytesUsingEncoding:
+     – maximumLengthOfBytesUsingEncoding:
+   #+end_example
+
+*** Getting Characters and Bytes
+   #+begin_example
+     – characterAtIndex:
+     – getCharacters:range:
+     – getBytes:maxLength:usedLength:encoding:options:range:remainingRange:
+     – getCharacters: Deprecated in iOS 4.0
+   #+end_example
+
+*** Getting C Strings
+   #+begin_example
+     – cStringUsingEncoding:
+     – getCString:maxLength:encoding:
+     – UTF8String
+     – cString Deprecated in iOS 2.0
+     – cStringLength Deprecated in iOS 2.0
+     – getCString: Deprecated in iOS 2.0
+     – getCString:maxLength: Deprecated in iOS 2.0
+     – getCString:maxLength:range:remainingRange: Deprecated in iOS 2.0
+     – lossyCString Deprecated in iOS 2.0
+   #+end_example
+
+*** Combining Strings
+   #+begin_example
+     – stringByAppendingFormat:
+     – stringByAppendingString:
+     – stringByPaddingToLength:withString:startingAtIndex:
+   #+end_example
+
+*** Dividing Strings
+   #+begin_example
+     – componentsSeparatedByString:
+     – componentsSeparatedByCharactersInSet:
+     – stringByTrimmingCharactersInSet:
+     – substringFromIndex:
+     – substringWithRange:
+     – substringToIndex:
+   #+end_example
+
+*** Finding Characters and Substrings
+   #+begin_example
+     – rangeOfCharacterFromSet:
+     – rangeOfCharacterFromSet:options:
+     – rangeOfCharacterFromSet:options:range:
+     – rangeOfString:
+     – rangeOfString:options:
+     – rangeOfString:options:range:
+     – rangeOfString:options:range:locale:
+     – enumerateLinesUsingBlock:
+     – enumerateSubstringsInRange:options:usingBlock:
+   #+end_example
+
+*** Replacing Substrings
+   #+begin_example
+     – stringByReplacingOccurrencesOfString:withString:
+     – stringByReplacingOccurrencesOfString:withString:options:range:
+     – stringByReplacingCharactersInRange:withString:
+   #+end_example
+
+*** Determining Line and Paragraph Ranges
+   #+begin_example
+     – getLineStart:end:contentsEnd:forRange:
+     – lineRangeForRange:
+     – getParagraphStart:end:contentsEnd:forRange:
+     – paragraphRangeForRange:
+   #+end_example
+
+*** Determining Composed Character Sequences
+   #+begin_example
+     – rangeOfComposedCharacterSequenceAtIndex:
+     – rangeOfComposedCharacterSequencesForRange:
+   #+end_example
+
+*** Converting String Contents Into a Property List
+   #+begin_example
+     – propertyList
+     – propertyListFromStringsFileFormat
+   #+end_example
+	
+*** Identifying and Comparing Strings
+   #+begin_example
+     – caseInsensitiveCompare:
+     – localizedCaseInsensitiveCompare:
+     – compare:
+     – localizedCompare:
+     – compare:options:
+     – compare:options:range:
+     – compare:options:range:locale:
+     – localizedStandardCompare:
+     – hasPrefix:
+     – hasSuffix:
+     – isEqualToString:
+     – hash
+   #+end_example
+
+*** Folding Strings
+   #+begin_example
+     – stringByFoldingWithOptions:locale:
+   #+end_example
+
+*** Getting a Shared Prefix
+   #+begin_example
+     – commonPrefixWithString:options:
+   #+end_example
+
+*** Changing Case
+   #+begin_example
+     – capitalizedString
+     – capitalizedStringWithLocale:
+     – lowercaseString
+     – lowercaseStringWithLocale:
+     – uppercaseString
+     – uppercaseStringWithLocale:
+   #+end_example
+
+*** Getting Strings with Mapping
+   #+begin_example
+     – decomposedStringWithCanonicalMapping
+     – decomposedStringWithCompatibilityMapping
+     – precomposedStringWithCanonicalMapping
+     – precomposedStringWithCompatibilityMapping
+   #+end_example
+
+*** Getting Numeric Values
+   #+begin_example
+     – doubleValue
+     – floatValue
+     – intValue
+     – integerValue
+     – longLongValue
+     – boolValue
+   #+end_example
+
+*** Working with Encodings
+   #+begin_example
+     + availableStringEncodings
+     + defaultCStringEncoding
+     + localizedNameOfStringEncoding:
+     – canBeConvertedToEncoding:
+     – dataUsingEncoding:
+     – dataUsingEncoding:allowLossyConversion:
+     – description
+     – fastestEncoding
+     – smallestEncoding
+   #+end_example
+
+*** Working with Paths
+   #+begin_example
+     + pathWithComponents:
+     – pathComponents
+     – completePathIntoString:caseSensitive:matchesIntoArray:filterTypes:
+     – fileSystemRepresentation
+     – getFileSystemRepresentation:maxLength:
+     – isAbsolutePath
+     – lastPathComponent
+     – pathExtension
+     – stringByAbbreviatingWithTildeInPath
+     – stringByAppendingPathComponent:
+     – stringByAppendingPathExtension:
+     – stringByDeletingLastPathComponent
+     – stringByDeletingPathExtension
+     – stringByExpandingTildeInPath
+     – stringByResolvingSymlinksInPath
+     – stringByStandardizingPath
+     – stringsByAppendingPaths:
+   #+end_example
+
+*** Working with URLs
+   #+begin_example
+     – stringByAddingPercentEscapesUsingEncoding:
+     – stringByReplacingPercentEscapesUsingEncoding:
+   #+end_example
+
+*** Linguistic Tagging and Analysis
+   #+begin_example
+     – enumerateLinguisticTagsInRange:scheme:options:orthography:usingBlock:
+     – linguisticTagsInRange:scheme:options:orthography:tokenRanges:   
+   #+end_example
+	
+
+* Apple 공식문서 코스워크 순서
+  [[http://pole2win.tistory.com/91][Pole to win 블로그에서 얻은 신공]]
+** 우선 읽고 볼 문서
+   - The Objective-C Programming Guide
+   - Memory Management Programming Guide
+   - iOS Application Programming Guide
+   - iOS Development Guide
+   - Cocoa Fundamentals Guide
+   - Resource Programming Guide
+   - View Programming Guide for iOS
+   - View Controller Programming Guide for iOS
+   - Event-Handling Guide for iOS
+   - Key-Value Coding Programming Guide
+   - Key-Value Observing Programming Guide
+   - Xcode Project Management Guide
+
+** 결국 읽어야 할 문서
+   - Table View Programming Guide for iOS
+   - Scroll View Programming Guide
+   - Information Property List Key Reference
+   - Drawing and Printing Guide for iOS / Core Graphics Framework Reference
+   - Core Animation Programming Guide / Core Animation Cookbook
+   - NSInvocation Class Reference
+   - SDK Compatibility Guide
+   - Settings Application Schema Reference
+   - Concurrency Programming Guide
+   - Interface Builder User Guide
+   - Instruments User Guide, Shark User Guide
+   - Secure Coding Guide
+   - Internationalization Programming Topics
+   - Cocoa Performance Guidelines
+   - Error Handling Programming Guide, Exception Programming Topics
+   - Property List Programming Guide / User Defaults Programming Topics
+
+** 필요하면 찾아볼 문서 (중요)>
+   - Core Data Programming Guide
+   - CFNetwork Programming Guide / CFNetwork Framework Reference
+   - Device Features Programming Guide
+   - Location Awareness Programming Guide
+   - Text, Web, and Editing Programming Guide for iOS
+   - Camera Programming Topics for iOS
+   - Keychain Services Programming Guide
+   - Event Kit Programming Guide (calendar) / Address Book Programming Guide for iOS
+   - OpenGL ES Programming Guide for iOS
+   - Quartz 2D Programming Guide
+   - Core Audio / Audio Queue Services Programming Guide / Audio Session Programming Guide
+   - Undo Architecture
+   - File-system performance guidelines
+
+** 생각나면 한번쯤 읽어 볼 문서 
+   - iOS Human Interface Guidelines
+   - Apple Human Interface Guidelines
+   - Design Patterns: Elements of Reusable Object-Oriented Software
+   - Bundle Programming Guide
+   - Coding guideline for Cocoa (naming guideline)
+
+** 필요하면 찾아 볼 문서 (덜 중요) 
+   - System Messaging Programming Topics in iOS
+   - Core Telephony Framework Reference
+   - Stream Programming Guide
+   - URL Loading System Programming Guide / Apple URL Scheme References
+   - Multimedia Programming Guide
+   - Archives and Serializations Programming Guide
+   - External Accessory Programming Guide
+   - Timer Programming Topics
+
+** 가장 나중에 읽을 문서 (Mac OS X와 겹치는 것이 많음)
+   - Cocoa Event-Handling Guide / How Cocoa Applications Handle Apple Events
+   - Foundation Framework Reference
+   - Cocoa Drawing Guide (View hierarchy)
+   - Threading Programming Guide
+   - Objective-C Runtime Programming Guide
+   - Window Programming Guide
+   - Model Object Implementation Guide
+   - Code Loading Programming Topics
+   - Preferences Utilities Reference (CF)
+   - Distributed Objects Programming Topics
+   - Cocoa Scripting Guide
+   - Document-Based Applications Overview
