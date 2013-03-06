@@ -2519,13 +2519,15 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       Add,Remove,Reset,..
 	- /OldItems/ 속성 : Remove 된 항목들의 목록
 	- /NewItems/ 속성 : Add 된 항목들의 목록
-*** 사용자 정의 제네릭 메소드(Custom Generic Method)
-	C++ template function 에서와 마찬가지로 생각하면 된다.
-	다만, 전역함수를 만들 수가 없네 C# 에서는?
-	어쨌든 정적 멤버/인스턴스 멤버 메소드를 template 으로 만들 수
-	있다. 이렇게 만들어진 제네릭 메소드를 호출할 때 /<T>/ 에 해당하는
-	타입을 명시적으로 넣어서 호출해야 하지만, 종종 타입유추가 뻔한
-	경우에는 생략해도 *컴파일러가 알아서 <T> 부분을 넣어준다*
+*** 사용자 정의 제네릭 메소드(Custom Generic Method). 
+	C++ template function 에서와 마찬가지로 생각하면 된다. (이 한줄에
+	책의 몇페이지가 녹아있다는.. 쿨럭) 다만, 전역함수를 만들 수가 없네
+	C# 에서는? 어쨌든 정적 멤버/인스턴스 멤버 메소드를 template 으로
+	만들 수 있다.
+*** 타입유추(Inference of Type Parameter)
+	제네릭 메소드를 호출할 때 /<T>/ 에 해당하는 타입을 명시적으로
+	넣어서 호출해야 하지만, 종종 타입유추가 뻔한 경우에는 생략해도
+	*컴파일러가 알아서 <T> 부분을 넣어준다*
 
 	#+begin_src csharp
       public static class MyGenerics
@@ -2544,6 +2546,9 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       // 유추가 가능한 경우에는 그냥 <T> 없이 호출해도 된다.
       MyGenerics.Swap(ref me, ref you);
 	#+end_src
+
+	단, 타입유추는 파라메터가 있는 경우에만 사용이 가능하다.
+
 *** /default/ 키워드
 	/default/ 키워드는 switch/case 문에서도 사용되지만, 어떤 타입에
 	대해 함수처럼 호출하면
@@ -2561,7 +2566,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 	어떤 타입의 ResetValue() 같은 멤버를 구현할 때 유용.
 
-*** /where/ 키워드로 <T> 의 형식에 제한을 걸기
+*** /where/ 키워드 "타입제한자(Type Constraint)"
 	종종 <T> 타입이 "...어떠어떠한 타입인 경우에만 사용할 수 있다"는
 	식으로 제한을 둘 수 있다.
 
@@ -2597,9 +2602,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 	이 제약사항이 코드에서 지켜지지 않으면, 컴파일러가 오류 메시지를 뿜는다.
 
 *** Generic 코드에서는 4칙연산을 오버로딩하기가 어렵다.
-
 	Add/Subtract/Divide/Multiply 를 구현을 어떻게 하지? 나중에 알게된단다.
-	
 
 ** 10장. Delegate(대리자), Event, 그리고 람다표현(Lambda Expression)
 *** Delgate 이해하기
@@ -2646,8 +2649,12 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 	별도의 구문을 써서 하게 될 것이다.
 
 *** System.MulticastDelegate 와 System.Delegate 기반클래스
-
 	요약하면 아래와 같이 생긴 클래스(일부 멤버만 있음!)
+	정의된 대리자의 이름은 결국 이 클래스의 파생 클래스타입. 대리자의
+	정보를 얻을 수 도 있다(Investigating a Delegate Object).
+
+	*Target 속성* 과 *Method 속성* 이 중요해 보인다. 정적 메소드가
+	대리자인 경우 Delegate클래스의 Target 속성은 null 을 반환.
 
 	#+begin_src csharp
       public abstract class Delegate : ICloneable, ISerializable 
@@ -2684,7 +2691,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 	앞서 보았던 이벤트 처리시 *+=* 연산자는 Combine() 메소드와, *-=*
 	연산자는 Remove() 메소드와 관련이 있음.
-
+	
 *** 초간단 Delegate 사용해보기
 	#+begin_src csharp
       public delegate int BinaryOp(int x, int y);
@@ -2789,7 +2796,7 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 	위의 두 줄은 동일한 일을 한다. /new DelegateType()/ 부분이
 	불필요하게 된다. 마치 C/C++ 에서 함수 포인터를 넘기는 느낌.
-	이 구문은 C# /event/ 처리시 유용하게 사용된다. 
+	*이 구문은 C# event 처리시 유용하게 사용* 된다. 
 	
 *** 제네릭 대리자(Generic Delegate)
 	Delegate 를 <T> 를 써서 타입 중립적으로 만든다.
@@ -2804,11 +2811,318 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       // 사용시에는
       var intFunction = new MyGenericDelegate<int>(functionForInt);
       var stringFunction = new MyGenericDelegate<string>(functionForString);
-      
-      
 	#+end_src
+
+*** 일반적 대리자 : Action<>, Func<>, Predicate 제네릭 대리자
+	매번 비슷한 종류의 대리자를 이런 저런 클래스에 매번 만드는게
+	redudant 하게 느껴진다면, .NET에서 기본 제공하는
+
+	- Action<> 대리자 : 인자는 16개, 반환값은 void. 
+	- Func<>   대리자 : 인자는 16개, 반환값은 사용자 정의
+   
+   를 사용할 수 있다.
+
+   #+begin_src csharp
+     static int Add (int x, int y)
+     {
+         return x + y;
+     }
+     static string SumToString(int x, int y)
+     {
+         return (x + y).ToString();
+     }
+     
+     static void Main()
+     {
+         Func<int, int, int> funcTarget = new Func<int, int, int>(Add); 
+         int result = funcTarget.Invoke(40, 40); 
+         Console.WriteLine("40 + 40 = {0}", result); 
+         Func<int, int, string> funcTarget2 = new Func<int, int, string>(SumToString); 
+         string sum = funcTarget2(90, 300); 
+         Console.WriteLine(sum);
+     }
+   #+end_src
+
+*** C# /event/ 키워드로 대리자를 쉽게 사용하기
+
+	대리자를 사용하려면,
+	1) 대리자를 정의
+	2) 정의된 대리자 객체를 private 멤버 필드로 정의
+	3) 대리자 객체에 콜백을 등록/등록해제 하는 메소드를 정의
 	
-	
+	의 기본적인 작업이 많이 필요하다.
+
+	/event/ 키워드를 사용하면 위 2) 및 3) 작업을 한 줄로 끝낼 수 있다.
+	C# 컴파일러가 add_XXX(), remove_XXX() 의 등록함수와 private의
+	대리자 객체 필드를 생성한다.
+
+	#+begin_src csharp
+      public class Car
+      {
+          public delegate void CarHandler(string msg);
+          
+          // private CarHandler Exploded;
+          // public void RegisterExplodedHandler(CarHandler handler)
+          // {
+          //  Exploded += handler;
+          // }
+          // public void UnregisterExplodedHandler(CarHandler handler)
+          // {
+          //  Exploded -= handler;
+          // }
+      
+          // 위의 내용이 아래의 한줄로 해결
+          public event CarHandler Exploded;
+      
+          public override OnExploded(string msg)
+          {
+              // 실제 호출은 예전 대리자 방식과 동일.
+              Exploded(msg); // fire event !
+          }
+      }
+      pubic static void LogExplodedMessage(string msg)
+      {
+          Console.WriteLine(msg);
+      }
+      public static void Main()
+      {
+          Car myCar = new Car;
+          myCar.Exploded += LogExploded;
+      
+          myCar.goMaximum();
+      }
+	#+end_src
+
+*** C# 의 Event Pattern : 제네릭 EventHandler<T> 대리자
+	앞서 /event/ 키워드를 사용하면 대리자 객체의 필드와 콜백
+	등록/등록해제 작업을 간단히 할 수 있었다. 그런데, C# 은 대리자
+	정의하는 것 까지 필요없게 해 주는 event pattern 을 여기 저기서
+	사용한다. 즉 *공통의 대리자 타입* 을 사용하는 것이다.
+
+	그것이 제네릭 EventHandler<T> 대리자 타입이다.
+
+	얘는 다음과 같은 핸들러를 등록할 수 있다.
+
+	#+begin_example
+    void MyHandler({System.Object} sender, {EventArgs의 파생클래스형} e);
+	#+end_example
+
+	즉, 반환값이 void 형이고, 첫번째 인자는 이 콜백을 호출하게 만든,
+	즉 이벤트를 날리는 전송자의 참조이고, 두번째 인자는 이벤트의
+	내용을 담는 다음과 같은 클래스 혹은 그 클래스의 파생 타입이다.
+
+	#+begin_src csharp
+      public class EventArgs 
+      { 
+          public static readonly EventArgs Empty; 
+          public EventArgs(); 
+      }
+	#+end_src
+
+	보통은 여기서 파생받아서 사용자 정의 클래스를 만들어 그걸
+	사용한다.
+
+	#+begin_src csharp
+      public class CarEventArgs : EventArgs
+      {
+          public readonly string message;
+          public CarEventArgs(string aMessage)
+          {
+              message = aMessage;
+          }
+      }
+	#+end_src
+
+	이걸 사용하면 앞서 /event/ 키워드로 간단히 했던 구문에서
+	"1)대리자의 정의" 단계가 필요없다.
+
+	#+begin_src csharp
+      public class Car
+      {
+          // public delegate void CarHandler(string msg);
+      
+          // // private CarHandler Exploded;
+          // // public void RegisterExplodedHandler(CarHandler handler)
+          // // {
+          // //  Exploded += handler;
+          // // }
+          // // public void UnregisterExplodedHandler(CarHandler handler)
+          // // {
+          // //  Exploded -= handler;
+          // // }
+      
+          // // 위의 내용이 아래의 한줄로 해결
+          // public event CarHandler Exploded;
+      
+          // 위의 내용을 더 간단히 한줄로 해결
+          public event EventHandler<CarEventArgs> Exploded;
+      
+          public override OnExploded(string msg)
+          {
+              // 실제 호출은 예전 대리자 방식과 동일.
+              Exploded(msg); // fire event !
+          }
+      }
+      public static void LogExplodedMessage(object sender, CarEventArgs eventArgs)
+      {
+          // "sender" 를 통해 호출한 쪽의 정체를 알 수 있다.
+          if (sender is Car)
+          {
+              // eventArgs 를 통해 호출한 쪽이 전달한 내용을 알 수 있다.
+              Console.WriteLine(eventArgs.message);
+          }
+      }
+      public static void Main()
+      {
+          Car myCar = new Car;
+          myCar.Exploded += LogExploded;
+            
+          myCar.goMaximum();
+      }
+	#+end_src
+
+*** C# 무명 메소드(Ananymous Methods)
+	대리자에 핸들러를 추가하는 구문에 바로 메소드를 정의할 수 있다.
+	코드 가독성이 좋아진다(핸들러의 정의가 바로 보이기 때문이다).
+	기본 구문은 아래와 같다.
+	#+begin_src csharp
+      class Program
+      {
+          static void Main()
+          {
+              SomeType t= new SomeType;
+              t.SomeEvent += delegate (선택적으로_지정된_대리자_인자들) {
+                  // 실행구문이 여기에 온다.
+              }
+          }
+      }
+	#+end_src
+
+	*인자의 갯수가 대리자와 정확히 일치하지 않는 경우에도 사용이 가능*
+     하다는 점을 기억. 인자가 없는 경우에는 괄호를 아예 삭제해도
+     무방하다는 점도 기억.
+    	 
+	#+begin_src csharp
+      class Program
+      {
+          public static void Main()
+          {
+              Car c1 = new Car(Name:"SlugBug", MaxSpeed:100);
+      
+              c1.Exploded += delegate {
+                  Console.WriteLine("Exploded!");
+              }
+              c1.Exploded += delegate (object sender, CarEventArgs eventArgs){
+                  Console.WriteLine("Exploded Event from {0} : {1}",
+                                    sender, eventArgs.message);
+              }
+      
+              c1.makeItExplode();
+          }
+      }
+	#+end_src
+
+*** C# 무명 메소드의 외부 변수(outer variable) 접근
+	무명 메소드는, 자신을 정의한 메소드의 로컬 변수에 접근할 수 있다.
+	--> 무명 메소드의 가장 흥미로운 기능중 하나. --> *외부 변수(outer
+	variable)* 이라 함.
+
+	1. 접근 가능
+	   1) outer class 인스턴스 변수 또는 정적 변수
+	   2) outer class 멤버변수와 동일한 이름의 지역 변수인 경우
+          멤버변수는 은폐되고, 지역변수가 사용됨.
+	2. 접근 불가능
+	   1) 무명 메소드를 정의한 메소드에 인자로 넘어온 ref 및 out 인자
+	   2) 무명 메소드내의 지역변수와 이름이 동일한 외부변수
+
+*** 람다 표현식(Lambda Expression)
+	.net 이벤트 아키텍쳐와 관련한 내용의 종착역 -> C# 람다 표현식.
+	기본 구문은
+
+	#+begin_example
+	처리할_인자 => 인자를_처리하는_구문
+	#+end_example
+
+	과 같다. C# 토큰 = => =  (등호 화살표)가 중요하다. 인자의 타입은
+	명시해도 되고 명시하지 않아도 된다. int 형 인자를 받아 bool 타입을
+	반환하는 람다 표현식은 다음과 같다.
+
+	#+begin_src csharp
+      void Main()
+      {
+          // 제일 완전한 형태
+          myIntList.FindAll( (int i) => {
+                  Console.Write("숫자 {0} 가 짝수인지 확인", i)
+                  return (i%2)==0;
+              });
+      
+          // 문(statement)이 1개인 경우 중괄호는 빼도 된다.
+          myIntList.FindAll( (i) => (return (i%2)==0) );
+      
+          // 소괄호는 간단한 경우에 생략도 가능
+          myInList.FindAll( i => return (i%2) == 0 );
+      }
+	#+end_src
+
+	람다 식은 C# 컴파일러에 의해 delegate 키워드를 사용하는 무명
+	메소드로 변화된다(ildasm.exe 로 확인 가능). 그리고 실제 실행되는
+	내용은 무명 메소드 뿐 아니라 명확한 형이 지정된 대리자 객체와
+	동일하다. 
+
+*** 0개 혹은 여러개의 인자를 받는 람다 표현식
+	인자가 1개 있었던 앞의 경우와 마찬가지로 각각의 인자는 형을
+	지정해도 되고 안해도 된다.
+	인자가 0개 인 경우 = => = C# 람다 계산 토큰 앞에 빈 소괄호가
+	위치한다.
+
+	아래 예는 event로 깔끔하게 정의된 대리자에 여러 인자 형식의 람다
+	표현식을 엮는 예를 포함한다.
+
+	#+begin_src csharp
+      class SimpleMath {
+          public delegate void MathMessage(string msg, int result);
+          public event MathMessage mmDelegate;
+      
+          public int Add (int a, int b) {
+              int c = a + b;
+              if (mmDelegate != null)
+              {
+                  mmDelegate("Adding has completed", c);
+              }
+              return c;
+          }
+      }
+      class LambdaMultiTest {
+          public static void Main() {
+              SimpleMath sm = new SimpleMath();
+              // 인자의 형이 암시적으로 결정;
+              sm.mmDelegate += ( (msg, result) => {
+                      Console.WriteLine(msg);
+                      Console.WriteLine("result : {0}", result);
+                  });
+              // 인자의 형이 명시적으로 지정
+              sm.mmDelegate += ( (string msg, int result) => {
+                      Console.WriteLine("2:{0}", msg);
+                      Console.WriteLine("2:result : {0}", result);
+                  });
+      
+              // 인자 갯수가 다름 (오류!!!)
+              // sm.mmDelegate += ( (string msg) => {
+              //      Console.WriteLine("2:{0}", msg);
+              //  });
+      
+              // 인자 갯수가 일부만 명시적(오류!!!)
+              // sm.mmDelegate += ( (string msg, result) => {
+              //      Console.WriteLine("2:{0}", msg);
+              //      Console.WriteLine("2:result : {0}", result);
+              //  });
+      
+              sm.Add (10, 11);
+          }
+      }
+	#+end_src
+
+
 * 기타 메모
 ** string 키워드
 
@@ -3048,3 +3362,9 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 ** string s = new string("hello") 같은 구문은 C# 에서 안된다?!
    생성자에는 있는데????
+** 상수, 식도 객체처럼.
+   와 Ruby 같다.
+   #+begin_src csharp
+     Console.WriteLine("10 's type is {0}", 10.GetType());
+     Console.WriteLine("10 + 8 = {0}", (10+8).ToString());
+   #+end_src
