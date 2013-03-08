@@ -3122,6 +3122,414 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       }
 	#+end_src
 
+** 11장. C# 언어 고급편
+*** 인덱서 메소드(Indexer Method)
+	배열 항목접근과 유사하게 대괄호 연산자를 써서 항목에 접근하는
+	/class/ 또는 /struct/ 의 속성
+	
+	- 이름은 메소드이지만, 사실은 속성
+	- 속성 이름이 "this[인자_목록]" 의 형태임. 타입은 맘대로.
+	- 인터페이스에서 선언하고, 클래스에서 정의할 수 있음.
+	- 여러 인자도 사용가능(즉, 오버로딩이 가능)
+	- (내의견) 근데, 시그너쳐가 같으면 문제가 당연히 생길듯.
+
+	#+begin_src csharp
+      public interface ICategoryKeyValueProvider
+      {
+          string this[string aCategory, string aKey] { get; set; }
+      }
+            
+      public class SomeContainer : ICategoryKeyValueProvider 
+      {
+          // ICategoryKeyValueProvider 인터페이스의 메소드 정의
+          public string this[string aCategory, string aKey] {
+              get { return string.Format("카테고리:{0} 키:{1} 의 값", aCategory, aKey); }
+              set { Console.WriteLine(@"카테고리:{0} 키:{1} 의 값을 ""{2}""로 설정", aCategory, aKey, value); }
+          }
+          // 읽기 전용 인덱서
+          public int this[int row, int col] {
+              get { return row * 1000 + col; }
+          }
+          // 문자열을 인자로 받는 덱서
+          public int this[string rowColExpr] {
+              get { return this[Convert.ToInt32(rowColExpr.Substring(1,2)),
+                                Convert.ToInt32(rowColExpr.Substring(4,2))]; }
+              set { Console.Write("{0}의 값을 {1}로 설정합니다.", rowColExpr, value); }
+          }
+      }
+            
+      class IndexerTest {
+          public static void Main() {
+              SomeContainer c = new SomeContainer();
+              Console.WriteLine("c[18,17]={0}", c[18,17]);
+              Console.WriteLine("c[\"1817\"]={0}", c["r18c17"]);
+              c["r19c20"] = 1004;
+      
+              Console.WriteLine("사업아이템-3차원프린터의 값: {0}", c["사업아이템", "3차원프린터"]);
+              c["배사장회사", "업무지원"] = "만빵";
+          }
+      }
+	#+end_src
+
+*** 연산자 오버로딩  : 4칙연산 + alpha
+
+	- 2항 사칙연산자 오버로딩 : 계산결과를 무조건 새로운 객체로 new
+      해서 반환하고, *정적 멤버* 로 *2개* 의 인자를 받음.
+	  --> 서로 다른 타입인 경우 lhs 와 rhs 의 위치별 타입이
+      연산자적용에 영향을 줌(타입의 순서를 달리해서 정의해야 함.)
+	  
+	  #+begin_src csharp
+        public struct MyInt
+        {
+            int intValue;
+            public MyInt(int aValue)
+            {
+                intValue = aValue;
+            }
+            public static MyInt operator+ (MyInt lhs, MyInt rhs)
+            {
+                return new MyInt(lhs.intValue + rhs.intValue);
+            }
+            public static MyInt operator- (MyInt lhs, MyInt rhs)
+            {
+                return new MyInt(lhs.intValue - rhs.intValue);
+            }
+            public static MyInt operator + (double lhs, MyInt rhs)
+            {
+                return new MyInt(Convert.lhs
+            }
+            public override string ToString()
+            {
+                return string.Format("MyInt:{0}", this.intValue);
+            }
+        }
+        class OperatorOverloadTest
+        {
+            public static void Main()
+            {
+                MyInt a = new MyInt(10);
+                MyInt b = new MyInt(3);
+        
+                MyInt c = a - b;
+                MyInt d = a + b;
+                MyInt e = a;
+                e += b;
+                Console.WriteLine("a={0}, b={1}, c={2}, d={3}, e={4}", a,b,c,d,e);
+            }
+        }
+	  #+end_src
+	  
+	  - 기타 다른 연산자 오버로딩도 있기는 한데, 일단 패스. 나중에
+        찾아보면 될 듯. 
+		
+	  - 오버로딩 가능한 연산자 목록정리
+	 
+     | C# 연산자                                      | 오버로딩 가능? | 설명                |
+     |------------------------------------------------+----------------+---------------------|
+     | +, -,!, ~, ++, --, true, false                 | O              | 단항 연산자들       |
+     |------------------------------------------------+----------------+---------------------|
+     | +, -, *, /, %, &, \vert{}, ^, <<, >>           | O              | 서로 다른 형간의    |
+     |                                                |                | 2항 연산자정의 가능 |
+     |------------------------------------------------+----------------+---------------------|
+     | ==,!=, <, >, <=, >=                            | O              | 전부 함께 정의      |
+     |                                                |                | 되어야 함           |
+     |------------------------------------------------+----------------+---------------------|
+     | []                                             | X              | 인덱스 메소드에     |
+     |                                                |                | 사용되고 있음       |
+     |------------------------------------------------+----------------+---------------------|
+     | ()                                             | X              | 커스텀 변환 메소드  |
+     |                                                |                | 를 사용하면 됨      |
+     |------------------------------------------------+----------------+---------------------|
+     | +=, -=, *=, /=, %=, &=, \vert{}=, ^=, <<=, >>= | X              | 단순 연산자를 정의  |
+     |                                                |                | 하면 생성됨         |
+     |------------------------------------------------+----------------+---------------------|
+
+*** 연산자 오버로딩 : 등가 연산자(Equality Operator) 및 부등호 연산자(<, >, ...)
+	System.Object.Equals()를 오버라이드 해서 사용하면 참조타입에 대해서도 "값 기반"
+	등가 비교를 할 수 있다.
+
+	Equals() 를 오버라이드 하려치면, SYstem.Object.GetHashCode() 를
+	정의해야 한다. 하지만, 일단 정의되고 나면, == 연산자나 != 연산자의
+	재정의는 쉽다.
+
+	부등호 연산자의 재정의는 IComparable.CompareTo() 를 오버라이드 한
+	뒤에 해당 연산자를 오버로딩하는게 좋단다. *또한 CompareTo() 안에서
+	속성/필드 값의 비교를 할때, 기본 CompareTo 를 활용하는 것도 좋은
+	방법*
+
+	#+begin_src csharp
+      public class MyPoint : IComparable<MyPoint>
+      {
+          public int X  { get; set; }
+          public int Y  { get; set; }
+          public int CompareTo(MyPoint other)
+          {
+              // 기본 타입의 CompareTo 를 재활용하는 좋은 예
+              int v = this.X.CompareTo(other.X);
+              if (0==v) 
+                  return this.Y.CompareTo(other.Y);
+              return v;
+          }
+          // 비교 연산자는 귀찮아도 항상 같이 해 두는게...옳음.
+          public static bool operator < (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) < 0;
+          }
+          public static bool operator > (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) > 0;
+          }
+          public static bool operator <= (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) <= 0;
+          }
+          public static bool operator >= (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) >= 0;
+          }
+          public override string ToString()
+          {
+              return string.Format("(X={0}, Y={1})", X, Y);
+          }
+      }
+      
+      class CompareTest
+      {
+          public static void Main()
+          {
+              MyPoint p1 = new MyPoint {
+                  X = 10,
+                  Y = 20,
+              };;
+              MyPoint p2 = new MyPoint {
+                  X = 30,
+                  Y = 5,
+              };
+      
+              Console.WriteLine("p1={0}, p2={1}, p1 > p2 ({2}), p1 <= p2 ({3})", p1, p2, p1 > p2, p1 <= p2);
+          }
+      }
+	#+end_src
+	
+*** 형 변환 연산자
+	- 숫자형 변환 : 자동지원
+	- 참조형(/class/ 객체)이 계층구조를 이루는 경우 : 계층구조에 맞으면
+      OK. 아니면, 예외가 던져짐(/as/ 연산자, /is/ 연산자...기억하지?)
+
+    - 값타입의 경우에 대해서 보통 형변환을 하는 경우가
+      많을듯(책에서도 예는 /struct/ 형에 대한 형변환을 듬. 아래 예제
+      코드 참조)
+	  
+	- 명시적 형변환
+     =public static explicit operator ToType (FromType obj)=
+	- 암시적 형변환
+     =public static implicit operator ToType (FromType obj)=
+	- 형변환 연산자는 모두 *static*
+	- 형변환시 새로운 객체를 new 하고 적절히 초기화해서 넘겨주는
+      컨셉(기존 C++의 포인터 형변환과는 완전히 다른 개념)
+
+	#+begin_src csharp
+      public struct Rectangle
+      {
+          public int Width {get; set;}
+          public int Height {get; set;}
+          public Rectangle(int w, int h) : this()
+          {
+              Width = w; Height = h;
+          }
+          public void Draw()
+          {
+              Console.WriteLine("Rectangle::Draw() : {0}", this);
+          }
+          public override string ToString()
+          {
+              return string.Format("[Width = {0}; Height = {1}]", Width, Height);
+          }
+      }
+      // Rectangle 와 완전히 다른 Hierachy.
+      public struct Square
+      {
+          public int Side { get; set; }
+          public Square(int side)
+              : this ()
+          {
+              Side = side;
+          }
+          public void Draw() {
+              Console.WriteLine("Square::Draw() : {0}", this);
+          }
+          public override string ToString()
+          {
+              return string.Format("[Side = {0}]", Side);
+          }
+          public static explicit operator Rectangle (Square s)
+          {
+              Rectangle r = new Rectangle(s.Side, s.Side);
+              return r;
+          }
+      }
+      
+      public class TypeConvertTest
+      {
+          public static void Main()
+          {
+              Square s = new Square(15);
+              s.Draw();
+      
+              Rectangle r = (Rectangle)s;
+              r.Draw();
+          }
+      
+      }
+	#+end_src
+
+*** 확장 메소드(Extension Method)
+	- 와우. ObjC 처럼 기존에 존재하는 /class/ 또는 /struct/ 의 코드를
+      *전혀 손대지 않고 메소드 또는 속성을 추가* 할 수 있는 기능이다.
+	- 작성 순서
+	  1. static class 를 하나 만든다. 이름은 상관없다.
+	  2. 확장 메소드를 public static method 로 작성한다.
+	  3. 메소드의 인자는 =(this T name, 추가_인자_목록_시그너쳐)= 이다. 
+	  4. 끝.
+	- 호출 방법 : 완전히 일반 메소드 호출하는 것과 동일하다.
+	- 특정 Namespace 내 static class 에 정의한 경우, 호출시, 반드시
+      using 을 써서 해당 namespace를 포함해야 한다.
+
+	#+begin_src csharp
+      // namespace 내에 정의된 Extension Method 를
+      // 사용하기 위해 꼭 필요한 using!!!!!
+      using MyExtension;
+      
+      namespace MyExtension
+      {
+      
+      // Extension Method 는 반드시 static class 에 정의되어야 함.
+      public static class MyExtensionClass
+      {
+          // 모든 Extension Method 는 결국 static임.
+          // (static class 에 정의되므로....)
+          public static void DoSomeExtension(
+                  // 이 메소드는 System.Object 에 추가되는 메소드임을 알림
+                  this Object obj,
+                  // 실제 메소드의 첫번째 인자
+                  int additionalArg
+              )
+          {
+              Console.WriteLine("Type:{0}, AdditionalArg:{1}",
+                                obj.GetType().Name, additionalArg);
+          }
+      }
+      
+      }
+      
+      class ExtensionTest
+      {
+          public static void Main()
+          {
+              int myInt = 10;
+              myInt.DoSomeExtension(12);
+          }
+      }          
+	#+end_src
+
+	- 확장메소드는 /class/ 나 /struct/ 뿐 만 아니라, /interface/ 에
+      대해서 확장을 지원한다. 실제로 C# 에서는 LINQ API 에서 이 특징을
+      활용해 IEnumerable의 제네릭 인터페이스를 확장함으로써 여러가지
+      유용한 작업들을 해낸단다.
+	  
+	  #+begin_src csharp
+        public static class AnnoyingExtensions
+        {
+            public static void PrintAndBeep(this IEnumerable iterator)
+            {
+                foreach (var item in iterator)
+                {
+                    Console.WriteLine(item);
+                    Console.Beep();
+                }
+            }
+        }
+	  #+end_src
+
+*** 무명 타입(Ananymous Type)
+	간단하게 key-value 타입으로 되어 있는 임시 타입을 만들 수 있다.
+
+	#+begin_src csharp
+      var anonTypeValue = new {
+          Name = "Joonhwan",
+          Age = 42,
+          Company = "WisePlanet"
+      };
+	#+end_src
+
+	이렇게 만든 타입의 값은
+
+	- 읽기전용(필드/속성의 값을 변경불가)
+	- System.Object 의 파생클래스(자동으로 Equals(), ToString() 등이 정의된다)
+	- 등가비교연산자는 참조값을 비교(같은 객체를 가르키는지 체크)
+	- Equals() 연산자는 멤버값을 비교(같은 key/value 를 가지는지 체크)
+	- 동일한 Namespace에서 생성된 동일 key의 쌍으로 된 타입은
+      내부적으로 같은 타입으로 여겨짐.
+	- 사용자 정의 메소드, 속성, 생성자.. 등등을 만들 수 없다.
+	- 자동적으로 /sealed/ 가 됨.
+	  
+*** 포인터 타입
+	 - C# 에 있는 2가지 종류의 타입 = RefType + ValueType
+	 - 이제 3번째 타입 : *PointerType*
+	 - unsafe 키워드로 지정된 context(즉 unsafe {} 스코프) 혹은
+       함수에서 포인터 사용가능
+
+	 - *왜 쓰는가?* : C로 된 DLL호출시 포인터를 써야 할 때, 혹은 COM
+       에서 포인터를 핸들링할때. (하지만, 이경우도 System.IntPtr 혹은
+       System.Runtime.InteropServices.Marshal 타입을 쓰는게 더 낫다고 한다).
+
+	 - C++ 과 다른점 :포인터형 i,j 를 선언할때, C++ 에서는 =int *i,
+       *j;= 가 C# 에서는 =int* i, j;= 로 된다!!!
+
+	 - 가비지 콜렉터가 언제 동작하여 객체의 메모리상 위치를 옮길 지
+       모르므로, /fixed/ 키워드로 객체를 pinning 한 다음 포인터 접근을
+       해야 한다.
+	   
+	   #+begin_src csharp
+         unsafe public static void UnseAndPinPoint()
+         {
+             PointClass pt = new PointClass(); // class객체
+             pt.x = 5;
+             pt.y = 6;
+         
+             // pt 를 특정 메모리 위치에 고정(즉, Pinning=Pinned Memory)
+             fixed(int* p = &pt.x)
+             {
+                 // int* 포인터를 쓸 수 있다.
+             }
+         
+             // 여기서는 pt 의 고정이 해제된다.(언제든지 GC에 의해서 메모리상
+             // 위치가 옮겨질 수 있다)
+         }
+	   #+end_src
+
+	 - 포인터를 써서 배열을 정의할 때, C 의 alloca() 와 같이 스택에
+       동적 크기의 메모리를 할당하고자 할 때는 C# 키워드 /stackalloc/
+       을 쓴다.
+	   
+	   #+begin_src csharp
+         class MyClass
+         {
+             // 이 메소드는 오직 unsafe context 에서만 사용가능
+             unsafe static void UnsafeStackAlloc()
+             {
+                 char* p = stackalloc char[256];
+                 for (int k=0; k<256; ++k)
+                 {
+                     p[k] = char (k);
+                 }
+             }
+         }
+	   #+end_src
+
+
+** 12장. 객체로 LINQ
+   
 
 * 기타 메모
 ** string 키워드
@@ -3367,4 +3775,60 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
    #+begin_src csharp
      Console.WriteLine("10 's type is {0}", 10.GetType());
      Console.WriteLine("10 + 8 = {0}", (10+8).ToString());
+   #+end_src
+
+** interface 의 멤버 메소드에 virtual은 불필요. 파생클래스에서 override 불필요.
+** interface 에서 속성정의 가능
+   다음과 같이 속성도 interface 에 정의가능(아래 예에서는 인덱서
+   메소드를 정의함).
+
+   #+begin_src csharp
+     public interface IStringContainer
+     {
+         string this[int index]
+         {
+             get; set;
+         }
+     }
+     
+     public class SomeClass : IStringContainer
+     {
+         // ...
+         public string this[int index]
+         {
+             get
+             {
+                 return myStrings[index];
+             }
+             set
+             {
+                 myStrings.Insert(index, value);
+             }
+         }
+     }
+   #+end_src
+   
+** struct 에서 인자가 있는 생성자는 반드시 베이스 생성자로 this() 를 호출해야 함.
+   #+begin_src csharp
+     // // 컴파일 오류 남.
+     // struct MyStruct
+     // {
+     //  public int Value { get; set; }
+     //     public MyStruct(int value)
+     //     {
+     //      // 오류 : 값이 초기화 되기 전에 속성을 설정할 수 없습니다.
+     //         Value = value;
+     //     }
+     // }
+     
+     // 기본 생성자를 명시적으로 호출함 --> OK
+     struct MyStruct
+     {
+         public int Value { get; set; }
+         public MyStruct(int value)
+             : this ()
+         {
+             Value = value;
+         }
+     }
    #+end_src
