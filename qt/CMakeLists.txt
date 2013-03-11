@@ -14,3 +14,4 @@ include_directories(
 add_subdirectory(UsingCustomTypeInSignalSlot)
 add_subdirectory(ReadEvalPrintLoopWidget)
 add_subdirectory(QuaZipTest)
+add_subdirectory(ScriptTest)
