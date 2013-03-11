@@ -1091,7 +1091,6 @@
 	 (기본값은 NO 이다). 그러면, 최상위 계층의 3종 view controller
 	 container 가 아니라 이 YES로 설정된 view controller 가
 	 presenter가 된다.
-
 	 
 ** 14장 Saving, Loading 및 Application States
 *** 어플의 세션간 데이터 유지
@@ -1246,6 +1245,11 @@
           return [documentDirectory stringByAppendingPathComponent:@"item.archive"];
       }
 	#+end_src
+
+** 19장 Touch
+*** UIControl 에 대한 설명
+	- UIButton, UISlider.. 등의 부모 클래스.
+	- UIResponder 의 자식 클래스
 
 * 학습메모
 

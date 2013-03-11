@@ -1,0 +1,77 @@
+#+TITLE:XCodeDoc-KoreanSummary
+* Reference
+** UIViewController(뷰컨) : < UIResponder < NSObject
+*** 개괄
+	- iOS의 어플을 구성하는 뷰 들을 관리.
+	- 보통은 상속받아 구현.
+	- 뷰 와 모델 사이의 연계. 다른 뷰컨들과의 연계가 가능.
+	- 뷰컨은 다음의 작업을 함.
+	  1) 뷰들을 리사이즈, 레이아웃
+	  2) 뷰 내용을 조정
+	  3) 사용자 반응에 대한 처리
+	
+	- UIResponder 상속 클래스로 자신의 뷰들에게 오는 이벤트들을
+      처리하는 Responder Chain 을 구성(또 다른 뷰컨이 관리하는 슈퍼
+      뷰로 이벤트 전달).
+
+*** 서브클래싱시 유의사항
+**** 뷰관리
+	 - /view/ 속성에 /루트뷰/ 지정해서 뷰컨이 관리할 뷰들(/서브뷰/)을 지정.
+	 - /view/ 자체의 크기와 위치는 뷰컨을 소유하고 내용을 표시하는
+       다른 객체에 의해서 결정 -> 그렇게 결정된 /view/ 의 영역을
+       기준으로 서브뷰들을 배치하는 게 뷰컨이 하는일.
+	 - 뷰컨은 보통 "원도우(window)" 나 다른 뷰컨에 의해서 "소유"됨.
+	 - 뷰컨을 소유하는 또 다른 뷰컨(즉 "부모 뷰컨")간에 부모-자식관계
+	 - 뷰컨의 뷰 생성(Loading a view)지원 방식 : /view/ 속성 지정
+	   1) 스토리보드 : 사전에 정의된 뷰컨들과 각 뷰컨들과 연관된
+          뷰들을 가지고 있음. 뷰컨의 컨텐츠를 다른 뷰컨의 컨텐츠에
+          포함시키는 식으로 앱 내의 관계를 표현. --> 직접 뷰컨을
+          생성하거나 초기화지 않는 방식(하지만
+          UIStoryboard 객체의 instantiateViewControllerWithIdentifier:
+          메소드를 사용하여 사용자 정의 뷰컨을 만들수도 있단다).
+	   2) NIB 파일을 사용하여 뷰를 뷰컨에 연계. NIB로 일련의 뷰들을
+          생성하고 설정하는 방식(하지만 다른 뷰컨들간의 관계는
+          프로그래밍을 직접해야 함).
+	   3) loadView 메소드를 오버라이드해서 직접 루트뷰 및 서브뷰들을
+          생성하고, /view/ 속성에 루트뷰를 지정하는 밤식.
+		  (이 경우 super의 loadView 는 호출하지 않음 -> nib사용하는 버젼)
+	 - 뷰컨에서 뷰생성시 유의점 : UIView의 autoresizing 관련 설정
+       (UIView의 /autoresizesSubviews/ 속성 및  /autoresizingMask/ 속성)
+
+**** 메모리 관리
+	- 메모리 부족현상시 뷰컨의 didReceiveMemoeryWarning 메소드가 호출
+	- 뷰컨의 didReceiveMemoryWarning 메소드의 구현
+	  * iOS6 이전 : 다시 생성가능한 경우 메모리에서 뷰를 제거
+	  * iOS6 이후 : 뷰를 제거하지 않는다.
+	- 원하는 방식을 강제하려면 didReceiveMemoryWarning 을 오버라이드.
+
+**** 회전 처리
+	 - iOS6 : 앱의 Info.plist 파일에 지원하는 회전방향나열.
+	   1. supportedInterfaceOrientations 메소드가 그 값을
+		  반환(오버라이드 해서 커스텀 처리가능).
+	   2. preferredInterfaceOrientationForPresentation 메소드를
+		  오버라이드 해서 어플에게 "자연스런" 방향지정 (풀스크린 되는)
+	 - iOS5 : Portrait모드만 지원. 다른 방향 지원을 위해서는
+       shouldAutorotateToInterfaceOrientation: 메소드를 오버라이드
+       해서 :YES 반환. + 뷰들의 autoresizing 관련 속성설정만 되어
+       있으면 OK.
+	 - 돌아가면 willRotateToInterfaceOrientation:duration: 또는
+       willAnimateRotationToInterfaceOrientation:duration:,
+       didRotateFromInterfaceOrientation: 이 호출
+	 - viewWillLayoutSubviews 가 호출되어 서브뷰를 재배치할 기회를
+       준다.
+	 - *주의* : 앱 실행시, UI를 portrait 방향으로 항상 셋업해야
+       한단다?! appDelegate의
+       application:didFinishLaunchingWithOptions: 메소드가 리턴하고
+**** 뷰 이벤트 통지(View Event Notification)
+	 UIViewController 는 자체가 많은 종류의 통지에 자동으로
+	 응답처리를 수행한다(윈도우의 뷰 계층에 자신의 뷰가 추가/삭제될
+	 때, 또는 리사이징될 때..등). 이러한 이벤트 처리는 오버라이드가
+	 가능.
+
+**** 컨테이너 뷰컨(Container View Controller) 구현
+	 - 자식 뷰컨 - 부모 뷰컨 의 개념이 존재
+	 - 자식 뷰컨은 여러개. --> 컨테이너 구조
+	 - 자식 뷰는 그 자체로 또는  뷰컨이 소유한 뷰들과 함께
+       프리젠트된다. 
+	   
