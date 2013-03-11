@@ -74,20 +74,24 @@ class LinqTest
 
 		// - 확장 메소드 Except(), Union(), Intersect(), Concat(), Distinct()
 		//   --> 서연이가 발표한 벤 다이어그램 !!!!
-		var concatUniqueCar = (from car in myCars select car)
-							  .Concat(from car in yourCars select car)
-							  .Distinct();
+		var allMyCar = (from car in myCars select car);
+		var allYourCars = (from car in yourCars select car);
+
+		var concatUniqueCar = allMyCar.Concat(allYourCars).Distinct();
 		PrintAll("concatUnique", concatUniqueCar);
 		
-		var carUnion = (from car in myCars select car)
-					   .Union(from yourCar in yourCars select yourCar);
+		var carUnion = allMyCar.Union(allYourCars);
 		PrintAll("union", carUnion);
 
-		var carIntersect = (from car in myCars
+		var carIntersect = allMyCar.Intersect(allYourCars);
+		PrintAll("intersect", carIntersect);
+
+		var carExceptYours = allMyCar.Except(allYourCars);
+		PrintAll("Mine except Yours", carExceptYours);
 	}
 	public static void PrintAll(string desc, IEnumerable enumurable)
 	{
-		Console.WriteLine("Printing [{0}] {1}...",
+		Console.WriteLine("\nPrinting [{0}] {1}...",
 						  desc, enumurable.GetType());
 		foreach (var item in enumurable)
 		{
