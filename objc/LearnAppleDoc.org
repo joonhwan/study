@@ -1,7 +1,6 @@
 #+TITLE:Apple Documentation Followup
 
-* Cocoa Fundamentals Guid
-
+* Cocoa Fundamentals Guide
 ** Cocoa 환경
    객체지향 프레임웍으로, iOS 와 OSX 에서 돌아가는 애플리케이션의
    런타임 환경을 가리킨다(사실 유일한 프레임웍이자 런타임).
@@ -14,3 +13,45 @@
 	UI 를 제공하며 운영체제의 시각적 부분과 단단히 물려 있다.
 *** 개발 측면
 	객체지향적 소프트웨어 컴포넌트들(즉, 클래스들)의 통합 스위트.
+* Event Handling Guide for iOS
+** Gesture Recognizer
+*** 개론
+	제스쳐 인식기 : 저수준 이벤트 처리코드를 고수준의 "액션"으로
+	변환. View에 붙여서 View의 이벤트를 받아 인식된 제스쳐가 있는
+	경우, 등록된 액션을 타겟에 전송한다. 대개 전송 대상은 뷰컨이다.
+
+*** 제스쳐 인식자를 사용하여 이벤트처리를 단순화
+	- 몇가지 기본 정의되어 있는 인식자들을 사용하여 코딩양을 줄일 수
+	  있다. 
+	  
+      | 제스쳐                                    | UIKit class                    |
+      |-------------------------------------------+--------------------------------|
+      | 탭핑 (1번이상 탭)                         | UI Tap       GestureRecognizer |
+      | 핀치 인/아웃(Zooming)                     | UI Pinch     GestureRecognizer |
+      | 패닝(즉 드래깅)                           | UI Pan       GestureRecognizer |
+      | 쓸어넘기기-스와이핑(모든 방향)            | UI Swipe     GestureRecognizer |
+      | 회전 (손가락들이 서로 반대 방향으로 이동) | UI Rotation  GestureRecognizer |
+      | 긴 누름 ("Touch and hold")                | UI LongPress GestureRecognizer |
+
+	- 체크표시동작 이라든지, 소용돌이동작 같은 제스쳐를 인식하는
+      사용자 정의 제스쳐 인식기를 구현할 수 도 있다. 
+
+*** 제스쳐 인식기는 뷰에 붙여진다.
+	제스쳐 인식기는 하나의 뷰와 연관지어지도록 만들어졌다. 반면, 뷰
+	하나는 여러개의 제스쳐 인식기를 가질 수 있다. 제스쳐 인식기가 특정
+	뷰에서 제스쳐를 인식하려면 해당 뷰에 붙여져야(Attached) 된다.
+
+	뷰의 이벤트는 붙여진 제스쳐 인식기가 먼저 처리한다.
+
+*** 제스쳐가 액션메시지를 발생시킨다.
+	제스쳐 인식기가 제스쳐를 인식하면 등록된 타겟에 액션 메시지를
+	전송한다(타겟-액션 쌍을 등록할 수 있다).
+
+*** 구분동작 제스쳐와 연속동작 제스쳐
+	탭 -> 구분동작 제스쳐(Discrete Gesture)
+	핀치 -> 연속동작 제스쳐(Continuous Gesture)
+
+*** 제스쳐 인식기를 사용해 이벤트 처리하기
+	3단계로 처리
+
+	
