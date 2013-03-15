@@ -4492,6 +4492,383 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
       }     
 	#+end_src
 
+*** .NEt Attribute
+	- 대괄호([])를 사용해서 어셈블리와 타입의 메타데이터에 어떤 값을 지정/추가하는거.
+	- 단순히 "코드에 주석을 다는 것" 정도로 생각할 수 있음.
+	- .NET 에서 사용되는 "사전정의"된 어트리뷰트들이 있음.
+   
+      | 어트리뷰트        | 의미                                                     |
+      |-------------------+----------------------------------------------------------|
+      | [CLSCompliant]    | Common Language Spec 을 만족하는 코드임을 표식           |
+      |-------------------+----------------------------------------------------------|
+      | [DllImport]       | C/C++기반 unmanaged library 를 .NET에서 호출할 수 있도록 |
+      |                   | 처리                                                     |
+      |-------------------+----------------------------------------------------------|
+      | [Obsolete]        | 컴파일시에 "은퇴예정"을 알리는 경고문을 띄움             |
+      |-------------------+----------------------------------------------------------|
+      | [Serializable]    | 스트림에 현 상태를 저장할 수 있음을 표식                 |
+      |-------------------+----------------------------------------------------------|
+      | [NonSerializable] | [Serializable] 과 반대                                   |
+      |-------------------+----------------------------------------------------------|
+      | [ServiceContact]  | WCF 서비스에 의해 구현된 contract method 임을 표식       |
+      |-------------------+----------------------------------------------------------|
+	- 어트리뷰트를 사용하는 대상 : C# 컴파일러
+	  (예: [Serializable] 어트리뷰트가 달린 class 나 struct 는
+      BinaryFormatter 클래스의 Serialize() 메소드에 넘겨지면, 콤팩트한
+      바이너리 포맷으로 바로 저장되도록 처리된다!)
+	  
+	- 어셈블리 수준 Attribute : =[assembly: CLSCompilant(true)]= 이런식
+	- 타입 수준 Attribute : 타입앞에 =[DllImport]= 이런식.
+	- 어트리뷰트는 *바로 다음에 오는 항목에만 적용* 된다.
+	- 어트리뷰트는 [] 안에 2개이상을 쓸 수 있다.
+   
+*** 어트리뷰트 예제
+	
+	#+begin_src csharp
+      // 디스크에 저장할 객체
+      [Serializable]
+      [Obsolete("use another vehicle class!")]
+      // 또는 아래와 같이 한줄로 써도 됨.
+      // [Serializable, Obsolete("use another vehicle class!")]
+      public class MotorCycle
+      {
+          // 아래 멤버필드는 저장안함
+          [NonSerializable]
+          float weightOfCurrentPassenger;
+      
+          // [NonSerializable] 이 앞에 않 붙은 다음 필드는 저장됨.
+          bool hasRadio;
+          bool hasHeadSet;
+          bool hasSissyBar;
+      }
+	#+end_src
+
+*** 어트리뷰트는 어떻게 만들어졌는가?
+
+	- =[Obsolete]= 어트리뷰트는 사실, ObsoleteAttribute 라는 클래스로
+      정의된다. Attribute 라는 접미사는 C# 컴파일러가 모든
+      어트리뷰트에 자동으로 붙여져서 처리되는 것 같다.
+	- =[Obsolete("어떤 메시지")]= 식으로 값이 입력되는 것은
+      ObsoleteAttribute 클래스의 생성자가, 문자열을 1개 받는 형태로
+      존재하기 때문이다. 
+	  
+	  #+begin_src csharp
+        public sealed class ObsoleteAttribute : Attribute 
+        { 
+            public ObsoleteAttribute(string message, bool error); 
+            public ObsoleteAttribute(string message); // 이거!
+            public ObsoleteAttribute(); 
+            public bool IsError { get; } 
+            public string Message { get; } 
+        }       
+	  #+end_src
+
+	  C# 컴파일러는 이 어트리뷰트가 있는 클래스를 만나면, 해당
+      어트리뷰트 클래스의 Message() 를 호출하여 경고문구를 뿜어내도록
+      코딩되어 있다.
+
+	- 어트리뷰트가 만들어지고 사용되는 과정은 다음과 같이 정리됨.
+	  1) System.Attribute class에서 파생된 sealed XXXX_Attribute
+         클래스를 정의한다.
+	  2) 어트리뷰트는 어셈블리/타입에 메타데이터로 추가된다.
+	  3) 어트리뷰트는 이를 Reflection해 가는 놈이 있어야 사용된다.
+	  4) C# 에서 어트리뷰트는 대괄호를 사용해 지정할 수 있다. 
+	  
+*** 사용자 정의 어트리뷰트 만드는 법.
+	실제 이런 일을 할 경우가 떠오르지 않으므로, 간단히 예제 1개로
+	느낌만 기억한다.
+
+	#+begin_src csharp
+      // 어트리뷰트 클래스 정의시, AttributeUsage 어트리뷰트를 통해
+      //  - JoonhwanAttribute 가 오직 class 와 struct 에만 사용가능
+      //  - 자식 class/struct가 이 어트리뷰트는 상속받지 않게
+      // 설정할 수 있다.
+      [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, 
+                      Inherited = false)]
+      // sealed class 로 새로운 JoonhwanAttribute 를 저의
+      public sealed class JoonhwanAttribute : System.Attribute 
+      { 
+          // ... 
+      }
+      
+      // 실제 사용시
+      [JoonhwanAttribute]
+      public class MyClass
+      {
+      }
+	#+end_src
+
+*** 어셈블리 수준 어트리뷰트와 AssemblyInfo.cs
+	- =[assembly: CLSCompilant(true)]= 와 같이 =assembly:= 접두사를
+      붙이면 된다.
+	- AssemblyInfo.cs 는 VisualStudio 의 프로젝트 설정창에서 설정되는
+      어셈블리 속성을 담고 있다. 예: [AssemblyVersion] 어트리뷰트
+	  
+*** 어트리뷰트의 Early/Late Binding
+	- Early Binding : System.Type 객체의 GetCustomAttribute() 메소드를 사용
+	- Late Binding : System.Assembly 객체의
+      GetType("네임스페이스.어트리뷰트명") 류 메소드를 사용.
+
+*** Reflection, LateBinding, 사용자 정의 어트리뷰트: 도대체 어따 쓰는 건가?
+	- 한마디로 말하자면, C/C++ 어플리케이션의 *Plugin System* 과 같은
+      걸 구현할 때 쓴다! 즉 *확장가능한 어플리케이션* 을 만들때 쓰인다.
+	- 확장가능한 어플리케이션 구현 순서
+	  1) DynamicLoading : 어셈블리 동적 로딩 한다.
+	  2) Reflection : 로딩된 어셈블리에 특정 기능을 구현하고 있는
+         지 확인한다.
+	  3) LateBinding : 구현된 기능에 대한 참조를 얻어 멤버를 호출하여
+         실제 동작을 시킨다.
+	  4) 부가단계 : 구현된 기능의 어트리뷰트 데이터를 가져와서 처리할
+         수 도 있다.
+	  #+begin_src csharp
+        private bool LoadExternalModule(string path)
+        {
+            bool foundSnapIn = false;
+            Assembly theSnapInAsm = null;
+            try
+            {
+                // 단계1 :주어진 경로에서 어셈블리를 불러들인다.
+                // "Dynamic Loading"
+                theSnapInAsm = Assembly.LoadFrom(path);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return foundSnapIn;
+            }
+            // 단계2: 특정 인터페이스 IAppFunctionality 를 구현한 클래스를 찾는다.
+            // Reflection
+            var theClassTypes = from t in theSnapInAsm.GetTypes()
+                                where t.IsClass && (t.GetInterface("IAppFunctionality") != null)
+                                select t;
+            // Now, create the object and call DoIt() method.
+            foreach (Type t in theClassTypes)
+            {
+                foundSnapIn = true;
+                
+                // 단계3: 객체를 생성하고 서비스를 받는다.
+                // Late Binding.
+                IAppFunctionality itfApp = (IAppFunctionality)theSnapInAsm.CreateInstance(t.FullName, true);
+                itfApp.DoIt();
+                lstLoadedSnapIns.Items.Add(t.FullName);
+        
+                // 부가단계 : 어트리뷰트를 참조하여 특정동작을 수행한다.
+                DisplayComanyData(t);
+            }
+            return foundSnapIn;
+        }
+        
+        private void DisplayCompanyData(Type t) 
+        { 
+            // [CompanyInfo] 데이터를 가져온다(실제 FullName은 CompanyInfoAttribute가 된다).
+            var compInfo = from ci in t.GetCustomAttributes(false) where 
+                           (ci.GetType() == typeof(CompanyInfoAttribute)) 
+                           select ci; 
+            // 데이터를 표시한다.
+            foreach (CompanyInfoAttribute c in compInfo) 
+            { 
+                MessageBox.Show(c.CompanyUrl, 
+                                string.Format("More info about {0} can be found at", c.CompanyName)); 
+            } 
+        } 
+	  #+end_src
+
+	  
+** 16장. 동적타입 과 DLR(Dynamic Language Runtime)
+   - /dynamic/ 키워드 !!!
+	 1) /var/ 는 암시적 타입. 그러나 정적 타입으로, 한번 타입이
+        결정되면 고정되는 형식. 결정된 다음 다른 타입의 객체 대입은
+        컴파일 수준에서 안됨.
+	 2) System.Object 는 void* 혹은 QObject* 같은 SuperBaseType.
+        멤버접근을 위해서는 구체적인 형으로 형변환을 해야 하고,
+        형변환이 안되는 경우, 런타임 오류발생.
+	 3) *dynamic* 은 런타임에 계속 형식이 변경될 수 있는 타입.
+        지원되지 않는 멤버접근은 런타임 오류발생.
+*** Microsoft.CSharp.dll
+	- dynamic 관련 Exception 클래스 2개를 정의하는 작은 라이브러리. ->
+      *Microsoft.CSharp 네임스페이스*
+	 1) RuntimeBinderException : 지원되지 않는 멤버의 접근시 발생하는
+        예외.
+	 2) RuntimeBinderInternalCompilerException : ???
+*** dynamic 키워드의 scope 와 제한
+    | 타입        | var 키워드 | dynamic 키워드 |
+    |-------------+------------+----------------|
+    | 로컬 변수   | o          | o              |
+    | 함수 인자   | x          | o              |
+    | 함수 반환값 | x          | o              |
+    | 람다        | o          | x              |
+
+	아래와 같은 게 dynamic 은 안됨.
+
+	#+begin_src csharp
+      dynamic aValue = GetSomeDynamicValue();
+
+      // dynamic 형의 메소드 인자로 Labmda 사용 불가
+      aValue.DoSomething(arg => Console.WriteLine(arg);
+      
+      // 람다식 사용 불가
+      var data = from d in aValue select d
+	#+end_src
+
+*** dynamic 키워드가 유용한 경우의 예
+	- 기본적으로 없어도 되는 개념임. 편이를 위해서만 제한적으로 사용.
+	- 보통 코딩양을 줄이기 위해 사용.
+	  1) late binding 을 많이 쓰는 경우
+	  2) MS OFFICE COM객체와 같은 이전 COM객체를 다루는 경우
+
+*** DLR(Dynamic Language Runtime)의 역할
+	- dynamic ? 실은 python, ruby, lisp, smalltalk 등 많은 언어가
+      사용하고 있는 방법
+	- 정적 타입이 더 안전(?)한 방법이긴 하나, 동적 타입을 쓰면...
+	  1) 코드 베이스가 유연 : 코드 리팩토링시 수정해야 할 대상이
+         극도로 줄어듬.
+	  2) 서로 다른 플랫폼/언어간 상호 운용성 증대.
+	  3) 런타임시에 특정 타입의 멤버 추가/삭제 가능.
+	  4) 다른 언어에 .NET 지원을 할 수 있게됨 -> IronPython,
+         IronRuby...
+*** DLR을 실제 사용시 이득을 볼 수 있는 예
+	- Late Binding 을 수행하는 코드에서 코드 가독성이 향상
+	  #+begin_src csharp
+        static void CreateUsingLateBinding(Assembly asm) 
+        { 
+            try 
+            { 
+                Type miniVan = asm.GetType("CarLibrary.MiniVan"); 
+                // object obj = Activator.CreateInstance(miniVan); 
+                // MethodInfo mi = miniVan.GetMethod("TurboBoost"); 
+                // mi.Invoke(obj, null);
+        
+                // 위 처럼 System.Object 와 MethodInfo의 Invoke() 를 사용하지
+                // 않고, 실제 객체 생성/메서드 호출의 느낌으로 사용가능
+        
+                dynamic obj = Activator.CreateInstance(miniVan); 
+                obj.TurboBoost();
+            } 
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.Message); 
+            } 
+        }       
+	  #+end_src
+
+*** DLR 과 Expression Tree
+	잘 모르겠다. 하여튼. dynamic 키워드를 쓴 변수가 들어가 표현식은
+	"Expression Tree" 로 만들어져 DLR이 각각의 binding 혹은 COM 으로
+	넘겨준다함.
+	  
+*** COM과 상호운용성에서 DLR의 역할
+	- COM 을 써야 한다? --> Interop Assembly 를 만드는 방법
+	- Primary Interop Assembly(PIA) : COM 배포 업체에서 "공식" Interop
+      Assembly 를 제공
+	- COM Interop 의 힘든점 :
+	  1) 선택적 인자 : Type.Missing 을 사용해 매꿔줘야함 :( 
+         (이것도 <.NET 3.5 에서는 아예 불가능)
+	  2) 이름있는 인자 : C# 에도 그런 기능 있음
+	  3) Variant : DLR 덕분에 dynamic 으로 사용가능(IDE 에서 "Embed
+         Interop Types" 속성을 True 로 하면 된다함).
+	- 실제 COM 사용예
+   
+      DLR 을 사용한 깔끔한 코드는 ...
+
+	  #+begin_src csharp
+        static void ExportToExcel(List<Car> carsInStock) 
+        { 
+            // 액셀 객체 생성하고 워크북을 하나 만든다.
+            Excel.Application excelApp = new Excel.Application(); 
+            excelApp.Workbooks.Add(); 
+            // 현재 워크시트에 대한 참조
+            Excel. Worksheet workSheet = excelApp.ActiveSheet; 
+            // 컬럼 머리말을 설정
+            workSheet.Cells[1, "A"] = "Make"; 
+            workSheet.Cells[1, "B"] = "Color"; 
+            workSheet.Cells[1, "C"] = "Pet Name"; 
+            //  List<Car> 의 각 항목을 액셀의 각 셀에 입력
+            int row = 1; 
+            foreach (Car c in carsInStock) 
+            { 
+                row++; 
+                workSheet.Cells[row, "A"] = c.Make; 
+                workSheet.Cells[row, "B"] = c.Color; 
+                workSheet.Cells[row, "C"] = c.PetName; 
+            } 
+            // 테이블 꾸미기
+            workSheet.Range["A1"].AutoFormat(Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2);
+        
+            // 액셀파일 저장, 액셀 종료한 뒤 사용자에게 알림
+            workSheet.SaveAs(string.Format(@"{0}\Inventory.xlsx", Environment.CurrentDirectory)); 
+            excelApp.Quit(); 
+            MessageBox.Show("The Inventory.xslx file has been saved to your app folder", 
+                            "Export complete!"); 
+        }
+	  #+end_src
+	  
+	  DLR 없이 하려고 한다면... 이렇게 지저분.
+	  #+begin_src csharp
+        static void ExportToExcel2008(List<Car> carsInStock) 
+        { 
+            Excel.Application excelApp = new Excel.Application(); 
+            // 모든 선택 인자를 Type.Missing 으로 반드시  매꿔야 함.
+            excelApp.Workbooks.Add(Type.Missing); 
+            // 객체를 _Worksheet 형으로 변환해야 함.
+            Excel._Worksheet workSheet = (Excel. Worksheet)excelApp.ActiveSheet; 
+            // 각 Cell 객체를 Range 객체로 형변환한 다음에서야 Value2 라는
+            // 이상한 이름의 속성에 접근 할 수 있음.
+            ((Excel.Range)excelApp.Cells[1, "A"]).Value2 = "Make"; 
+            ((Excel.Range)excelApp.Cells[1, "B"]).Value2 = "Color"; 
+            ((Excel.Range)excelApp.Cells[1, "C"]).Value2 = "Pet Name"; 
+            int row = 1; 
+            foreach (Car c in carsInStock) 
+            { 
+                row++; 
+                // 위에서와 마찬가지
+                ((Excel.Range)workSheet.Cells[row, "A"]).Value2 = c.Make; 
+                ((Excel.Range)workSheet.Cells[row, "B"]).Value2 = c.Color; 
+                ((Excel.Range)workSheet.Cells[row, "C"]).Value2 = c.PetName; 
+            } 
+            // get_Range 메소드를 통해 Range객체를 얻고, 이 객체의 메소드(엄청
+            // 선택인자가 많음)의 선택인자를 모두 Type.Missing으로 채워야 함. :(
+            excelApp.get_Range("A1", Type.Missing).AutoFormat( 
+                    Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2, 
+                    Type.Missing, Type.Missing, Type.Missing, 
+                    Type.Missing, Type.Missing, Type.Missing); 
+            // 마찬가지 .... Typ.Missing, Typ.Missing, Typ.Missing, ...
+            workSheet.SaveAs(string.Format(@"{0}\Inventory.xlsx", Environment.CurrentDirectory), 
+                             Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, 
+                             Type.Missing, Type.Missing, Type.Missing); 
+            excelApp.Quit(); 
+            MessageBox.Show("The Inventory.xslx file has been saved to your app folder", 
+                            "Export complete!"); 
+        }
+	  #+end_src
+	  
+	  DLR 을 쓰는 경우 함수 반환값, 인자 등등에 /dynamic/ 형의 값들이
+      사용되었기 때문에, 이렇게 간단해 질 수 있는 거란다.
+
+** 17장. 프로세스, AppDomain, 그리고 Object Context
+*** 개요
+	- AppDomain (Application Domain) 이란? : 일련의 관련 .NET
+      어셈블리를 사용하는 주어진 프로세스에 대한 논리적 구분. 하나의
+      프로세스에 여러개의 AppDomain 이 존재할 수 있다.(적어도 1개는
+      있다). AppDomain 사이에는 객체단위의 접근은 불가하고, 직렬화나
+      Remoting을 통해서만 통신할 수 있다. 
+	- Contexual Boundary : AppDomain 은, 또 다시 비슷한 마인드로
+      작성된 .NET 객체들을 그룹화 하여 나눈다. 
+*** 윈도우즈 프로세스/쓰레드
+	내가 아는 개념
+*** .NET 에서 프로세스 다루기
+	왜 그런지 모르겠는데, 이걸 하는 .NET 네임스페이스는
+	System.Diagnostics 이다. 몇개만 정리
+
+    | System.Diagnostics 클래스 | 역할                                            |
+    |---------------------------+-------------------------------------------------|
+    | Process                   | 로컬/리모트 프로세스 열거,시작,종료             |
+    | ProcessThread             | 프로세스의 쓰레드 집합을 열거(시작/종료는 못함) |
+
+*** TODO 추가 정리 필요
+
+** TODO 18장. CIL
+** 19장. 멀티쓰레딩, 병렬처리, 비동기 프로그래밍
+   
 * 기타 메모
 ** string 키워드
 
@@ -4805,3 +5182,21 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
          // 모든 예외를 다 받아낸다.
      }
    #+end_src
+** AppDomain(Application Domain, App Domain) 이란.
+   다음과 같은 걸 할 수 있는 프로세스내의 또 다른 경량 프로세스.
+   - 프로그램의 안정성을 유지하면서 AppDomain을 shut down 가능
+   - 프로세스내 낮은 권한을 가지는 격리된 코드를 로드할 수 있다(이를
+     테면, 프로그램을 불안정하게 만들 수 있는 unmanaged code)
+   - AppDomain 내에서 Unhandled Exception이 발생하더라도, 프로세스는
+     크래쉬 되지 않게 할 수 있다.
+   - 시스템 운영의 안정성을 위해서 별도의 프로세스를 사용하는 것 보다
+     성능측면에서 훨씬 오버헤드가 적다.
+   - 어셈블리를 UNLOAD 하기위해서는 별도의 AppDomain에 올리고
+     AppDomain을 UNLOAD 하는 방법 말고는 없다. 웹 서비스 같은 것.
+     반도체 공정장비 같은것. 
+   - AppDomain 간에는 메소드 호출같은 걸 할 수 없다. 통신을 통해서
+     하던지, 해야 한다. (InterProcess와 마찬가지).
+   - 이런 장점이 있지만, 어쨌든 AppDomain 을 2개 이상 운영하는 것은
+     단순하지만은 않은 작업일 수도 있단다.
+   - AppDomain 의 primary thread들(Thread.Start() 에 의해 생성된
+     쓰레드)이 모두 멈추기전에는 AppDomain 는 UNLOAD 되지 않는단다.
