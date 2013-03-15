@@ -1249,10 +1249,177 @@
 ** 19장 Touch
 *** UIControl 에 대한 설명
 	- UIButton, UISlider.. 등의 부모 클래스.
-	- UIResponder 의 자식 클래스
+	- UIResponder 의 자식 클래스(이벤트 처리가 가능)
+	- 컨트롤 이벤트(control event) :- 상수값으로 정의 (ex:
+      UIControlEventTouchUpInside)
+	- 이벤트 발생시 액션(action)메시지를 등록된 타겟(target)으로
+      전달함(즉, 타겟의 액션 메소드를 호출함)
+	- 이벤트 처리 : 다음과 같이 *액션-타겟* 을 컨트롤 이벤트에
+      추가한다.(컨트롤 이벤트는 bitmask 로 구성될 수 있는 구조이다.
+      아래의 예는 2가지 컨트롤 이벤트 모두에 타겟-액션을 추가한다).
+
+     #+BEGIN_SRC objc
+       [rButton addTarget:temperatureViewController
+                   action:@selector (resetTemperature:)
+         forControlEvents:UIControlEventTouchUpInsde | UIControlEventTouchUpOutside];
+     #+END_SRC
+
+    - UIControl 의 액션처리의 예(실제 코드는 아님)
+	  
+	  #+BEGIN_SRC objc
+        // 상세 구현은 "의사코드"지만, 호출함수는 "실존하는" 함수다!
+        -(void)touchesEnded:(NSSet *)touches
+                  withEvent:(UIEvent *)event
+        {
+            // 현재의 터치객체
+            UITouch *touch = [touches anyObject];
+        
+            // 현재 뷰 상의 터치 위치
+            CGPoint touchLocation = [touch locationInView:self];
+        
+            // 뷰 영역 내에 있는가?
+            if (CGRectContainsPoint([self bounds], touchLocation)) {
+                // TouchUp Inside 액션발생!
+                [self sendActionsForControlEvents:UIControlEventTouchUpInsde];
+            } else {
+                [self sendActionsForControlEvents:UIControlEventTouchUpOutside];
+            }
+        }
+	  #+END_SRC
+	  
+	  여기서 sendActionsForControlEvents: 메소드가 호출되면, 해당
+      타겟으로 메시지가 바로 전달되는 것이 아니다. UIApplication 객체를
+      경유해서 전달된다. 만일 연결된 타겟이 없으면(nil 이면),
+      UIApplication 은 UIWindow 내 First Responder 에게 액션 메시지를
+      보낸다.
+	  
+	  sendActionsForControlEvents: 메시지의 UIControl 기본 구현은,
+      인자로 넘어온 UIControlEvents 상수값에 적합한 selector를
+      액션으로 하여, 등록된 target에 UIEvent 객체와 함께 메시지를
+      전달하는 sendAction:to:forEvent: 를 주욱 호출하는 식으로 구현된단다.
+
+** 20장 UIGestureRecognizer 와 UIMenuController
+*** UIGestureRecognizer 
+	내가 굳이 제스쳐 인식루틴을 만들 필요가 없다. 얘가 해준다. 보통은
+	이 클래스의 서브클래스들을 사용하게 된다. 각각의 제스쳐 인식
+	클래스들은 타겟-액션 쌍을 이용해 특정 제스쳐가 인식되면 액션
+	메시지를 타겟에 전송한다. 모든 액션의 시그너쳐는 다음과 같다.
+
+	#+BEGIN_SRC objc
+      - (void)action:(UIGestureRecognizer *)gestureRecognizer;
+	#+END_SRC
+
+	*제스쳐 인식기가 있는 뷰는 touchesBegan:withEvent: 같은
+	통상의 UIResponder 메시지를 받지 않는다*
+
+	터치 이벤트의 경로는 UIResponder -> UIApplication -> UIWindow ->
+	UIGestureRecognizer -> 제스쳐 인식되면 ? UIView의 액션 호출 :
+	touchesBegan:withEvent 호출
+
+	*cancelsTouchesInView* 속성이 YES(디폴트값)이면 UIView 의
+	touchBegan:withEvent: 같은 터치 이벤트가 호출되지 않는다. NO로
+	설정하면 이벤트 핸들러가 호출된다. 
+
+*** UITapGestureRecognizer
+	대충 이런식으로 생성/설정하는 느낌.
+
+	#+BEGIN_SRC objc
+      -(id) initWithFrame:(CGRect)r
+      {
+          self = [super initWithFrame:r];
+          if (self) {
+              // ....
+      
+              UITapGestureRecognizer *rec =
+                  [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                          action:@selector (tap:)];
+              [self addGestureRecognizer:rec];
+          }
+          return self;
+      }
+	#+END_SRC
+
+*** UIMenuController : "편집"메뉴(Cut/Copy/Paste/Select/Delete...)다!
+	- 싱글턴으로 사용 : =[UIMenuController sharedMenuController]=
+	- 메뉴를 present하는 뷰는 First Responder여야 한다
+      1) 해당 뷰의 UIResponder 메소드 becomeFirstResponder 를 호출
+	  2) 해당 뷰의 UIResponder 메소드 canBecomeFirstResponder 가
+         YES를 반환하도록 오버라이드.
+	- 메뉴의 항목들(NSArray)을 UIMenuItem 객체로 setMenuItems: 호출.
+      이 때 각 UIMenuItem 의 액션이 타겟에 구현되어 있지 않으면
+      화면에 메뉴가 표시되지 않음!
+	- 메뉴의 setMenuVisible:animated: 호출
+	- 메뉴를 dismiss 하려면 setMenuVisible:animated 를 재활용.
+
+*** UILongPressGestureRecognizer
+	- 꾸~욱 0.5초(minimumPressDuration 속성값) 이상 누르고 있으면 액션을
+	  발생시킨다.
+	- Tap 은 단순한 제스쳐. 
+	- 꾸~욱 누를 때, 3개의 이벤트가 발생
+	  1) 처음 누를 때 : UIGestureRecognizerStatePossible
+	  2) 누른 상태로 충분한 시간이 지났을 때 : UIGestureRecognizerStateBegan
+	  3) 떼었을 때 : UIGestureRecognizerStateEnded
+	- 2),3) 상태가 될 때 2번 액션이 발생 : 액션 메소드에서 gesture 의
+      state 속성으로 어떤 상태인지 알 수 있음. 
+	  
+	  #+BEGIN_SRC objc
+        // UIView 파생클래스
+        -(id) initWithFrame:(CGRect)r
+        {
+            // ...
+            UILongPressGestureRecognizer *gesture =
+                [[UILongPressGestureRecognizer alloc]
+                    initWithTarget:self
+                            action:@selector (longPress:)];
+            [self addGestureRecognizer:gesture];
+            // ...
+        
+            return self;
+        }
+        
+        -(void) longPress:(UIGestureRecognizer *)gesture
+        {
+            switch (gesture.state)
+            {
+            case UIGestureRecognizerStateBegan:
+                // do something
+                break;
+            case UIGestureRecognizerStateEnded:
+                // do something 
+                break;
+            }
+        }
+	  #+END_SRC
+
+*** UIPanGestureRecognizer
+	꾸욱 누른 상태에서 터치를 움직이는 동작(이걸 "panning" 이라 함)을
+	감지.
+	UIGestureRecognizer가 여러개 UIView 에 addGestureRecognizer: 된
+	경우, 자신이 가로챈 터치(객체)를 상호 공유하지 않고, 그냥 "먹어"
+	버린다. Long Press 를 감지하려고 하는 동안에 Pan 을 감지하려는
+	상황에는 안좋은 특성이다. Pan 과 LongPress 간에 터치를 공유하도록
+	하는 방법이 있다.
+
+	UIGestureRecognizerDelegate 프로토콜의
+	shouldRecognizeSimultaneouslyWithGenstureRecognizer 를
+	오버라이드하는 것이다.
+
+	이게 YES 를 반환하면, 터치를 서로 다른 제스쳐 인식기가 공유한다.
+
+	#+BEGIN_SRC objc
+      -(BOOL) gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+      shouldRecognizeSimultaneouslyWithGenstureRecognizer:(UIGestureRecognizer *)other
+      {
+          if (gestureRecognizer == panGestureRecognizer) {
+              return YES;
+          }
+          return NO;
+      }
+      
+	#+END_SRC
+	
 
 * 학습메모
-
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
 
    사실
@@ -1667,6 +1834,17 @@
      – linguisticTagsInRange:scheme:options:orthography:tokenRanges:   
    #+end_example
 	
+** Informal Protocol
+   @protocol 의 메소드 중 @optional 로 지정된 메소드로 구성된
+   프로토콜을 말한단다.
+   [[http://stackoverflow.com/questions/2010058/informal-protocol-in-objective-c][여기]] 참조.
+** CoreGraphics 에 Path 의 HitTesting
+   우선 iOS5 에서 추가된 CGPathCreateCopyByStrokingPath 함수를 써서
+   HitTesting을 위한 스트로크 패스를 만들 수 있음이 힌트. [[http://oleb.net/blog/2012/02/cgpath-hit-testing/][여기]] 를
+   보면 예제가 있음.
+
+   한편. 이전 iOS에는 이 함수가 없는데 그건 [[http://stackoverflow.com/questions/7776931/cgpathcreatecopybystrokingpath-equivalent-on-ios4][여기]] 를 보면 이전버젼을
+   위한 CGPathCreateCopyByStrokingPath_For_All_iOS() 함수가 있다. 
 
 * Apple 공식문서 코스워크 순서
   [[http://pole2win.tistory.com/91][Pole to win 블로그에서 얻은 신공]]
