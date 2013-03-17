@@ -1,7 +1,6 @@
 #+title:Objective-C 배우기
 
 * IOS.Nerd.Ranch.Guide 제2판
-
 ** [receiver selector: argument]
 
    - receiver : 객체에 대한 pointer
@@ -262,7 +261,7 @@
    - *가급적이면, 여기 있는 설명을 무시하고, UIViewController 를
      사용하는 Single View Application 을 사용하도록 한다*
 
-* ARC사용시 Rule, the sad(책이 오래된 것만 있다 -_-)but the happy(일이 훨씬 간단한해진다).
+** ARC사용시 Rule, the sad(책이 오래된 것만 있다 -_-)but the happy(일이 훨씬 간단한해진다).
   
    ARC 를 사용하게 되면서 새로운 룰이 생겼다.
 
@@ -325,7 +324,7 @@
      turn means that you can’t, for example, declare a property whose
      name begins with new unless you specify a different getter:
 
-* IOS.Nerd.Ranch.Guide 제3판...
+* IOS.Nerd.Ranch.Guide 제3판
   4장 위임(Delegation)부터 다시 시작 :(
 ** 4장 위임
 *** 프로젝트를 구성하는 것.
@@ -1417,7 +1416,6 @@
       }
       
 	#+END_SRC
-	
 
 * 학습메모
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
