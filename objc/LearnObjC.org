@@ -1417,6 +1417,54 @@
       
 	#+END_SRC
 
+** 22장 Core Animation Layer.
+*** QuartzCore.framework
+*** CALayer 는 UIKit 에서는 모든 View가 가진다.
+	암시적으로 CALayer 가 모든 View에 1개씩 정의되어 있다.
+	--> UIView의 layer 속성
+*** CALayer의 주요 속성
+	- sublayers(NSArray *) : 1개 부모 CALayer 당 여러개의 Sub Layer를
+      가진다. : sublayers UIView에서도 subviews 속성이 있었다.
+	- contents(id) : "이미지"임. iOS에서는 CGImageRef 로 지정(단
+      (_bridge id) 로 형변환해야 ARC가 제대로 처리함) Mac에서는 NSImage도
+      가능.
+	  #+BEGIN_SRC objc
+        CALayer *boxLayer;
+        // ....
+        UIImage *image = [[UIImage imageNamed:@"Hypno"] CGImage];
+        boxLayer.contents = (__bridge id)image;
+	  #+END_SRC
+	- zPosition : 시점에 따른 크기 변화는 없는 Z축 높이 값. 시점변화는
+      없는 직교 Z축.
+*** CALayer 는 암묵적으로 animation기능이 들어간다.
+	단순히 position 속성의 값만 바꾸어도 animation이 들어간다. 오.
+	그런데, touchesMoved:withEvent: 같은 핸들러에서 position 갱신시
+	동작이 오히려 animation되느라 굼뜬데. 이런경우 *CATransaction* 을
+	쓸 수 있다.
+	#+BEGIN_SRC objc
+      // UIVIew 파생 클래스 메소드
+      -(void)touchesMoved:(NSSet *)touches
+                withEvent:(UIEvent *)event
+      {
+          [CATransaction begin];
+          [CATransaction setDisableActions:YES];
+      
+          aLayer.position = [[touches anyObject] locationInView:self];
+      
+          [CATransaction commit];
+      }
+	#+END_SRC
+*** CALayerDelegate 의 drawLayer:inContext: 메시지
+	UIView의 암묵적 CALayer의 delegate는 UIView 자신이다.
+	CALayerDelegate(informal protocol임) 메소드 drawLayer:inContext:
+	가 UIView에서 구현되어 호출되면, CALayer 의 drawInContext: 를
+	호출하는 기본 구현이 실행된다.
+
+	호출시, 사각형 영역은 =CGContextGetClipBoundingBox(ctx)= 를
+	호출하여 얻을 수 있고, =CGContextDrawImage(ctx, boundBox,
+	[layerImage CGImage])= 를 사용하여 UIImage 를 그릴 수 있다.
+
+	
 * 학습메모
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
 
@@ -1843,6 +1891,35 @@
 
    한편. 이전 iOS에는 이 함수가 없는데 그건 [[http://stackoverflow.com/questions/7776931/cgpathcreatecopybystrokingpath-equivalent-on-ios4][여기]] 를 보면 이전버젼을
    위한 CGPathCreateCopyByStrokingPath_For_All_iOS() 함수가 있다. 
+
+** Qt의 "Fit" 또는 "ResizePolicy" 가 Quartz에서는 "Contents Gravity"
+   희한하게 이렇게 용어가 틀리냐...
+   topLeft, top, ..., center, ..., resizeAspect, resizeAspectFill....
+** UIImage 의 imageNamed: 메시지는 cached 된 이미지를 반환한다.
+   맨 처음만 디스크에서 읽어오고, 그 다음 부터는 캐시된 이미지
+   객체를 반환한다.
+** CGContextRef(Graphics Context - "GD")를 얻는 방법
+   - UIGraphicsGetCurrentContext() : drawXXX 메소드에서는 이미 GD 가
+     존재한다. 그런 경우에는 기존의 context 만 얻어오면 된다.
+   - UIGraphicsBeginImageContextWithOptions() 또는
+     UIGraphicsBeginImageContext() 을 사용해서 비트맵 기반의 GD 를
+     만든다. 
+	 #+BEGIN_SRC objc
+       // 비트맵 GD생성
+       UIGraphicsBeginImageContextWithOptions(
+               size, // CGSize size
+               NO,   // BOOL opaque
+               1.0   // CGFloat scale
+           );
+       
+       // 여기서 Drawing작업 수행
+       
+       // 그려진 결과물을 이미지로 얻음.
+       UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+       
+       // 비트맵GD 제거
+       UIGraphicsEndImageContext();
+	 #+END_SRC>
 
 * Apple 공식문서 코스워크 순서
   [[http://pole2win.tistory.com/91][Pole to win 블로그에서 얻은 신공]]
