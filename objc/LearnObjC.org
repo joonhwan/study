@@ -1464,7 +1464,140 @@
 	호출하여 얻을 수 있고, =CGContextDrawImage(ctx, boundBox,
 	[layerImage CGImage])= 를 사용하여 UIImage 를 그릴 수 있다.
 
-	
+** 23장 CAAnimation 을 사용한 애니메이션
+*** Layer를 View에 더하고, Animation을 Layer에 더하다
+	CAAnimation 객체를 Layer 에 추가해서 애니메이션을 제어할 수 있다.
+	Qt 의 property animation 개념으로.. opacity, position, transform,
+	bounds, contents 를 포함하여 여러가지를 애니메이션한다.
+*** Animation 객체의 종류
+	[[file:img/LearnObjC_20130318_203606_.png]]
+
+	- CAAnimation : duration/timingFunction/delegate 속성 속성
+	  - CAAnimationGroup : animations
+	  - CAPropertyAnimation : keyPath 속성(NSString)
+		- CABasicAnimation : fromValue/toValue 속성(id형임! NSNumber,
+          CGPoint..등등 다양한 타입에 대응!!)
+		- CAKeyframeAnimation : values/keyTimes/timingFunctions 속성
+	  - CATransition : filter 속성
+*** CALayer 의 애니메이션가능 속성
+	- CAPropertyAnimation 의 keyPath 는 속성에 대한 이름 NSString.
+      (*Key-Value Coding*) : Qt 의 QSettings 와 유사.
+	- CALayer의 주요 애니메이션 방법 : 속성 애니매이션 by
+      CABasicAnimation and CAKeyframeAnimation
+	- CALayer 에 addAnimation:forKey: 를 호출하면서 CAAnimation
+      객체를 넘겨주면, *복제본이 생성* 된다. 따라서 원본에 대해
+      변경을 가하더라도 OK.
+	- *애니메이션이 끝나면 애니메이션 객체는 소멸된다.* 
+	  아래와 같이 해보니 확인이 되더라.
+	  #+BEGIN_SRC objc
+        interface MyAnimation : CABasicAnimation
+        @end
+        
+        @implementation MyAnimation
+        +(id)animationWithKeyPath:(NSString *)keyPath
+        {
+            MyAnimation *instance = [[MyAnimation alloc] init];
+            instance.keyPath = keyPath;
+            return instance;
+        }
+        -(id)init
+        {
+            self = [super init];
+            NSLog(@"MyAnimation ctor");
+            return self;
+        }
+        -(void)dealloc
+        {
+            NSLog(@"MyAnimation dtor");
+            // [super dealloc];
+        }
+        @end      
+	  #+END_SRC
+
+*** KeyPath 찾는 방법
+	- XCode 문서의 "Core Animation Programming Guide > Appendix 를
+      참조하면 된다. 2가지 중요한 부분
+	  1) "Animatable Properties"
+		 bounds, position, ... 이런 일반적인...
+	  2) "Key Path Support for Structures"
+		 transform.rotation.x, ...이런 의사 3D 변환에 대해 
+*** CABasicAnimation
+	- duration/keyPath/fromValue/toValue 를 이용한 가장 기본적인
+      애니메이션 제공.
+	- *생성자는 부모클래스 CAPropertyAnimation 의
+      +animationWithKeyPath: 를 사용한다*
+
+	#+BEGIN_SRC objc
+      // 애니메이션 객체 생성
+      CAAnimation *fader = [CABasicAnimation animationWithKeyPath:@"opacity"];
+      CAAnimation *mover = [CABasicAnimation animationWithKeyPath:@"position"];
+      // 몇초 동안 애니메이션?
+      [fader setDuration:2.0];
+      [mover setDuration:1.0];
+      // 초기값 설정
+      [fader setFromValue:[NSNumber numberWithFloat:1.0]];
+      [mover setFromValue:[NSValue valueWithCGPoint:CGPointMake(0.0, 100.0)]];
+      // 마지막값 설정
+      [fader setToValue:[NSNumber numberWithFloat:0.0]];
+      [mover setToValue:[NSValue valueWithCGPoint:CGPointMake(100.0, 100.0)]];
+      // 애니메이션 시작?! 여기 이름 "BigFade" 는 시스템은 무시함. 하지만
+      // 나중에 이 애니메이션을 중단하거나 할때 이 이름으로 참조가능
+      [myLayer addAnimation:fader forKey:@"BigFade"];
+      [myLayer addAnimation:mover forKey:@"BigMove"];
+	#+END_SRC
+*** CAKeyframeAnimation
+	Key Frame 별로 속성값의 변화를 지정할 수 있단다. 일단 더 많은
+	제어가 가능하지만, 맛보기로.
+	#+BEGIN_SRC objc
+      CAKeyframeAnimation *mover = [CAKeyframeAnimation animationWithKeyPath:@"position"];
+      NSArray *values = [[NSMutableArray alloc] init];
+      [values addObject:[NSValue valueWithCGPoint:CGPointMake(0.0, 100.)]];
+      [values addObject:[NSValue valueWithCGPoint:CGPointMake(100., 100.)]];
+      [mover setValues:values];
+      [mover setDuration:1.0];
+	#+END_SRC
+*** CAAnimationGroup
+	여러 애니메이션을 묶어서 동시에 ... 원래는 addAnimation:forKey:
+	하면 하나 하나 따로 진행되던가?
+	#+BEGIN_SRC objc
+      CABasicAnimation *mover = [CABasicAnimation animationWithKeyPath:@"position"];
+      [mover setDuration:1.0];
+      [mover setFromValue:[NSValue valueWithCGPoint:CGPointMake(0, 100)]];
+      [mover setToValue:[NSValue valueWithCGPoint:CGPointMake(100, 100)]];
+      
+      CABasicAnimation *fader = [CABasicAnimation animationWithKeyPath:@"opacity"];
+      [fader setDuration:2.0];
+      [mover setFromValue:[NSNumber numberWithFloat:1.0]];
+      [mover setToValue:[NSNumber numberWithFloat:0.0]];
+      
+      CAAnimationGroup *group = [CAAnimationGroup animation];
+      [group setAnimations:[NSArray arrayWithObjects:fader, mover, nil]];
+	#+END_SRC
+*** CATransition
+	- Mac OSX 에서는 CoreImageFilters 를 사용해 꽤 강력하지만, IOS
+      에서는 fading 과 sliding 정도에만 쓰인다는데...
+	- UINavigationController 에서, view 를 스크린상에 pushing 할 때
+      사용된단다.
+
+*** Timing Function
+	- 속성 애니메이션시 시간에 따른 f(t) 함수를 지정할 수 있다.
+	- CAMediaTimingFunction 객체를 만들어서 지정하면 됨.
+	- +functionWithName: 클래스 메소드를 쓰면 미리 지정된 몇가지 편이
+      객체를 쓸 수 있음.
+	  1) kCAMediaTimingFunctionLinear : 선형변화
+	  2) kCAMediaTimingFunctionEaseIn : 초기에 느리게
+	  3) kCAMediaTimingFunctionEaseOut : 말기에 느리게
+	  4) kCAMediaTimingFunctionEaseInEaseOut : 초기와 말기에 느리게
+	  5) kCAMediaTimingFunctionDefault : 기본값이라는데?
+	#+BEGIN_SRC objc
+      [spin setDuration:1.0];
+      // timing function 설정
+      CAMediaTimingFunction *timing = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+      [spin setTimingFunction:timing];
+      // Layer에 설정
+      [myLayer addAnimation:spin]
+	#+END_SRC
+
 * 학습메모
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
 
@@ -1920,6 +2053,51 @@
        // 비트맵GD 제거
        UIGraphicsEndImageContext();
 	 #+END_SRC>
+
+** 어떤 클래스의 생성자 찾는 방법 - 그 클래스에 없는 생성자도 있네?!
+   CABasicAnimation 클래스의 경우, 문서에 보면, 다음과 같이 나와 있다.
+   #+BEGIN_EXAMPLE
+   CABasicAnimation provides basic, single-keyframe animation
+   capabilities for a layer property. You create an instance of
+   CABasicAnimation using the inherited animationWithKeyPath: method,
+   specifying the key path of the property to be animated in the
+   render tree.
+   #+END_EXAMPLE
+   즉, +animationWithKeyPath: 클래스 메시지인데, 이건 사실, 부모
+   클래스인 CAPropertyAnimation 에 있는 메시지 이다. :( 근데. 이걸
+   써서 만들라네....헐..이상한 Objc
+
+** 어떤 Delegate 는 문서에는 없어도 존재하네?!?!
+   CAAnimation 의 경우 =-(id)delegate= 인스턴스 변수가 존재하고,
+   거기에는 뭔가 Delegate에 상응하는 타입이 있을 걸로 생각했는데...
+   CAAnimationDelegate 라는 항목이 XCODE 문서에 없다.
+
+   그래서 QuartzCore.framework/Headers/CAAnimation.h 를
+   열어보았더니.. 거기에 informal protocol 이 정의되어 있었다.
+
+   #+BEGIN_SRC objc
+     /* Delegate methods for CAAnimation. */
+     
+     @interface NSObject (CAAnimationDelegate)
+     
+     /* Called when the animation begins its active duration. */
+     
+     - (void)animationDidStart:(CAAnimation *)anim;
+     
+     /* Called when the animation either completes its active duration or
+      ,* is removed from the object it is attached to (i.e. the layer). 'flag'
+      ,* is true if the animation reached the end of its active duration
+      ,* without being removed. */
+     
+     - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag;
+     
+     @end
+   #+END_SRC
+
+   그런데, 다시 위의 함수를 XCODE 문서에서 찾아보니...
+
+   세상에나.. CAAnimation Class Reference의 Delegate Methods라는
+   항목에 설명이 되어 있었다. 이런식으로 구성되어 있군.
 
 * Apple 공식문서 코스워크 순서
   [[http://pole2win.tistory.com/91][Pole to win 블로그에서 얻은 신공]]
