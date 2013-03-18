@@ -25,7 +25,7 @@ public class MyWorker
 			Random r = new Random();
 			var number = r.Next(5);
 			// Console.Write("number {0} : ", number);
-			Thread.Sleep(100 * r.Next(5));
+			Thread.Sleep(100 * r.Next(10));
 			Console.Write("{0}, ", i);
 		}
 		Console.WriteLine();
@@ -40,6 +40,7 @@ public class ThreadTest
 		Thread myThread = new Thread(worker.PrintNumbers);
 		myThread.Start();
 		// PrintNumbers();
+		myThread.Join();
 		Console.WriteLine("End.");
 	}
 }

@@ -4672,7 +4672,6 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
             } 
         } 
 	  #+end_src
-
 	  
 ** 16장. 동적타입 과 DLR(Dynamic Language Runtime)
    - /dynamic/ 키워드 !!!
@@ -4868,7 +4867,237 @@ BufferedStream, FileStream, MemoryStream, NetworkStream 의 4가지
 
 ** TODO 18장. CIL
 ** 19장. 멀티쓰레딩, 병렬처리, 비동기 프로그래밍
-   
+*** Process / AppDomain / ObjectContext / Thread
+	- Process 1개는 적어도 1개 이상의 AppDomain을 가짐
+	- .NET 어셈블리는 Process 가 아니라 AppDomain에서 수행됨.
+	- AppDomain : Thread  는 1:1 관계가 아님
+	- AppDomain 1개가 여러개의 Thread 를 가질 수 있음.
+	- Thread 1개는 여러 AppDomain 에 걸쳐 수행됨.
+	- 특정 시간에는 Thread 는 오직 1개의 AppDomain 에서만 수행됨.
+	  =Thread.GetDomain()= 하면 수행 AppDomain 을 얻을 수 있음.
+	- ObjectContext : AppDomain 1개는 적어도 1개의 ObjectContext 를
+      가짐. 대부분의 .NET Object 는 context 0 에 로딩됨.???
+*** 병렬성의 문제
+	늘 알고 있던 문제.
+	- Thread 는 언제 실행될 지 모르며, 바로 수행을 시작하게 할 수 도
+      없음. (전적으로 OS가 결정함)
+	- Thread Volatile 은 항상 문제 (Partially Modified State 문제)
+	- Atomic 동작이 필요 : Thread동기화 필요
+*** delegate 의 비동기지원 : Sytem.MulticastDelegate 클래스
+	- 모든 delegate 객체는 Sytem.MulticastDelegate 클래스에서 파생받은
+      클래스 객체로, Invoke()라는 동기화 호출과 BeginInvoke()
+      /EndInvoke() 로 구성된 비동기 호출지원을 모두 지원.
+	  #+BEGIN_SRC csharp
+        // 아래와 같이 delegate 를 선언하면...
+        public delegate int BinaryOp(int x, int y);
+        
+        // 아래와 같은 클래스가 C# 컴파일러에 의해 만들어진다.
+        public sealed class BinaryOp: System.MulticastDelegate 
+        { 
+            public BinaryOp(object target, uint functionAddress);
+            public IAsyncResult BeginInvoke(int x, int y, AsyncCallback cb, object state);
+            // 원 함수가 int 를 반환하므로, 아래 두 함수도 int 반환
+            public int EndInvoke(IAsyncResult result);
+            public int Invoke(int x, int y); 
+        } 
+        
+	  #+END_SRC
+	- System.IAsyncResult 인터페이스 : BeginInvoke() 의 반환객체의
+      인터페이스. 이걸로 비동기 동작이 끝났는지 여부를 확인가능.
+	  #+BEGIN_SRC csharp
+        public interface IAsyncResult 
+        { 
+            object AsyncState { get; } 
+            WaitHandle AsyncWaitHandle { get; } 
+            bool CompletedSynchronously { get; } 
+            bool IsCompleted { get; } 
+        }      
+	  #+END_SRC
+	  확인이 끝나면, EndInvoke() 에 다시 집어넣어 원래 비동기동작의
+      반환값을 확인할 수 있다. 
+	  
+	  #+BEGIN_SRC csharp
+        static int Add (int a, int b)
+        {
+            Thread.Sleep(10000);
+            return a + b;
+        }
+        
+        static void Main(string[] args) 
+        { 
+            BinaryOp b = new BinaryOp(Add); 
+            IAsyncResult asyncResult = b.BeginInvoke(
+                    10,    // Add의 첫번째 인자
+                    10,    // Add의 두번째 인자
+                    null,  // AsyncCallback 객체
+                    null   // 상태객체(IAsynResult의 AsyncState 속성으로 접근)
+                ); 
+        
+            // .. 여기서 다른 작업을 병렬로 수행할 수 있다. 
+        
+            // ... 또는 기다리면서 조그마한 작업들을 수행할 수 도 있다.
+            while (asynResult.IsCompleted)
+            {
+                // DoSomething()
+                Thread.Sleep(10);
+            }
+        
+            // 원래 함수의 반환값은 EndInvoke()로 확인가능
+            int answer = b.EndInvoke(asyncResult); 
+            Console.WriteLine("10 + 10 is {0}.", answer); 
+            Console.ReadLine(); 
+        }
+	  #+END_SRC
+
+	- AsyncCallback 대리자의 역할 : BeginInvoke()의 인자. 비동기
+      호출이 완료될 때 호출될 대리자객체. 시그너쳐는
+	  =void MyAsyncCallbackMethod(IAsyncResult iftAR)= 이며, 비동기
+      호출을 한 쓰레드와 동일 쓰레드에서 호출됨.
+	  
+*** System.Threading 네임스페이스
+
+	- Monitor : Win32 의 Critical Section. C# 의 lock 키워드로 scoped
+      lock 구현가능. AppDomain 간 공유는 안됨. 
+	- Mutex : AppDomain 간 동기화
+	- Semaphore : win32 의 세마포어와 동일.
+	- Thread : Start()/Start(Object 쓰레드진입함수인자),
+      Suspend()/Resume(), Abort(), Interrupt(), ... --> Abort 와
+      Suspend의 호출은 조심. 쓰레드 자원이 줄줄 셀 수 있다.
+	- Timer / TimerCallback
+
+*** System.Threading.Thread 클래스
+	- Thread.CurrentThread : 현재 쓰레드 객체(Thread클래스형)
+	- Thread.GetDomain().FriendlyName : 현 AppDomain객체의
+      이름(기본값은 exe파일명)
+	- Thread.CurrentContext.ContextID : 현 Context의 ID(기본값은 0)
+	- aThread.Priority : 쓰레드 우선순위
+	- aThread.IsAlive : 쓰레드 시작됨?
+	- aThread.ThreadState : Runnning/Suspended/Stopped?
+
+*** 쓰레드 만들기 : 인자 없는 쓰레드 진입함수 
+	예제로 기억.
+	#+BEGIN_SRC csharp
+      using System;
+      using System.Threading;
+      
+      public class MyWorker
+      {
+          private int m_count;
+          public MyWorker()
+              : this (10)
+          {
+          }
+          public MyWorker(int count)
+          {
+              m_count = count;
+          }
+          public void PrintNumbers()
+          {
+              for (int i = 0; i < m_count; ++i)
+              {
+                  Random r = new Random();
+                  var number = r.Next(5);
+                  // Console.Write("number {0} : ", number);
+                  Thread.Sleep(100 * r.Next(10));
+                  Console.Write("{0}, ", i);
+              }
+              Console.WriteLine();
+          }
+      }
+      
+      public class ThreadTest
+      {
+          public static void Main()
+          {
+              MyWorker worker = new MyWorker(20);
+              Thread myThread = new Thread(worker.PrintNumbers);
+              myThread.Start();
+              // PrintNumbers();
+              myThread.Join();
+              Console.WriteLine("End.");
+          }
+      }
+	#+END_SRC
+
+*** 쓰레드 만들기 : 인자 있는 쓰레드 진입함수.
+	ParameterizedThreadStart 객체와 Thread.Start(Object) 메소드를
+	사용.. 이때, 쓰레드 진입함수를 반드시 ParameterizedThreadStart 로
+	감쌀 필요는 없어보인다(아래 예제 코드 주석 참조)
+	#+BEGIN_SRC csharp
+      using System;
+      using System.Threading;
+      
+      class MyThreadParam
+      {
+          public int a, b;
+          public MyThreadParam(int a, int b)
+          {
+              this.a = a;
+              this.b = b;
+          }
+      }
+      
+      class ParamThreadTest
+      {
+          public static void Add (Object param)
+          {
+              MyThreadParam mtp = param as MyThreadParam;
+              if (mtp!=null)
+              {
+                  Console.WriteLine("{0} + {1} = ...", mtp.a, mtp.b);
+                  Thread.Sleep(2000);
+                  Console.WriteLine(".... = {0}", (mtp.a + mtp.b) );
+              }
+          }
+      
+          public static void Main()
+          {
+              MyThreadParam myParam = new MyThreadParam(10, 40);
+      
+              // 둘중 아무거나 다 됨.
+              Thread myThread = new Thread(Add); 
+              // Thread myThread = new Thread(new ParameterizedThreadStart(Add));
+      
+              myThread.Start(myParam);
+              myThread.Join();
+          }
+      }
+	#+END_SRC
+
+*** AutoResetEvent : Win32 자동 리셋 Event객체
+
+	- 생성자는 초기 값을 받음 : =new AutoResetEvent(false)= --> 초기
+      상태 unsignaled상태인 event 생성
+	- aEvent.WaitOne() : WaitForSingleObject()
+	- aEvent.Set() : SetEvent()
+
+*** Foreground 쓰레드 vs Background 쓰레드
+	- Foreground 쓰레드 : 모든 Foreground 쓰레드가 정지해야 AppDomain
+      이 Unload 될 수 있음.
+	- Thread클래스 객체 IsBackground 의 속성값을 어떻게 주느냐에 따라 결정
+	- 디폴트는 Foreground Thread
+*** /lock/ 키워드를 사용한 동기화
+	- System.Threading.Monitor 클래스(~=크리티컬섹션)을 내부적으로
+      사용하는 동기화기법.
+	- lock 을 쓰지 않으면 try ~ finally 블럭을 사용해야 된다(예외가
+      던져지는 경우등등을 고려하여..)
+	- lock 을 걸 대상 객체(그냥 아무 객체여도 된다)을 사용.
+      =lock(anyObject)= 이런 느낌.
+	  #+BEGIN_SRC csharp
+        public class ThreadedPrinter
+        {
+            private object threadLock = new object ();
+        
+            public void PrintNumbers()
+            {
+                lock (threadLock)
+                {
+                    // 먼가 출력한다.
+                }
+            }
+        }
+	  #+END_SRC
+
 * 기타 메모
 ** string 키워드
 
