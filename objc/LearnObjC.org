@@ -1583,7 +1583,7 @@
 	- 속성 애니메이션시 시간에 따른 f(t) 함수를 지정할 수 있다.
 	- CAMediaTimingFunction 객체를 만들어서 지정하면 됨.
 	- +functionWithName: 클래스 메소드를 쓰면 미리 지정된 몇가지 편이
-      객체를 쓸 수 있음.
+      객체를 쓸 수 있음(아래는 모두 NSString *const 타입.
 	  1) kCAMediaTimingFunctionLinear : 선형변화
 	  2) kCAMediaTimingFunctionEaseIn : 초기에 느리게
 	  3) kCAMediaTimingFunctionEaseOut : 말기에 느리게
@@ -1597,6 +1597,135 @@
       // Layer에 설정
       [myLayer addAnimation:spin]
 	#+END_SRC
+*** Animation Completion
+	CAAnimation 모듈(CAAnimation.h) 은 CAAnimation 이라는 NSObject의
+	extension 을 가지고 있다(즉, informal protocol이다).
+
+	#+BEGIN_SRC objc
+      /* Delegate methods for CAAnimation. */
+      @interface NSObject (CAAnimationDelegate)
+      // 애니메이션 시작시 호출됨
+      - (void)animationDidStart:(CAAnimation *)anim;
+      // 애니메이션 종료시 호출됨(강제종료되면 flag는 NO)
+      - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag;
+      @end
+	#+END_SRC
+
+*** CALayer의 Presentation Layer(그리고 Model Layer)
+	- CALayer 는 2가지 요소로 구성
+	  1) 화면에 띄울 내용
+	  2) 화면에 띄울 내용을 어떻게 스크린에 합성할 것이다.
+	- 위에서 2)를 제어하는게 애니메이션 CAAnimation의 역할.
+	  1) opacity
+	  2) transform(rotation, scale...)
+	  3) position
+	  등등 이 있는데, 이 속성은 2가지 버젼이 존재.
+	- Presentation 버젼 -> 이걸로 표시되는걸 Apple에서 Presentation
+      Layer라 명명함
+	- Model 버젼 -> 이걸로 표시되는 걸 Apple에서는 Model Layer라
+      명명함.
+	- *중요기억사항*
+	  - CALayer 객체에 position 속성을 요청하면 ? *presentation layer*
+        의 값이 넘어옴(애니메이션 중에는 model layer의 position과
+        다를 수 있음. ex: 게임에서 객체의 위치)
+	  - *애니메이션 종료후 position이 갑자기 확 튄 상태로 종료?* -->
+        model layer 의 값이 presentation layer의 애니메이션 종료값과
+        다른 문제.
+	  - *애니메이션이 전혀 되지 않는 문제* --> model layer의 값과
+        애니메이션 종료 position 값이 똑같음(다르게 해주어야
+        애니메이션이 이루어짐)
+
+
+** 24장 UIStoryboard
+*** 기본준비
+	- Empty Project 생성
+	- File > New 에서 story board 생성(iphone용 선택)
+	- storyboard 파일 에디팅
+	- UINavigationController 를 끌어다 놓으면 내비뷰컨 과
+       테이블뷰컨이 생성된다.
+    - 스토리보드 편집시, 배경 더블클릭 또는 편집창 우측 하단의 버튼으로
+     zoom in/out 할 수 있다. *하지만 zoom out 된 상태에서는 뷰컨만
+     선택되고 뷰는 선택되지 안으므로 주의!*
+*** Segue(세그웨이:곡/영화등에서 부드러운 장면전환)s
+	- UIStoryboardSegue 클래스 : 보통의 iOS 어플들이 다수의 뷰컨들간
+      전환으로 구성된다는 점에 착안, 스토리보드는 코드를 전혀! 작성하지
+      않고도 뷰컨들을 구성하고 이들간 장면전환을 할 수 있는 /Segues/
+      라는 걸 이 클래스를 통해 제공한다.
+	- UIStoryboardSegue 의 구성
+	  1) style
+	  2) action item
+	  3) identifier : 액션등에 의해 특정 장면전환이 이루어져야 할 때 특정
+         세그웨이에 대한 참조가 필요한 데, 그 때 이 id를 사용해
+         참조가능.
+*** 한번써보기.
+*** 스토리보드를 써야 할까?
+	아니란다. :(
+	- 장점
+	  1) 어플의 프로그램 흐름을 고객이나 동료에게 보이기 쉽다
+	  2) 소스코드 작성양이 몇가지 경우에는 거의 필요없다.
+	  3) 테이블뷰컨이 Static Content 라면 쉽게 만들 수 있다.
+	  4) 스토리보드는 시각적으로 예쁘게 보인다.
+	- 단점
+	  1) 팀으로 함께 작업하기 힘들다. 모든 팀원들이 1개의 스토리 보드
+         파일을 가지고 작업해야 하기 때문.
+	  2) 그러다 보니, 버젼관리가 힘들어 질 수 있겠다.
+	  3) 코드로 alloc/init 하고
+         presentViewController:animated:completion: .. 처럼 쉽게 할
+         것을 드래그 하고, 클래스 지정하고, 따로 만들고, 번잡하게 되기
+         쉽상이다.
+	  4) 쉬운것은 더 쉽게 되지만, 어려운 건 더 어렵게 된다. 조금 만
+         더 손을 보려고 해도 오히려 더 힘들어지기 쉽상이다.
+	  5) 스토리보드는 뷰컨을 항상 새로 만든다. 혹시라도 메모리에
+         남겨두고 싶을때 문제가 된단다.
+
+** 25장 웹 서비스와 UIWebView
+*** 목표 어플 "NerdFeed" 의 기능
+   - Big Ner Ranch Forum 의 RSS 피드를 읽어오는 프로그램을 만든다.
+   - 2가지 주요 작업
+	 1) 웹서비스에 접속하여 데이터를 긁어와서 모델 객체들을 생성
+	 2) UIWebView 클래스를 사용해 웹 컨텐츠를 화면에 표시
+   - 클래스 다이어그램
+	 [[file:img/LearnObjC_20130320_001555_.png]]
+*** 웹 서비스
+	- 웹브라우저 : HTTP 프로토콜을 사용해 웹 서버와 통신.
+	- HTTP 의 가장 간단한 모델 : URL 을 지정하여 서버에 요청을 전송 /
+      요청한 페이지(대개는 HTLM과 이미지)를 응답 / 브라우저가
+      서식화하여 화면에 표시
+	- HTTP 의 일반적인 모델 : 폼 데이터와 같은 추가적인 파라메터를
+      포함한 요청을 서버에 전송 / 추가 파라메터에 따라 사용자화 되고
+      동적인 웹페이지를 만들어 응답
+	- 서버에서 이러한 일을 처리하는 서비스를 웹 서비스라함.
+	- HTTP 프로토콜은 전송되는 데이터의 종류를 가리지 않음. 대개는 XML
+      이나 JSON 포맷임. 클라이언트는 이 데이터를 잘 파싱하면 됨.
+
+*** NerdFeed 만들기
+	1) Empty Application
+	2) UITableViewController 의 서브클래스 ListViewController 생성
+	3) UINaviationController 생성(rootViewController 는 listViewController)
+	4) UIWindow 의 rootViewController navigationController 지정
+
+*** URL 구성하여 서버에 페이지 요청하기
+	- URL 의 구성방법 자체가 웹 서비스의 API 라 할 수 있음.
+	- BigNerdRanch Forum의 RSS 피드는 다음과 같은 서식의 URL로 요청
+	  #+BEGIN_EXAMPLE
+	  http://forums.bignerdranch.com/smartfeed.php?limit=1_DAY&sort_by=standard&feed_type=RSS2.0&feed_style=COMPACT
+	  #+END_EXAMPLE
+	- baseURL : forums.bignerdranch.com
+	- serviceName : smartfeed
+	- 일반적으로 baseURL 과 serviceName 으로 다음과 같은 URL이 구성
+	  #+BEGIN_EXAMPLE
+	  http://baseURL.com/serviceName?argumentX=valueX&argumentY=valueY
+	  #+END_EXAMPLE
+	- URL에 문자열이 들어가는 경우 "URL안전한(URL Safe)" 문자열이
+      되어야 한다. 
+	  #+BEGIN_SRC objc
+        NSString *search = @"Play some \"Abba\" Songs";
+        // 졸라 긴 메시지명 "특정 인코딩을 사용해 퍼센트 이스케이프된 문자열을
+        // 퍼센트기호로 만든 문자열을 반환하라"
+        NSString *escapedSearch =
+            [search stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        // 결과값은 "Play%20some%20%22Abba%22%20Songs" 로 나옴
+	  #+END_SRC
 
 * 학습메모
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
