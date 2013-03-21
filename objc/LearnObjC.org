@@ -1,4 +1,5 @@
 #+title:Objective-C 배우기
+#+OPTIONS: ^:{}
 
 * IOS.Nerd.Ranch.Guide 제2판
 ** [receiver selector: argument]
@@ -1726,6 +1727,52 @@
             [search stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
         // 결과값은 "Play%20some%20%22Abba%22%20Songs" 로 나옴
 	  #+END_SRC
+	- NSURLConnection 객체는 초기화 함수에 NSURLRequest 객체를 만들어
+      넘기면 작업을 주욱 하고 스스로 파기 된다. 
+	  그 LifeTime 동안 NSURLConnectionDelegate 객체에 다음 메시지를 전송
+	  1) 서버 접속 : 실패시 -connection:didFailWitError 
+	  2) URL에 해당하는 페이지 요청
+	  3) 서버의 응답을 주욱 수신 : -connection:didReceiveData: 
+	  4) 위 3)단계가 여러번에 걸쳐서 호출됨. 일반적으로 클라이언트는
+         받은 데이터를 내부적으로 누적해서 가지고 있음.
+	  5) 접속 완료 : -connectionDidFinishLoading: 전송
+	  6) NSURLConnection 객체 스스로 파괴.
+
+*** 페이지 XML 데이터 파싱 - NSXMLParser
+	- NSXMLParser : "Event Driven XML Parser"
+	- NSXMLParserDelegate : Event Handler
+	- "<title>Big Nerd Ranch</title>" 수신시 Event Handling
+	  1) Element 시작 발견했음! : <title>
+	     #+BEGIN_SRC objc
+           - (void) parser:(NSXMLParser *)parser   // xml parser 객체
+           didStartElement:(NSString *)elementName // Element이름
+              namespaceURI:(NSString *)nameUri
+             qualifiedName:(NSString *)qualifiedName
+                attributes:(NSDictionary *)attributeDict
+	     #+END_SRC
+	  2) 문자열 발견했음! : Big Nerd Ranch
+		 *주의할 점* 문자열이 여러번에 걸쳐서 나뉘어져 올 수 있다.
+         따라서, delegate 는 string 으로 넘어온 문자열을 기존 값에
+         계속 합치는 로직따위가 필요하다.
+		 #+BEGIN_SRC objc
+           - (void)parser:(NSXMLParser *)parser // xml parser 객체
+           foundCharacters:(NSString *)string; // 찾은 문자열
+		 #+END_SRC
+	  3) Element 끝 발견했음! : </title>
+		 #+BEGIN_SRC objc
+           -(void) parser:(NSXMLParser *)parser
+            didEndElement:(NSString *)element // 찾은 element이름
+             namespaceURI:(NSString *)uri
+            qualifiedName:(NSString *)qualifiedName;
+		 #+END_SRC
+
+*** NSXMLParser 의 delegate 를 동적으로 변경
+	내부적으로 "현재 처리하고 있는 데이터 요소"에 대해서 상태관리를
+	따로 할 필요없이, 각 "데이터 요소" 로 하여금 처리를 대리하도록
+	적절한 시점에 NSXMLParser 의 delegate 를 변경해 주면 코딩이 깔끔.
+
+	[[file:img/LearnObjC_20130320_231209_.png]]
+	[[file:img/LearnObjC_20130320_231315_.png]]
 
 * 학습메모
 ** 변수이름 shadowing 문제 : 속성값방식으로 접근하기 vs 멤버변수로 접근하기
@@ -2143,9 +2190,10 @@
    #+end_example
 	
 ** Informal Protocol
-   @protocol 의 메소드 중 @optional 로 지정된 메소드로 구성된
-   프로토콜을 말한단다.
-   [[http://stackoverflow.com/questions/2010058/informal-protocol-in-objective-c][여기]] 참조.
+   +@protocol 의 메소드 중 @optional 로 지정된 메소드로 구성된
+ 프로토콜을 말한단다+ [[http://stackoverflow.com/questions/2010058/informal-protocol-in-objective-c][여기]] 참조. 잘못이해함. 사실은 ObjC 2.0 에서
+ 도입된 @protocol 키워드를 사용하지 않고 구현한 이전 방식의 protocol 을
+ 말함. 이전의 protocol 역할을 하던 NSObject의 category 를  말함.
 ** CoreGraphics 에 Path 의 HitTesting
    우선 iOS5 에서 추가된 CGPathCreateCopyByStrokingPath 함수를 써서
    HitTesting을 위한 스트로크 패스를 만들 수 있음이 힌트. [[http://oleb.net/blog/2012/02/cgpath-hit-testing/][여기]] 를
@@ -2227,6 +2275,54 @@
 
    세상에나.. CAAnimation Class Reference의 Delegate Methods라는
    항목에 설명이 되어 있었다. 이런식으로 구성되어 있군.
+
+** UIAlertView : 간단한 메시지 상자.
+   아래와 같이 하여 화면에 띄운다. 버튼을 2개 이상 만들때는
+   otherButtonTitles 에 nil 로 끝나는 문자열 배열을 넣어준다.
+   일단 표시한 다음 사용자가 버튼을 누르면 delgate 로(
+   #+BEGIN_SRC objc
+     -(void)testAlertView
+     {
+         UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"메시지 상자 타이틀"
+                                                      message:@"메시지 상자에 표시되는 문자열"
+                                                // 내 스스로에게 통지요청
+                                                     delegate:self
+                                                // 첫번째 버튼이 "cancel" 버튼임. 하지만,
+                                                // 꼭 "취소"의 기능일 필요는 없음.
+                                            cancelButtonTitle:@"확인"
+                                            otherButtonTitles:self];
+         [av show];
+     }
+     
+     #pragma mark -
+     #pragma mark - UIAlertView delegate
+     
+     -(void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger *)buttonIndex
+     {
+         // buttonIndex 가 0 이면 cancelButton(가장 반짝이는 디폴트 버튼)
+         // AlertView의 버튼이 눌리면 닫히면서 delegate에 이 메시지를 전송함.
+     }
+     
+   #+END_SRC
+   iOS 4.0 이후에는 어플이 백그라운드로 빠져도 화면에 그대로 alert
+   view 가 있기 때문에, 강제로 닫기 위해서는 
+   dismissWithClickedButtonIndex:animated: 메시지를 날려서 닫아 둔다.
+** 유용한 UIControl 샘플 예제 : "UICatalog"
+   여러가지 UIControl 들의 실 사용예가 있다. 한번 주욱 만들어 보는
+   연습을 하면 더 감이 올 것 같다.
+** #pragma - some-useful-information-for-xcode-navigation-bar
+   코드 중간 중간에
+   #+BEGIN_SRC objc
+     #pragma mark - Table view data source
+     - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+     {
+     // #warning Potentially incomplete method implementation.
+         // Return the number of sections.
+         return 0;
+     }
+   #+END_SRC
+   이렇게 하면 XCODE 네비게이션 에서 알아보기 쉽게 함수들을 구분지어
+   표기해 준다.(한번 보면 암)
 
 * Apple 공식문서 코스워크 순서
   [[http://pole2win.tistory.com/91][Pole to win 블로그에서 얻은 신공]]
