@@ -1,0 +1,4253 @@
+#+TITLE:Apress Pro C# 정리
+#+STARTUP:content
+#+OPTIONS: ^:{}
+
+* 3장. Core C# 1편
+** checked 키워드
+
+	checked 키워드를 =check(연산식)= 혹은 =checked { 구문들; }=
+	이런식으로 사용하여 오버플로우 등 연산오류 발생시 예외가 던져지게
+	할 수 있다.
+	
+	#+begin_src csharp
+      try
+      {
+          // 계산이 유효하지 않게 되면 예외가 던져진다.
+          checked
+          {
+              int sum = 1000000;
+              byte byteSum = (byte)sum;
+          }
+      } catch (OverflowException e)
+      {
+          Console.WriteLine(e.Message);
+      }
+	#+end_src
+
+	만일 컴파일러 옵션 =/checked= 를 사용하면 전체 프로젝트에
+	checked를 사용하는 효과를 보게 된다.
+
+** var 지시어(?. C# keyword 가 아님!)
+	
+	암시적으로 형을 유추할 수 있는 경우에 원래의 형 대신 쓰게 된다.
+	C++11 의 auto 와 유사.
+
+	LINQ 구문과 같이 리턴되는 값의 형이 복잡한 경우에 쓰면 코드가
+	깔끔하다.
+
+	var 는 초기값을 설정하는 경우(즉, *타입을 유추할 수 있는 경우*)
+	로컬 변수선언 시에만 쓸 수 있다. 다음과 같은 경우에는 사용 불가
+
+	- 필드 X
+	- 리턴값 X
+	- 초기값 설정을 하지 않는 로컬변수 선언시 X
+	- null값으로 설정하는 변수 X
+   
+   var 형은 겉보기로는 Variant 같은 형과 비슷하지만, 전혀 다르다.
+   유추하는 것만 자유롭지, 일단 유추되면 그 형의 타입으로 고정된다.
+   (즉, 타입세이프하게 된다)
+
+   LINQ 사용시 유용한 예
+
+   #+begin_src csharp
+     static void LinqQueryInts()
+     {
+         // LINQ !
+         int [] numbers = {10, 20, 30, 40, 50 };
+         var subset = from i in numbers where i < 30 select i;
+         foreach (int number in subset)
+         {
+             Console.WriteLine("{0}", number);
+         }
+     }
+   #+end_src
+
+** Enum.Parse() 를 사용하면 문자열을 특정 enum형으로 변경가능
+   
+   #+begin_src csharp
+   DayOfWeekEnumType dow = Enum.Parse(typeof(DayOfWeekEnumType), "Monday");
+   #+end_src
+
+** switch 문이 enum/문자 뿐만 아니라 *문자열*까지 case할 수 있다!
+
+   #+begin_src csharp
+     string lang = "c#";
+     switch (lang)
+     {
+     case "c#":
+         break;
+     case "c++":
+         break;
+     case "objc":
+         break;
+     }
+   #+end_src
+
+   와우
+
+* 4장. Core C# 2편
+** 함수 인자 수식어(Parameter Modifier)
+
+	- (none) : pass-by-value. reference type의 pass-by-value 는 역시
+            reference임에 유의. 원래값의 복제본이 넘어간다.
+   	- ref : pass-by-reference. 원래값의 참조값이 넘어간다.
+	- out : pass-by-reference. 함수구현부에서 값을 설정하지 않으면
+            컴파일 오류발생
+	- params : 가변인자. params 인자는 가장 마지막에 와야함.
+   
+   ref/out은 함수선언시에도 사용하고, 호출시에도 사용해야 한다.
+   params 은 선언시에만 사용하고, 배열형식으로 인자가 선언되어야 한다.
+
+   #+begin_src csharp
+     public static int Main(string[] args)
+     {
+         CalcAvg(10, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+         return 0;
+     }
+     static void CalcAvg(double multiplier, params double [] values)
+     {
+         double avg = 0;
+         foreach (double value in values)
+         {
+             avg += (value * multiplier);
+         }
+         avg = avg / values.Length;
+         Console.WriteLine("average = {0}", avg);
+     }   
+   #+end_src
+
+** 선택적 인자의 사용이 가능.
+
+	C++ 동일한 방식으로 디폴트 값을 가지는 인자를 만들 수 있다.
+
+	#+begin_src csharp
+	static void EnterLogData(string message, string owner="Programmer")
+	#+end_src
+
+** 이름있는 인자(Named Parameter)
+
+	보통 우리가 쓰는 걸 positional parameter(위치별 인자)라고 하고,
+	인자의 이름 뒤에 콜론을 붙이는 식으로 인자전달 하는 걸 named
+	parameter 라고 한다. 가독성이 좋아지는 부분도 있고, COM
+	상호운용성(거기에도 Named Parameter가 있다)을 높이기도 하지만,
+	그닥... 이란다.
+
+	positional parameter 와 named parameter 는 섞어서 쓸 수 도 있다.
+	그런경우 positional 은 순서가 함수 시그너쳐와 맞아야 하고, named
+	는 	항상 그 뒤에 따라 와야 한다.
+
+	COM등에서 사용되는 named parameter의 용례는 다음과 같은 경우로
+	느낌을 받을 수 있다.
+
+	#+begin_src csharp
+      static void DisplayFancyMessage(Color text = blue,
+                                      Color background = yellow,
+                                      string message = "TestMessage")
+      {
+          // text색상으로 background색상 위에 message를 표시.
+      }
+      // 아래와 같이 호출 가능
+      DisplayFancyMessage(message: "Hello!");
+      DisplayFancyMessage(text:red);
+	#+end_src
+
+** C# 은 인자타입에 따른 메소드 오버로딩이 가능하다.
+
+	C++ 과 동일하다. 근데, VB.NET은 그게 안된단다.
+	*Generic* 을 사용하면 C++ template class 처럼 *type placeholder* 를
+	정의하여 구현을 일반화할 수 있다.
+
+** C# 배열
+
+	초기화 구문예는 다음과 같은 종류
+
+	#+begin_src csharp
+      static void ArrayInit()
+      {
+          string[] array1 = new string[] {
+              "one",
+              "two",
+              "three"
+          };
+          bool[] boolArray = {
+              false,
+              false,
+              true
+          };
+          int[] intArray = new int[4] {
+              20, 22, 23, 0
+          };
+      
+          // oops compile error
+      
+          // int[] intArray2 = new int[2] {
+          //  20, 22, 23, 0
+          // }
+      }
+	#+end_src
+
+	암시적인 형 *var* 를 사용해서도 정의 가능. 가능한 일반적인 형으로
+	유추되더라. 똑똑한 var.
+
+	#+begin_src csharp
+      void VarArray()
+      {
+          var data = new[] { 1, 10, 100, 1000 };
+          Console.WriteLine("typeof(data)={0}", data.GetType()); // System.Int32[]
+          a[1] = 50;
+          foreach (var i in data)
+          {
+              Console.WriteLine("i = {0}", i);
+          }
+          var b = new[] { 1, 3.5, 10 };
+          Console.WriteLine("typeof(b)={0}", b.GetType()); // System.Double[]
+      
+          // // 섞어 쓰면 컴파일 에러
+          // var d = new [] { 1, "one", 2 };
+      }
+	#+end_src
+
+	System.Object 즉, object 형을 배열로 만들면 모든 객체를 하나의
+	배열에 담을 수 있다.
+
+	#+begin_src csharp
+      object[] myObjects = new object[3];
+      myObjects[0] = 10;
+      myObjects[1] = new DateTime(1971,12,11);
+      myObjects[2] = "hello";
+      foreach (object obj in myObjects)
+      {
+          Console.WriteLine("object = {0}(type:{1})", obj, obj.GetType());
+      }
+	#+end_src
+
+	배열은 함수의 인자로도, 리턴값으로도 사용가능하단다.
+
+	#+begin_src csharp
+      static void PrintArray(int[] intArray);
+      static string[] GetStringArray();
+	#+end_src
+
+** .net에서 배열은 System.Array 클래스 객체
+
+	- Clear(): 지우기(전체 혹은 일부구간)
+	- CopyTo(): 배열요소 복사하기
+	- Length: 배열항목갯수
+	- Rank: 몇차원 배열?
+	- Reverse(): 정작메소드. 1차원배열인 경우 순서를 역순으로 만듬
+	- Sort() : 정적메소드. 정렬.
+
+** enum
+
+	C# 에서는 enum의 underlying type을 지정이 가능. 아래는 그걸
+	int형으로 함.
+
+	#+begin_src csharp
+      enum EmpType : int
+      {
+          Manager, // =0
+          Manager =10,
+          Contractor, // 11
+          VicePresident, // 12
+      }
+	#+end_src
+
+** System.Enum
+
+	enum형으로 정의된 타입에 대한 introspection이 가능.
+
+	*모든 enum 값은 System.Object의 파생클래스인 System.Enum 클래스의
+     객체*. 따라서 그 어떤 enum 같이라도 다음과 같은 함수에 넘겨서
+     정보를 쭈욱 뽑아낼 수 있다.
+
+	 #+begin_src csharp
+       static void EvaluateEnum(Enum e)
+       {
+           Type enumType = e.GetType();
+           Console.WriteLine("Enum Type Name: {0} (underlying type={1}",
+                             enumType.Name, Enum.GetUnderlyingType(enumType));
+           var enumValueList = Enum.GetValues(enumType);
+           Console.WriteLine("--> has {0} values.", enumValueList.Length);
+           foreach (var enumValue in enumValueList)
+           {
+               Console.WriteLine("Name:{0}, Value:{0:D}", enumValue);
+           }
+       }
+       // EvaluateEnum(MyEnum.FirstEnumValue)
+	 #+end_src
+
+** .Net struct 형 --> ValueType (cf. class형은 RefType(Reference Type))
+
+	일반적인 객체지향언어에서 경량클래스타입으로 여겨지는 바로 그것.
+	수학적/지리학적/원자적 단위의 데이터. 상속을 통해서 무언가를
+	이루어 내려는 경우에는 사용이 안됨(그런경우는 class를 사용).
+
+	struct와 class의 스택/힙상에서의 존재, 대입시 참조가 대입되는지
+	값이 복사되는지...등등에 대한 내용은 .NetBookZero 에서 배움.
+
+	패스.
+
+**  ValueType과 패스타입의 차이점 정리 
+
+	- 객체가 어디에 정의되는가?
+	- 변수는 어떤 것을 표현하는가?
+	- 어느 클래스에서 상속 받았는가?
+	- 다른 타입의 부모가 될 수 있는가?
+	- 파라메터로 전달될때 디폴터 거동에 무슨 차이가 있나?
+	- System.Object.Finalize() 를 오버라이드 할 수 있나?
+	- 생성자를 정의할 수 있나?
+	- 언제 소멸되나?
+
+** Nullable Type
+
+	- *ValueType의 경우 null 값을 대입할 수 없다*,
+	- 그러나 *물음표(?)를 접미사* 로 붙인 ValueType은 NullableType 이
+      되어 null 을 대입할 수 있다. 물음표(?) 를 붙이면
+      *System.Nullable<T>* 형이 된다.
+
+	#+begin_src csharp
+      int? nullableInt = null;
+      // 위와 아래는 같음
+      System.Nullable<int> nullableInt = null;
+	#+end_src
+
+	어떤 NullableType 의 값이 null 인지를 확인한 후, null이면 기본값을
+	사용하는 패턴은 많이들 사용하는데 그때 유용한게 이중물음표(??)
+	연산자이다.
+
+	#+begin_src csharp
+      public static int? GetNullableValue();
+      // 위와 같은 함수가 있을때...아래 구문은 null 이 반환될 경우 기본값 10
+      // 이 notNullableValue 에 대입된다.
+      int notNullableValue = GetNullableValue() ?? 10;
+      // 또는 선택적 RefType 인자의 기본값을 null로 한 다음 값을 주는 것도 가능
+      class MyClass {
+          public MyClass(string name = null) {
+              this.Name = name ?? "DefaultName";
+          }
+          public string Name { get; set; }
+      }
+	#+end_src
+
+* 5장. 캡슐화
+
+** 생성자(즉, "인스턴스 생성자(instance constructor)")
+   생성자에 관한 얘기가 주욱 나온다. 생성자를 명시적으로 생성하지
+   않으면, 컴파일러가 기본 생성자를 만들고 거기서 모든 멤버의 값을
+   기본값으로 채운다(ValueType 은 0/false, RefType 은 null).
+
+   *파라메터를 받는 사용자 정의 생성자를 하나라도 정의하면 컴파일러는
+    더이상 기본제공 생성자를 만들지 않는다* !
+
+	왜 그럴까? 파라메터 커스텀 생성자는 객체의 멤버가 특수한 방식으로
+	초기화될 필요가 있다고 여겨지기 때문에 정의하는 것이다.
+	그런경우에는 컴파일러의 기본 디폴트생성자는 아무 의미가 없다. 즉,
+	사용자가 따로 인자 없는 디폴트 생성자를 받아서 'this' 키워드를
+	사용해서 생성자 초기화 호출을 이어주는 식으로 구성해야
+	한다(*constructor chaining*)
+
+	--> objc 에서는 *designated constructor* 라고 하는 유사개념.
+	--> 이책에서는 *master constructor* 라고 하는 개념
+	--> 가장 많은 인자를 받는 생성자.
+	--> 모든 생성자가 이 생성자를 this 키워드를 사용해 호출하도록 함.
+
+** 정적 생성자(static constructor)
+
+	정적 멤버를 초기화하는 방법은
+
+	=static int staticMemberVar = 18;=
+
+	그런데, 데이터베이스에서 값을 가져와야 하는 식으로 초기화해야
+	하는경우는? (즉, 런타임에서야만 값을 초기화할 수 있는 경우는?)
+
+	--> *정적 생성자* 를 쓴다.
+
+	정적생성자의 특징
+
+	- 클래스당 오직 1개만 정의할 수 있다(즉, 오버로딩이 불가)
+	- 접근제한자("access modifier" ex: public /protected /private
+      /internal ...)등의 사용 불가
+	- 그 어떤 해당 클래스 객체가 생성되기 직전에 단 1번만 호출됨
+	- 그 클래스의 정적멤버에 접근을 맨 처음 할 때 단 1번만 호출됨
+
+** 정적 클래스(static class)
+
+	정적 멤버만 가질 수 있고, new 해서 인스턴스를 만들수 없는
+	클래스가 정적클래스.
+
+** 접근 한정자(access modifier)
+
+	- 5가지가 있음 : public/protected/private/internal/protected internal.
+
+	- public/protected/private 의 접근방식은 c++ 과 같다.
+	- *Type 자체는 절대 private/protected/protected internal 이 될 수
+      없다*. public 혹은 internal 이어야 한다.
+	- *public class 가 아니라 그냥 class 는 동일 어셈블리에서는 공유될
+      수 있다*. 외부로 노출만 되지 않는다. class의 형은 *private,
+      protected, 또는 protected internal 로 선언될 수 없다*
+	- internal : 동일 .net assembly 에서만 public으로 사용될 수 있다. 
+	- protected internal 은 internal과 같지만 protected로 된다. 따라서
+      nested type에 사용이 가능
+
+	- 접근 한정자를 지정하지 않은 경우
+      --> 멤버: 암시적으로 private
+	  --> 타입: 암시적으로 internal
+	  
+	  클래스 라이브러리를 만들때는 =public class ClassName= 이런식이
+      되어야 되겠다.
+	  
+    - Nested Type 이외의 타입은 절대 private 타입이 될 수 없다.
+	- Nested Type 은 Containting Type 의 private 멤버에 접근할 수 있다.
+
+** accessor(getter)/mutator(setter) 와 property(속성)
+
+	이미 아는 얘기. 다만, 속성의 set 을 정의할 때 사용되는 "value"
+	라는 단어가 C# 키워드가 아니란다. *contextual keyword* 란다.
+	즉, 다른 곳에서는 value 라는 이름의 변수를 만들수 는 있지만,
+	=property set {}= 안에서는 특수한 의미를 가진단다.
+
+	이걸 잘 쓰는 법.
+
+	생성자에서 올바른 범위의 초기값을 입력받을 때 종종 C++ 에서는
+	생성자에서 그런걸 하는데, C# 에서는 property set 에서 그런 일을
+	하고, 생성자에서는 변수에 접근하는게 아니라 속성에 접근하도록
+	코딩하는 게 바람직 하단다.
+
+	*정적 속성(static property)* 개념 : Data Encapsulation 을 생각하면
+	정적 멤버변수에 직접 접근하는 것 보다는 이게 낳다는...
+
+	#+begin_src csharp
+      class Savings
+      {
+          private static double interest = 0.04;
+          public static double Interest
+          {
+              get { return interest; }
+              set { intereset = value; }
+          }
+      }
+	#+end_src
+
+	*자동 속성(automatic properties)* 개념 : 그냥 =get;set;= 만 넣으면
+     속성이 정의된다는... 그렇다고 =get;= 혹은 =set;= 의 형태로는 안된다
+
+	 #+begin_src csharp
+       public string MyProperty { get; set; } // OK
+       // public string MyProperty { get;} // 오류
+       // public string MyProperty { set;} // 오류
+	 #+end_src
+
+	 근데, =get;set;= 형태로는 Read/Write 속성이 정의되는데,
+	 *이런식으로는 readonly / writeonly 속성의 정의는 불가하다* 
+
+	 자동 속성의 경우, 모든 hidden-member-variable 을 컴파일러가
+	 구성할 텐데, 이들은 초기 값이 0/false(ValueType의 경우) 및
+	 null(RefType의 경우)이 된다. RefType 의 경우 자동속성의 값은
+	 생성자에서 반드시 =new T= 해 주는 것이 바람직하다.
+
+	 속성값의 지정시 validation이나 기타 처리가 필요한 경우는
+	 자동속성이 아닌 직접 만든 속성함수를 사용해야 한다(당연).
+
+** 객체 초기화 구문(Object Initializer)
+
+	*이건 정말, 객체 생성 코드를 깔끔하게 정리해 주는 구문* 이다.
+
+	원하는 객체 생성자를 선택해서 new 해 준다음, 세미콜론(;) 으로
+	구문을 끝내기 전에 중괄호 scope(={}=)를 만들어 그 안에 객체의
+	속성값을 설정하는 구문이다.
+
+	이건 has-a 관계로 객체를 포함하고는 있는 타입의 경우에 nested 로
+	수행할 수 있다.
+
+	아래의 예를 한번 읽어보되, TestOjbInitr()에서
+	- 중괄호들이 nested 로 된점
+	- 콤마가 찍힌 위치들(마지막 콤마는 optional이지만, 그냥 찍어두는
+      게 나을듯)
+	- 생성자 시그너쳐가 그냥 =()= 를 붙였지만, 특수한 생성자를 써도
+      된다는 점(또는 아예 =()= 를 생략하여 암시적 기본 생성자가
+      사용하도록 할 수 있다는 점)
+	  
+	에 유념하고 코드를 이해한다.
+
+	#+begin_src csharp
+      class Point {
+          public int X { get; set; }
+          public int Y { get; set; }
+      }
+      class Rectangle {
+          public Point TopLeft { get; set; }
+          public Point BottomRight { get; set; }
+          public Rectangle() {
+              TopLeft = new Point();
+              TopLeft = new Point();
+          }
+          public void PrintInfo() {
+              Console.WriteLine("({0},{1}) ~ ({2},{3})",
+                                TopLeft.X, TopLeft.Y,
+                                BottomRight.X, BottomRight.Y);
+          }
+      }
+      // 어떤 함수에서 아래와 같이 객체 초기화가 가능
+      static void TestObjIniter()
+      {
+          Rectangle r = new Rectangle() {
+              TopLeft = new Point() {
+                  X = 10, Y = 20,
+              },
+              BottomRight = new Point() {
+                  X = 20, Y = 30,
+              },
+          };
+          r.PrintInfo();
+      }
+	#+end_src
+
+** 상수필드(constant field data)
+
+	컴파일시 값이 결정되고 그 이후로는 절대 수정불가한 상수값의 정의가
+	가능하다. 겉보기로는 인스턴스 멤버같지만 실제로는 *암시적으로
+	static 변수* 이다. 따라서 접근 할 때는 static 멤버와 같은 방식으로
+	접근한다.
+
+	#+begin_src csharp
+      class MyMath {
+          public const double PI = 3.141592;
+      };
+      static void PrintPi() {
+          MyMath mm = new MyMath();
+          // Console.WriteLine("pi = {0}", mm.PI); // 컴파일 오류!
+          Console.WriteLine("pi = {0}", MyMath.PI); // static멤버처럼 사용!
+      }
+	#+end_src
+
+** 읽기전용 필드(readonly field)
+
+	멤버변수 선언하듯이 선언할 때 타입명 앞에 =readonly= 를 넣어주면
+	*생성자에서만 값의 대입이 가능하고 그 외에는 쓰기가 불가한* 변수가
+	탄생한다.
+
+	#+begin_src csharp
+      class MyMath {
+          public readonly double PI;
+          // 생성자 : 쓰기동작 OK
+          MyMath() {
+              PI = 3.141592;
+          }
+          // 기타함수 : 쓰기 불가! ERROR!
+          public void TryChangePI() {
+              PI = 3.141592; 
+          }
+      }
+	#+end_src
+
+** Partial Class
+
+	partial 클래스를 사용하면
+
+	- 동일한 이름의 클래스명
+	- 동일한 네임스페이스
+   
+   에 partial 로 시작하는 클래스 정의를 최종컴파일 후 하나의 클래스로
+   합친다. 즉, *여러개의 파일에 나누어 클래스 정의* 를 할 수 있다.
+   ObjC 에서도 class extension 이 있는데, 이게 partial과 어찌보면
+   비슷해 보인다. 
+   
+   VisualStudio 는 WinForm 프로젝트에서 폼 디자이너를 위한 구현은
+   별도의 partial class 로 관리한다. (폼디자이너과 관리하는 정규화된
+   코드들 은 IDE가 관리하고, 사용자는 좀 더 구현할 로직에 집중할 수
+   있다. UI코드가 복잡하게 주욱 나열된 코드를 건드리다 보면 정규화
+   상태가 깨지고, 폼 디자이너가 그걸 관리할 수 없게되지 않겠나).
+
+   책에는 언급되지 않았지만, partial 이되, private 한 것은 .Net
+   assembly 밖으로는 공개되지 않는다. 폼디자이너가 관리하는 partial
+   class 는 =partial class= 즉, implicit private 으로 정의되고,
+   사용자가 로직을 구현하는 class 는 =public partial class= 로
+   정의되어있다 
+
+* 6장. 상속(Inheritance)과 다형성(Polymorphism)
+** 상속이란
+   
+   대부분 OOP적인 얘기. C# 에서 특별한 사항들만 정리
+
+   - class 는 *오직 하나의 base class* 로 부터 상속받을 수 있다. 
+	 즉, "다중 상속"은 지원되지 않는다.
+   - 하지만 주어진 class/struct 는 *독립적 /interface/ (8장에서 설명됨)
+     여러개로 부터 상속* 받을 수 있다.
+   - struct 로 부터 상속은 할 수가 없다. 아래의 코드예 참조
+	 
+	 #+begin_src csharp
+       using System;
+       namespace StructInheritTest {
+       
+       struct Point {
+           Point(int aX, int aY) {
+               x = aX; y = aY;
+           }
+           // // error CS0573: 'StructInheritTest.Point.x': cannot have
+           // instance field initializers in structs
+           // 
+           // public int x = 0;
+           public int x; public int y;
+       }
+       // // 이런건 안됨.
+       // struct Point3d : Point
+       // {
+       //  public int z;
+       // }
+       } // StructInheritTest
+       
+       // --------------------------------------
+       namespace ClassInheritTest {
+       class Point {
+           // warning CS0649: Field 'ClassInheritTest.Point.x' is never
+           // assigned to, and will always have its default value 0
+           //
+           //  public int x;
+           public int x = 0; public int y = 0;
+       }
+       class Point3d : Point {
+           public int z = 0;
+       }
+       
+       } // ClassInheritTest
+	 #+end_src
+
+** /sealed/ 키워드, 그리고 /struct/ 의 상속문제
+
+	- /sealed/ 키워드로 정의된 클래스는 다른 클래스의 부모클래스가 될
+      수 없다. 꽤 많은 .NET 클래스들이 /sealed/ 더라.(ex : String
+      클래스)
+	- /struct/ 는 *암시적으로 selaed* 이다. 즉, struct 로 부터는 파생
+      /struct/, /class/ 를 만들지 못한다. 상속을 통해 계층을 구조를
+      만들려면 /class/ 를 써야 한다.
+
+** /base/ 키워드
+
+   - vc++ 에서 쓰던 __super 키워드, ObjC 에서 super 와 같이
+     파생클래스에서 부모클래스의 public, protected 속성을 접근할 때
+     사용.
+   - 생성자에서 부모클래스의 타입을 가리킬 때도 유용.
+   
+** Nested Type
+
+   3대 특징
+   - Non-Nested Type 은 절대 private 으로 타입정의를 할 수 없지만,
+     Nested Type은 가능하다(Containing class 밖에서 접근할 수 없게된다)
+   - Nested Type 은 Containg class 의 멤버이므로, *Containing Class 의
+     private member 에 접근이 가능* 하다.
+   - 주로 Helper 의 역할로 유용하게 사용된다.
+
+** virtual "overridable" method
+
+   - 통상 자식 클래스에서 볼 수 있는 *public, protected 메소드* 가
+     virtual 키워드를 뒤에 붙여서 정의하면 자식클래스가 /override/
+     키워드를 써서 "overrindg" 한다.
+   - *public override* , *protected override* 는 숙어처럼 생각하자
+     그냥 override 는 암시적으로 private 이고, 자식클래스가 볼 수
+     없다. [중요]
+   - VisualStudio 의 C# 에디터는 public override 혹은 protected
+     override 라고만 치면 오버라이딩 할 수 있는 메소드 목록이 쭈욱
+     나온다.
+   - *override sealed* 라고 오버라이딩 하면 더 이상 그 메소드는 이걸
+     정의한 클래스 자식들이 오버라이딩 못하게 막게 된다. 
+	 
+** /abstract/ class 와 /abstract/ method
+
+   - abstract 키워드를 class 정의 앞에 붙이면 그 클래스의 인스턴스를
+     더 이상 만들 수 없다. C++ 에서는 virtual 메소드에 "= 0" 을 맨
+     마지막에 붙인 class가 그랬다.
+   - abstract class 에는 abstract method 를 정의할 수 있다. c++ 의
+     pure virtual function 과 동일한 개념이다.
+   
+** shadowing 문제와 /new/ 키워드
+	가상함수를 override 키워드 없이 정의할 경우, compiler 가 다음과
+	같은 오류 메시지를 뿜음.
+
+	#+begin_example
+	Shape.cs(46,14): warning CS0114: 'ThreeDCircle.Draw()' hides
+	inherited member 'Circle.Draw()'. To make the current member
+	override that implementation, add the override keyword. Otherwise
+	add the new keyword.
+	#+end_example
+
+	명시적으로 shadowing 을 하려면 new 키워드를 함수 정의시 붙여준다.
+	이렇게 하면, 다형성이 깨진다. 아래의 예 확인
+
+	#+begin_src csharp
+      using System;
+      
+      class SuperClass {
+          public virtual void DoSomething() {
+              Console.WriteLine("Super is doing!");
+          }
+      }
+      class ChildClass : SuperClass {
+          public new void DoSomething() {
+              Console.WriteLine("Child is doing!");
+          }
+      }
+      class ShadowingTest {
+          public static void Main() {
+              SuperClass obj = new ChildClass();
+              obj.DoSomething(); // --> Super is doing!
+              ((ChildClass)obj).DoSomething(); // --> Child is doing!
+          }
+      }
+	#+end_src
+	
+** 형변환(Casting Rules)과 /as/ 및 /is/ 연산자
+
+	- 자식 클래스의 객체를 부모클래스의 형으로 가리키는 것(형 격상,
+      UpCasting)은 항상 허용(Implicit cast). 그 반대(형 격하,
+      DownCasting)은 항상 허용안함. 명시적 형변환(Explicit Casting)이
+      필요. C++ 과 동일.
+	- 명시적 형변환은  =(ClassIWantToCastTo)referenceIHave= 의 식으로
+      구문 작성. RefType 만이 가능?(ValueType 은 상속이 안되므로 이런
+      스토리 자체가 안통함).
+
+	- 실제로 가능한 형변환이 아닌데도 명시적 형변환을 해도 *컴파일 시에
+      오류가 발생하지 않는다*. 형변환은 컴파일타임이 아니라 *런타임* 시에
+      이루어지기 때문이다! --> *조심* 해야 한다. 형변환에 대해
+      수비적인 자세의 코딩은 다음과 같다. 
+	  
+	  #+begin_src csharp
+        try {
+            Hexagon hex = (Hexagon)aPersonObject;
+        } catch (InvalidCastException e) {
+            Console.WriteLine(e.Message);
+        }
+	  #+end_src
+	  
+	  예외를 사용하지 않는 수비적 방법은 /as/ 키워드 또는 /is/
+      키워드를 쓰는 것. 아래의 예만 보면 알게됨. :)
+	  
+	  #+begin_src csharp
+        public static void AsIsKeywordTest()
+        {
+            Shape shape = new Circle();
+            try {
+                Hexagon hex = (Hexagon)shape;
+            } catch (InvalidCastException e) {
+                // 여기 들어옴
+                Console.WriteLine("invalid cast. {0}", e.Message);
+            }
+            Hexagon asHex = shape as Hexagon;
+            if (asHex == null) {
+                // 여기 들어옴
+                Console.WriteLine("asHex is null.");
+            }
+            if (!(shape is Hexagon)) {
+                // 여기 들어옴
+                Console.WriteLine("shape is not Hexagon object!");
+            }
+        }
+	  #+end_src
+	  
+** Ultimate .net class : *System.Object* class
+	부모클래스를 지정하지 않은 모든 클래스 정의는 System.Object 로
+	부터 암시적으로 파생된다.(단 struct은 System.ValueType 으로 부터?!)
+	다음의 
+	
+** public virtual string ToString()
+   생각보다 중요하게 쓰일 수 있는 함수다. 가급적이면 /base/ 키워드를
+   사용해서 *부모 클래스의 ToString()을 호출하여 얻은 string 문자열에
+   자기 자신만의 고유한 정보를 추가하여 반환하도록 한다*
+
+** public virtual bool Equals(object obj)
+	 ValueType의 경우에는 bitwise(즉, memberwise)하게 비교하여 같은
+	 값을 가지는지 반환하도록 한다(.NetBookZero에서 배운거). RefType의
+	 경우에는 개념적으로 동일 객체인지를 판단하도록 하는게 맞지만(즉,
+	 같은 메모리주소의 객체인지), 클래스 정의에 따라 다르게 할 수 도
+	 있다. 만일 ToString() 이 아주 잘 정의되어 있다면 그걸 사용해
+	 Equals 를 구현할 수 있다.
+
+	 #+begin_src csharp
+       public override bool Equals(object obj)
+       {
+           // obj에 대한 형확인, 멤버값 확인같은거 하지 않고, 잘 정의된
+           // ToString() 을 재사용한다.
+           return obj.ToString() == this.ToString();
+       }
+	 #+end_src
+
+** public int GetHashCode()
+	 객체의 상태를 하나의 숫자로 표현한다. 만일 두 문자열 객체가 같은
+	 문자열을 가진다면, GetHashCode() 도 같은 값을 반환해야 한다.
+	 *System.Object 클래스의 기본 구현은 메모리 주소값을 반환한다*.
+
+	 객체를 만든다음 System.Collections.HashTable 에 저장하도록 한다면
+	 GetHasCode()가 호출되어 객체의 bucket을 찾은 다음, Equals() 를
+	 호출하여 그 위치를 찾는다.
+
+	 GetHashCode() 의 클래스별 구현은 이렇게 저렇게 하는 방법이
+	 있겠지만(책의 예. Person객체는 주민번호 문자열 객체에 대한
+	 GetHashCode()를 반환), 잘 만들어진 ToString() 을 통해 문자열
+	 객체를 얻은 다음, 그 String 객체의 GetHashCode() 를 활용하는
+	 방법을 생각할 수 도 있겠다.
+
+	 #+begin_src csharp
+       public override int GetHashCode()
+       {
+           return this.ToString().GetHashCode();
+       }
+	 #+end_src
+
+** public static bool Equals(Object objA, Object objB)
+
+	 인스턴스 메소드 Equals 와 같아 보인다. 디폴트 구현은 RefType 에
+	 대해서는 동일 인스턴스 여부를 확인하고, ValueType 에 대해서는
+	 각각의 멤버별로 동일성을 확인한다. 
+	 
+** public static bool ReferenceEquals(Object objA, Object objB)
+
+	 정확히 두 객체가 동일한 메모리 상의 객체를 가리키는지(즉, 동일
+	 instance인지) 확인한다.
+
+*
+
+* 7장. 구조적 예외 처리(Structured Exception Handling = "SEH").
+
+** try,catch,finally,throw
+	SEH 와 관련한 키워드
+	
+** .NET SEH의 역할
+	어셈블리들 사이들에서도, 리모트 머신에서도 예외가 던져져 들어와서
+	받아 처리할 수 있다. 일관된 방법으로! C# 이 아니라 .NET 플랫폼
+	상에서 구현되어 있으므로,  .NET을 지원하는 다른 언어들에서도
+	사용이 가능하다. 
+
+** .NET 예외처리의 building block
+
+	- 예외의 상세내용을 담을 수 있는 클래스형
+	- 특정상황에서 호출측에 예외를 /throw/ 하는 멤버함수
+	- 이 멤버함수를 호출하는 호출측의 코드
+	- 호출측에서 예외를 처리(즉 /catch/ ) 하는 코드 블럭
+
+** System.Exception 클래스
+
+	=public class Exception : ISerializable, _Exception=
+
+	이런식으로 정의됨. 엉. Exception이 _Exception을 상속받네?
+	- *_Exception 인터페이스를 통해 COM(=unmanaged code)과의 예외처리를
+	  할 수 있다네*
+	- *ISerializable 인터페이스를 통해 예외를 저장할 수 있다네*
+
+	생성자는
+	메시지와 이전 예외에 대한 객체를 받을 수 있음.
+
+	주요한 속성은 다음과 같음.(대부분 읽기 전용에 virtual 임)
+
+	- Message :  에러에 대한 텍스트 설명을 포함.
+	- Source : 이 예외객체를 throw 한 어셈블리의 이름
+	- StackTrace : 와우! 디버깅에 편하겠네. 로그에 남겨두면 좋을 듯
+	- InnerException : 예외를 연속해서 던질 경우, 이 예외를 throw하게
+      만든 이전의 예외.
+	- Data : IDictionary 사전형 인터페이스를 사용한 예외에 대한
+      key/value 쌍 정보
+	- TargetSite : MethodBase 객체를 반환하는데, 예외를 던지
+      메소드에 대한 정보를 닫고 있단다.
+
+** 예외 던지기
+
+	=throw new MyExceptionClass(생성자 인자들)= 이런식.
+
+	예외를 만들때 TargetSite, StackTracke, HelpLink, Data 가
+	포함된다는 사실을 기억.
+
+	이중에서 HelpLink, Data 는 던져질 때 설정한다(HelpLink, Data 는 몇 안되는
+	ReadWrite 속성, Exception의 대부분 속성은 ReadOnly)
+
+	#+begin_src csharp
+      Exception ex = new Exception("Something Error Exception!");
+      ex.HelpLink = "http://www.wiseplanet.co.kr";
+      // 아래꺼를 하려면 using System.Collections; 해주어야 한다.
+      ex.Data.Add ("라이브러리명", "쿠다라이브러리를 쓴 알고리즘");
+      ex.Data.Add ("루틴명", "패널모서리 검출루틴");
+      throw ex;
+	#+end_src
+	
+	catch() 블럭에서
+
+	- e.TargetSite.ToString()--> ex: Void accellerate(Int32)
+	- e.TargetSite.DeclaringType() --> ex: SimpleExceptionTest.Car
+	- e.TargetSite.MemberType --> ex: "Method"
+	- e.Source --> ex: "SimpleException"
+	- e.Message -> ex: "Zippy has overheated"
+	- e.StackTrace --> 예외를 던지는 순간부터 현재 호출측까지의 call stack
+	- e.Data 는 아래같이
+   
+     #+begin_src csharp
+       // throw 한 쪽에서 넘겨주는 custom data들을 출력해본다
+       foreach (DictionaryEntry dataEntry in e.Data)
+           Console.WriteLine("->{0}: {1}", dataEntry.key, dataEntry.Value);
+       }
+     #+end_src
+
+** 시스템수준 예외(System.SystemException)
+
+	.NET 플랫폼이 던지는 예외를 말함. 이 예외가 던져지면 복구할 수
+	없는 치명적 오류가 발생했음을 의미한다.
+
+	IndexOutOfRangeException, StackOverflowException 등등
+	--> 모두 System.SystemException 에서 파생된 예외 클래스들.
+
+	이 예외는 거의 crash 급에 해당하는 것들이다.
+
+** 응용수준 예외(System.ApplicationException)
+
+	사용자의 코드에서 예외를 던질때 예외클래스는 가급적 Exeption
+	클래스가 아니라 ApplicationException 클래스에서 파생되도록 한다.
+	...고 말했지만, 대부분의 개발자들은 단순히 System.Exception 예외를
+	코드에서 던져버린단다. MSDN 에서도 "실제적으로는"
+	ApplicationException 으로 부터 파생받은 클래스를 정의하는 것이
+	그다지 큰 유용성이 없다고 하네. 원래는 다른 모든 타입의
+	Exception과 타입의 차이를 두기 위해 만들었다고 하네.
+
+	MSDN 왈
+
+	#+begin_example
+	User applications, not the common language runtime, throw custom
+	exceptions derived from the ApplicationException class. The
+	ApplicationException class differentiates between exceptions
+	defined by applications versus exceptions defined by the system.
+
+	If you are designing an application that needs to create its own
+	exceptions, you are advised to derive custom exceptions from the
+	Exception class. It was originally thought that custom exceptions
+	should derive from the ApplicationException class; however in
+	practice this has not been found to add significant value. For
+	more information, see Best Practices for Handling Exceptions.
+	#+end_example
+
+	하지만 Exception 말고 ApplicationException 을 부모클래스로 하는
+	예외클래스를 정의하는게 머 그리 나쁜건 아닐듯.
+
+** 사용자 정의 예외 클래스 만들기
+
+	- Exception 또는 ApplicationException 에서 파생
+	- [System.Serializable] 어트리뷰트 지정
+	- (1) 기본생성자 (2) Inner Exception지정하는 생성자 (3) 직렬화를
+      처리하는 생성자
+
+     visual studio 의 예외 code snippet 기능을 써보자.
+	 Exception이라 에디터에 치고 TAB을 두번 치면
+	 
+	 #+begin_src csharp
+       [Serializable]
+       public class CarException : ApplicationException
+       {
+           public CarException() { }
+           public CarException(string message) : base(message) { }
+           public CarException(string message, Exception inner) : base(message, inner) { }
+           protected CarException(
+                   System.Runtime.Serialization.SerializationInfo info,
+                   System.Runtime.Serialization.StreamingContext context)
+               : base(info, context) { }
+       }
+	 #+end_src
+	 
+	 이런식으로 만들어진다. 추가적인 멤버넣고 만들면 된다.
+
+** catch() 가 여러개 오는 경우
+
+	상위 클래스의 Exception 클래스형이 더 나중에 와야 컴파일 에러가
+	나지 않는다. 즉, more specific exception 이 먼저 catch() 되도록
+	해야 한다.
+
+** 일반화된 catch 구문
+
+	C++ 의 catch(...) 이 C# 에서는 "catch"
+
+	#+begin_src csharp
+      try
+      {
+          myCar.accelerate(90);
+      }
+      catch
+      {
+          // any exception!
+      }
+	#+end_src
+
+** rethrowing
+
+	받은 예외를 다시 밖으로..
+	catch 블럭 안에서 =throw;= 라고만 치면 된다.
+
+	일반적인 처리를 하고, 다시 바깥세상에 이 예외발생을 알려야 하는
+	경우에 사용한다.
+
+** Inner Exception
+
+	생소한 개념일 수 있지만, 예외처리를 하다 예외가 또 발생하는 경우,
+	처리하던 예외가 Inner Exception이 된다. 아래의 예만 보면 바로
+	이해.
+
+	#+begin_src csharp
+      try
+      {
+          // 무언가를 하다 CarIsDeadException 이 던져지는 코드 블럭이 여기
+          // 있다고 가정
+      }
+      catch (CarIsDeadException e)
+      {
+          try
+          {
+              FileStream fs = File.Open(@"C:\carErrors.txt", FileMode.Open);
+              // ...
+          }
+          catch (Exception e2)
+          {
+              // 어쨌든 CarIsDeadException이므로 Inner Exception은 e2 가
+              // 된다. 맨 바깥쪽 try 문에서 하던 작업에 대한 예외가 Outer
+              // Exception.
+              throw new CarIsDeadException(e.Message, e2);
+          }
+      }
+	#+end_src
+
+** finnaly 블럭
+	반드시 있어야 하는 블럭은 아니다. optional이다. 무슨 짓을 하더라도
+	try/catch 의 내용이 다 실행되고 난다음 반드시 실행되는 블럭이다. 
+
+	파일을 close 하거나 데이터베이스 객체를 detach 하거나 하는 작업이
+	보통 이루어지는 곳이다. 
+** 대체 누가 무슨 예외를 던지는 거야? 그리고 꼭 해야되?
+	대답은 .NET SDK문서를 봐! 또는 Visual Studio 에디터의 툴팁을
+	활용해! 이다.
+	Java 는 checked exception 개념을 메소드 선언시에 포함시켜 "반드시
+	예외처리를 해야하는 함수"를 정의할 수 있지만, .Net은 그런거 없다.
+	하지만, 왠만하면 하지....인가.
+** Unhandled Exception. the Crash...
+	근데, 디버거상에서 이게 발생하면 분석하기 쉬운 대화상자가 뜬다. 오.
+	
+* 8장. 인터페이스로 작업하기
+** 인터페이스 타입이란.
+	- 공식 정의 : named set of /abstract/ members
+	- 음. /abstract/ 메소드를 가지는 /class/ 와 유사하네.
+	- C# 에서는 class형을 통한 다중상속은 불가능하다.
+	- 다중상속을 통해서 깔끔하게 해결할 수 있는 문제들은 interface
+      type 으로 해결한다.
+	  
+** 인터페이스 타입 정의하기
+
+	- 데이터 필드를 정의할 수 없다. *하지만 속성은 포함할 수 있다(auto
+      property인데, 읽기쓰기,읽기전용,쓰기전용 모두 된다! class에서는
+      auto property는 읽기쓰기만 되었지만!)*
+	- 생성자를 정의할 수 없다.
+	- 메소드는 암묵적으로 'public abstract'. *굳이 public 을 명시하지
+      않아도 됨*
+	- 메소드 구현을 포함하면 안된다.
+
+	#+begin_src csharp
+      public interface IPointy
+      {
+          // 'abstract'를 안써도 'abstract'.
+          // 'public' 을 안써도 'public'
+          byte GetNumberOfPoints();
+          // 아래와 같은 자동속성 선언을 할 수 있다. class에서는 get;set; 을
+          // 다써야 되었지만..
+          byte Points { get; }
+      }
+	#+end_src
+
+	- 인터페이스 정의자체로는 인스턴스 생성못함(C++의 ABC와 동일한 개념)
+	
+** 인터페이스 상속받아 구현하기.
+
+	- all or nothing 방식 : 인터페이스의 모든 내용이 전부 구현되기
+      전에는 해당 인터페이스 상속 class/struct 는 생성하지 못한다.
+	- *인터페이스의 선언은 public을 쓰지 않지만*, 실제로 이를 구현할
+      class/struct 의 정의에서는 *public을 명시해야 한다*.
+	- 단, *명시적 인터페이스 정의* 의 경우 암시적으로 private 이되므로
+      구현시 *오히려 public 을 사용하지 않는다*.
+	- 인터페이스 정의시 *override 키워드를 쓰지 않는다*
+
+** /is/ , /as/ 키워드 및 InvalidCastException
+
+	- /is/ : 역시 형격상 및 형격하 문제. /is/ 를 사용하여 다른 언어에서
+      /isKindOfClass(클래스명)/ 방식의 형 유추를 할 수 있다.
+	- /as/ : VB 에서 사용하던 개념과 비슷하네. 형 유추가 되지 않으면
+      null 값이 반환된다.
+	  
+	  #+begin_src csharp
+        IPointy pointy = hex as IPointy;
+        if (pointy != null)
+        {
+            Console.WriteLine("hex는 IPointy 형을 지원");
+        }
+	  #+end_src
+
+	- InvalidCastExcpetion 예외
+   
+	  /is/ 나 /as/ 를 사용하지 않고, 일단 강제적으로 형변환을 시키는
+      경우, 형이 맞지 않으면 이 예외가 던져진다. /is/ 나 /as/ 는 이
+      예외를 발생시키지 않는다.
+
+** 인터페이스간 이름충돌해결 및 명시적 인터페이스 구현(Explicit Interface Impl)
+
+	2개 이상의 인터페이스로 부터 상속받는 경우, 그 2개 이상의
+	인터페이스에 동일한 시그너쳐의 메소드, 속성이 있는 경우, 단순한
+	방법으로는 이들을 구분할 방법이 없다. 그런 경우,
+
+	=returnType InterfaceName.MethodName(params) {}=
+
+	의 방식으로 "어떤 인터페이스의 메소드를 정의하는지"를 명확히 할 수
+	있다. *단, 이 경우 구현된 메소드는 자동으로 private 이 되므로,
+	public 접근자를 붙이면 안된다*.
+
+	좀 긴 예를 만들어봄.
+
+	#+begin_src csharp
+      using System;
+      
+      public interface IGdiDrawer {
+          void Draw();
+      }
+      public interface IQtDrawer {
+          void Draw();
+      }
+      public interface IWxDrawer {
+          void Draw();
+      }
+      
+      class UltraDrawer : IGdiDrawer, IQtDrawer, IWxDrawer {
+          void IGdiDrawer.Draw() {
+              Console.WriteLine("IGdiDrawer.Draw()");
+          }
+          void IQtDrawer.Draw() {
+              Console.WriteLine("IQtDrawer.Draw()");
+          }
+          void IWxDrawer.Draw() {
+              Console.WriteLine("IWxDrawer.Draw()");
+          }
+      }
+      
+      class ExplicitInterfaceImpl {
+          static void DrawQt(IQtDrawer drawer) {
+              drawer.Draw();
+          }
+          public static void Main() {
+              UltraDrawer drawer = new UltraDrawer();
+              DrawQt(drawer);
+          }
+      }
+	#+end_src
+
+	추가로, *명시적 인터페이스 구현은 이름 충둘이 없는 경우에도
+	쓰인다는 점* 이다. 명시적 인터페이스 구현을 할 경우, 자동으로 그
+	메소드는 외부로 노출이 되지 않기 때문에(기본이 protected 이며,
+	public 을 지정할 수 없기때문에), 어떤 인터페이스의 구현을 외부로
+	노출하지 않고자 하는 경우에도 사용된다.
+
+** 인터페이스로 상속계층 구성하기
+
+	- 어떤 인터페이스 'B' 는 다른 인터페이스 'A' 로 부터 상속받은
+      상태에서 인터페이스를 선언/정의할 수 있다. 그런 경우, 이 새로운
+      'B' 인터페이스를 구현할 때는 부모 'A' 인터페이스를 포함한 모든
+      메소드/속성을 정의해야 한다.
+	- 다중상속시 name clash (이름 충돌)을 대비하기 위해 명시적
+      인터페이스 구현(explicit interface implementation)을 항상 염두에
+      두자.
+	  
+** 실제예 : IEnumerable 과 IEnumerator 인터페이스
+
+	어느 객체든 =IEnumerable= 의 =IEnumerator GetEnumerator()= 을
+	구현하는 놈이면 =foreach= 구문을 사용해 순회할 수 있다.
+
+	#+begin_src csharp
+      public interface IEnumerable
+      {
+          IEnumerator GetEnumerator();
+      }
+      public interface IEnumerator
+      {
+          bool MoveNext(); // 커서를 다음 항목으로
+          object Current { get; } // 현재 항목 얻기(읽기 전용)
+          void Reset(); // 첫번째 항목 바로 앞으로 커서 이동(past to start)
+      }
+	#+end_src
+
+	- *반드시 IEnuemrable로 부터 상속받지 않아도 되더라.*
+	- *단순히 IEnumerator GetEnumerator() 만 추가하면 되더라*
+	- *yield 를 쓰면 구체적으로 IEnumerator의 여러 메소드를 구현하지
+      않아도 쉽게 구현을 마칠 수 있더라*
+
+	- 이름이 있는 named enumerator 의 구현을 쓰면 좀 더 특이한
+      순회방법을 제공할 수 있더라(예: 역순으로 순회, 어떤 값을 가지는
+      놈들만 순회,...) *단, 반환타입이 IEnumerator 가 아니라
+      IEnumerable 임에 유의*
+
+	  #+begin_src csharp
+        public class Garage// : IEnumerable
+        {
+            Car[] carArray;
+            public Garage()
+            {
+                carArray = new Car[] {
+                    new Car("Rusty", 30),
+                    new Car("Clunker", 55),
+                    new Car("Shiny", 90),
+                    new Car("OldTred", 10)
+                };
+            }
+            // 디폴트 enumerator 반환자. 전체를 순서대로 순회. 
+            public IEnumerator GetEnumerator()
+            {
+                foreach (Car car in carArray)
+                {
+                    yield return car;
+                }
+            }
+            // 이름있는 enumerator. 속도가 어느 이상되는 놈들만 순회
+            // 반환 타입이 IEnumerable 임에 유의!!!!!
+            public IEnumerable CarsFasterThan(int maxSpeed)
+            {
+                foreach (Car car in carArray)
+                {
+                    if (car.MaxSpeed >= maxSpeed)
+                    {
+                        yield return car;
+                    }
+                }
+            }
+        }
+	  #+end_src
+
+** 실제예 : ICloneable 인터페이스
+
+	
+
+	ICloneable 는 다음과 같은 인터페이스
+
+	#+begin_src csharp
+      public interface ICloneable
+      {
+          object Clone();
+      }
+	#+end_src
+
+	의 메소드는 아니지만, 이 인터페이스는 =System.Object=
+	의 =MemberWiseClone()= 메소드와 연관지어 알아두어야 한다.
+	*MemberWiseClone() 은 클래스 내부에서만 사용되는 protected
+	메소드이며, deep copy 가 아니라 shallow copy 를 수행한다*
+	하지만, shallow copy 라는 말의 의미가 ValueType 멤버에 대해서는
+	조금 다른 의미가 된다.
+
+	실제 MSDN 의 MemberwiseClone() 의 설명을 보면 다음과 같다. 
+
+	#+begin_example
+	 MemberwiseClone 메서드는 새 개체를 만들고 현재 개체의 비정적
+	 필드를 새 개체로 복사하여 단순 복사본을 만듭니다.필드가 값 형식인
+	 경우 필드의 비트별 복사가 수행됩니다.필드가 참조 형식인 경우
+	 참조는 복사되지만 참조되는 개체는 복사되지 않으므로 원본 개체와
+	 복사된 개체는 동일한 개체를 참조합니다
+	#+end_example
+
+	즉, MemberwiseClone 으로 복제된 ValueType 은 복제된 객체에서의 값
+	변경이 원본의 값변경을 의미하지 않지만, RefType 은 복제된
+	객체에서의 값 변경이 원본의 값변경을 의미하게 된다.
+
+	완전한 DeepCopy 를 수행하려면, RefType 에 대한 명시적 복제가
+	이루어져야 한다.
+
+	즉,
+
+	#+begin_src csharp
+      using System;
+      
+      public class IdInfo {
+          public int IdNumber; 
+          public IdInfo(int IdNumber) {
+              this.IdNumber = IdNumber;
+          }
+      }
+      
+      public class Person  {
+          public int Age;
+          public string Name;
+          public IdInfo IdInfo;
+          public Person ShallowCopy() {
+             return (Person)this.MemberwiseClone();
+          }
+          // 전체객체를 독립적으로 새로 생성
+          public Person StandAloneDeppCopy() {
+              Person other = new Person();
+              other.Age = this.Age;
+              other.Name = this.Name;
+              other.IdInfo = new IdInfo(this.IdInfo.idNumber);
+              return other;
+          }
+          // 얕은 복사후 bitwise copy 된 ValueType을 제외한 나머지 RefType에
+          // 대해서만 새로운 객체를 수작업 생성/복제
+          public Person DeepCopy() {
+             Person other = (Person) this.MemberwiseClone(); 
+             other.IdInfo = new IdInfo(this.IdInfo.IdNumber);
+             return other;
+          }
+      }    
+	#+end_src
+
+** 실제예 : IComparable 인터페이스
+
+	객체 목록을 =Sort()= 할 때 predicator 역할을 하게되는 인터페이스
+
+	#+begin_src csharp
+      public interface IComparable
+      {
+          int CompareTo(Object o);
+      }
+	#+end_src
+
+    | CompareTo()의 반환값 | 설명                                            |
+    |----------------------+-------------------------------------------------|
+    | 0 보다 작은 값       | 이 객체가 인자로 넘어온 객체보다 앞에 오게 된다 |
+    | 0                    | 동일 위치                                       |
+    | 0 보다 큰 값         | 이 객체가 인자로 넘어온 객체보다 뒤에 오게 된다 |
+
+	구현 예는 다음과 같다.
+
+	#+begin_src csharp
+      class Car : IComparable {
+          int IComparable.CompareTo(object obj) {
+              Car rhs = obj as Car;
+              if (rhs!=null) {
+                  if (this.CarId > temp.CarId) {
+                      return 1;
+                  } else if (this.CarId < temp.CarId) {
+                      return -1;
+                  } else {
+                      return 0;
+                  }
+              }
+          }
+      }
+	#+end_src
+
+	위와 같이 IComparable 인터페이스를 구현한 객체들의 목록(예:
+	배열)은 =Array.Sort(객체목록)= 의 =System.Array= 클래스메소드를
+	사용해 정렬할 수 있다.
+
+	#+begin_src csharp
+      Car[] carList = new Car[] {
+          // 여기서 자동차 목록을 초기화
+      };
+      
+      // 이제 정렬
+      Array.Sort(carList);
+	#+end_src
+
+	이 객체를 정렬하는 기준을 여러가지로 한다면(자동차 이름순,
+	최고속도 순...등등) *이름있는 별도의 IComparer 구현객체*
+	생성함수를 만들어 주면 된다.
+
+	#+begin_src csharp
+      public class NameComparer : IComparer {
+          int IComparer.Compare(object o1, object o2) {
+              Car c1 = o1 as Car;
+              Car c2 = o2 as Car;
+              if (c1 != null && c2 != null) {
+                  return String.Compare(c1.Name, c2.Name);
+              } else {
+                  throw new ArgumentException("Parameter is not Car!");
+              }
+          }
+      }
+      
+      // 유용한 관례. IComparer 를 반환하는 정적 속성을 정의
+      // 이름은 "SortBySomeCondition" 이런식으로..
+      class Car {
+          static public IComparer SortByName {
+              get {
+                  return (IComparer)new NameComparer();
+              }
+          }
+      }
+	#+end_src
+
+	위와 같은 .NET 에서의 관례를 따라 별도의 IComparer 객체를 생성할
+	수 있게 되면 다음과 같이 깔끔하게 정렬루틴을 호출가능(코드를
+	읽기도 아주 편함)
+
+	#+begin_src csharp
+      Array.Sort(myCarList, Car.SortByName);
+	#+end_src
+
+* 9장. 컬렉션(Collections)과 제네릭(Generics)
+** 컬렉션(그리고 제네릭)이 등장한 이유.
+	자료구조를 담는 용도로 가장 기초적인 "배열"은 *고정크기* 의
+	컨테이너이기 때문. 추가/삭제에 용이하고 성능이 좋은 어떤
+	컨테이너가 필요하게 됨. --> System.Collections 등장 --> .NET 2.0
+	부터는 System.Collections.Generic 등장
+
+	Generic 은 NonGeneric 에 비해 TypeSafe 하고, 메모리효율을 좋게한
+	컨테이너이다. 
+** System.Collections 네임스페이스
+	최근 추세(?)는 *더이상 System.Collections 네임스페이스를 안쓴다* 는
+	것이다. 대부분 *System.Collections.Generic 네임스페이스* 를 쓴다.
+
+	System.Collections 의 모든 컬렉션은 ICollection(IEnumarable
+	파생클래스), ICloneable 의 인터페이스를 구현한다
+
+    | 클래스     | 실생활에서의 예    | 주요 인터페이스 |
+    |------------+--------------------+-----------------|
+    | ArrayList  | 동적크기. 시퀀셜   | IList,          |
+    |            |                    | ICollection,    |
+    |            |                    | IEnumerable,    |
+    |            |                    | ICloneable      |
+    |------------+--------------------+-----------------|
+    | BitArray   | 비트의 compact배열 | ICollection,    |
+    |            |                    | IEnumerable     |
+    |            |                    | ICloneable      |
+    |------------+--------------------+-----------------|
+    | HashTable  | std::unordered_map | IDictionary,    |
+    |            | QHashMap           | ICollection     |
+    |            |                    | IEnumerable,    |
+    |            |                    | ICloneable      |
+    |------------+--------------------+-----------------|
+    | Queue      | FIFO               | ICollection,    |
+    |            |                    | IEnumerable     |
+    |            |                    | ICloneable      |
+    |------------+--------------------+-----------------|
+    | SortedList | std::map(키 정렬)  | IDictionary,    |
+    |            |                    | ICollection,    |
+    |            |                    | IEnumerable,    |
+    |            |                    | ICloneable      |
+    |------------+--------------------+-----------------|
+    | Stack      | std::stack         | ICollection,    |
+    |            |                    | IEnumerable,    |
+    |            |                    | ICloneable      |
+
+	주요 인터페이스 정리
+
+    | 인터페이스  | 실생활 예                       |
+    |-------------+---------------------------------|
+    | ICollection | size, enumeration, 쓰레드안정성 |
+    | ICloneable  | 복제                            |
+    | IDictionary | 키/값 쌍                        |
+    | IEnumerable | IEnumerator 구현 객체 반환      |
+    | IEnumerator | foreach 순회방법 구현           |
+    | IList       | add/remove/index접근            |
+
+** System.Collections.Specialized 네임스페이스
+
+	결국 Generic 을 쓰게 되겠지만, 이런 것도 있다.
+
+    | 클래스           | 실생활 예                                            |
+    |------------------+------------------------------------------------------|
+    | ListDictionary   | 10개정도 이하의 작은수의 항목들에 유리. 단일연결목록 |
+    | HybridDictionary | ListDictionary 를 사용해 IDictionary 구현            |
+    |                  | 갯수가 늘면 HashTable로 변환해야 성능이 나옴         |
+    | StringCollection | 꽤 많은 양의 문자열 데이터를 핸들링                  |
+    | BitVector32      | 32비트 메모리에 Bool값을 담기에 적당                 |
+
+** NonGeneric Collection 의 문제
+	- 모든 항목을 System.Object 에 담기 때문에 ValueType 의 경우,
+      Boxing/Unboxing을 할 텐데, 그러는 과정중에 메모리 복사가 계속
+      일어나 성능저하를 일으킨다.
+	- TypeSafe 하지 않게된다. 
+	
+** Generic Collection 기초
+	전반적으로 C++ template class와 거의 동일 개념. IEnumerable<T> 는
+	"IEnumerable of type T" 라고 읽는다.
+	=T= 라는 것을 보통 *placeholder* 라고 하는데, 그 이름은 개발자가
+	마음대로 지을 수 있으나(즉, T 가 아닌 다른 이름), 일반적으로 T 는
+	Type을, TKey 나 K 는 /key/ 의 type을 TValue 나 V 는 /value/ 의
+	type을 지칭하도록 하는게 일반적이다.
+
+	#+begin_src csharp
+      public class Car : IComparable<Car>
+      {
+          // ...
+      
+          // 입력 인자가 Object형이 아니라 Car형이 된다.
+          int IComparable<Car>.CompareTo(Car otherCar)
+          {
+              // object형을 car 로 unboxing할 필요가 없다.
+              if (this.CarId > otherCar.CarId) {
+                  return 1; // out-of-order
+              } else if (this.CarId < otherCar.CarId) {
+                  return -1; // in-order
+              } else {
+                  return 0; // same
+              }
+          }
+      }
+      // 실제 사용시..
+      Array<Car> carList;
+      carList.Add (new Car(...));
+      // ...추가
+      Array.Sort(carList);
+	#+end_src
+
+	System.Collections.Generic 네임스페이스에는 다음과 같은
+	인터페이스와 클래스가 있다.
+
+
+    |---------------------------+---------------------------------------|
+    | 인터페이스                | 실생활 예                             |
+    |---------------------------+---------------------------------------|
+    | ICollection<T>            | size, enum, thread의 특징을 구현      |
+    | IComparer<T>              | 2 객체를 비교하는 방법                |
+    | IDictionary<TKey, TValue> | Key/Value 쌍으로 된 내용을 집합       |
+    | IEnumerable<T>            | IEnumerator<T> 를 반환                |
+    | IEnumerator<T>            | foreach 형태로 순회하도록 구현        |
+    | IList<T>                  | 순차객체 목록을 add/remove/index 처리 |
+    | ISet<T>                   | 집합 개념을 처리                      |
+    |---------------------------+---------------------------------------|
+
+	모든 Collections.Generic 클래스는 위 인터페이스 중 ICollection<T>,
+	IEnumerable<T> 는 반드시 구현한다( 단, *Queue<T> 와 Stack<T> 는
+	ICollection<T> 가 아니라 ICollection 을 구현한다* ).
+
+	(MSDN 을 보니, List<T> 는 IList<T>뿐 아니라, IList도,
+	ICollection<T> 뿐 아니라 ICollection 도, IEnumerable<T> 뿐 아니라
+	IEnumerable 도 구현하고 있네!)
+
+    |-------------------------------+--------------------------+----------------------------|
+    | 클래스                        | 추가 구현 인터페이스     | 실생활 예                  |
+    |-------------------------------+--------------------------+----------------------------|
+    | Dictionary<TKey, TValue>      | IDictionary<TKey,TValue> | key/value 집합             |
+    | LinkedList<T>                 |                          | 이중연결목록               |
+    | List<T>                       | IList<T>                 | 동적크기 변경가능 순차목록 |
+    | Queue<T>                      | ICollection(! <T>아님!!) | FIFO 목록                  |
+    | SortedDictionary<TKey,TValue> | IDictionary<TKey,TValue> | 정렬된 key/value 집합      |
+    | SortedSet<T>                  | ISet<T>                  | 중복없이 정열된 객체 집합  |
+    | Stack<T>                      | ICollection(! <T>아님!!) | LIFO 목록                      |
+
+	얘들은 모두 mscorlib.dll, System.dll, System.Core.dll 에 구현이
+	흩어져 있다.
+
+** Generic 사용법 기초 : 컬렉션 초기화 구문(Collection Initialization Syntax)
+	객체 초기화 구문(Object initialization syntax)에 대한 Generic 의
+	counterpart. /new/ 로 객체생성 바로 직후 세미콜론 찍기 전에
+	중괄호를 사용해 초기화할 객체의 목록을 기록. 객체 초기화 구문과
+	유사함. 객체 초기화 구문을 사용해 각각의 항목을 초기화 가능.
+
+	#+begin_src csharp
+      List<Point> myPointList = new List<Point>
+      {
+          new Point { X=2, Y=3 }, 
+          new Point { X=10, y=4 },
+          new Point(PointColor.BloodRed) { X=4, Y=5},
+      };
+      // 위의 초기화 구문이 없었다면, 아래처럼 ...
+      myPointList.Add (new Point { X=2, Y=3 });
+      myPointList.Add (new Point { X=10, y=4 });
+      myPointList.Add (new Point(PointColor.BloodRed) { X=4, Y=5});
+	#+end_src
+
+** List<T> 사용법
+
+	- 생성자 : List<T>(IEnumerable<T>) 는 다른 컬렉션에서 요소 복사,
+      List<T>(Int32) 는 초기용량을 지정하여 생성
+	- 속성 : Count 는 갯수, Capacity 는 용량, Item 은 Index 속성
+	- 메소드 : 
+      Add/AddRange 는 항목1개/여러항목을 뒤에 추가,
+	  Insert/InsertRange 는 항목1개/여러항목을 특정위치에 추가,
+	  RemoveAt/RemoveRange 는 항목1개/여러항목을 특정위치에서 제거,
+	  Remove/RemoveAll 는 넘겨진 객체와 같은(EqualityComparer<T>)
+      객체를 먼 처음1개 또는 전체 삭제
+	  IndexOf 는 특정개체를 찾아 위치를 반환.
+	  Sort/Reverse 는 정렬/역정렬
+	  Clear 는 전체 삭제ㄱ
+	
+	#+begin_src csharp
+      List<Person> people = new List<Person>() {
+          // 컬렉션 초기화 구문으로 초기화
+      };
+      people.Insert(2, new Person("준환", 42));
+      
+      // 어느때라도 배열로 변환이 가능.
+      Person[] personArray = people.ToArray();
+      Console.WriteLine("first person = {0}", personArray[0]);
+	#+end_src
+
+** Stack<T> 사용법
+
+	- Push : 객체를 stack 에 밀어넣음.
+	- Pop : 맨 마지막에 넣은 객체를 빼내옴.
+	- Peek : 맨 마지막에 넣은 객체를 확인함.
+
+** Queue<T> 사용법
+
+    - Enqueue : 맨 뒤쪽에 항목을 추가함
+	- Dequeue : 맨 앞쪽의 항목을 빼내옴
+	- Peek    : 맨 앞쪽의 항목을 확인함
+
+** SortedSet<T> 사용법
+
+	T 형의 클래스가 IComparer<T> 형을 구현하고 있다면, SortedSet<T>
+	컬렉션을 써서, 정렬된 상태를 위지하며 중복이 되지 않는 목록을
+	구성한다.
+
+	#+begin_src csharp
+      class SortByAgeComparer : IComparer<Person> {
+          int IComparer<Person>.Compare(Person lhs, Person rhs) {
+              if (lhs.Age < rhs.Age)
+                  return -1; // in order
+              else if (lhs.Age > rhs.Age)
+                  return 1; // out of order
+              else
+                  return 0; // same
+          }
+      }
+      public static void Main()
+      {
+          // Person 의 IComparable.CompareTo()에 따라 정렬된 Set
+          SortedSet<Person> personSet = new SortedSet<Person> {
+              new Person("준환", 42),
+              new Person("신영", 38),
+              new Person("서연", 11),
+              new Person("은서", 5)
+          };
+          // 나이 순서로 정렬된 Set
+          SortedSet<Person> personSet = new SortedSet<Person>(new SortByAgeComparer()) {
+              new Person("준환", 42),
+              new Person("신영", 38),
+              new Person("서연", 11),
+              new Person("은서", 5)
+          };
+      }
+	#+end_src
+
+** System.Collections.ObjectModel 네임스페이스
+	어떤 컬렉션에 항목이 추가/삭제/전체Referesh등의 동작이 수행될 경우
+	외부에 그 사실을 통지해 줄 수 있는 class 들이 들어있는
+	네임스페이스.
+
+    | Type                            | 실제 예                                                   |
+    |---------------------------------+-----------------------------------------------------------|
+    | ObservableCollection<T>         | 항목추가/삭제/전체갱신등이 이루어 질 때                   |
+    |                                 | 외부에 그 사실을 통지할 수 있는 동적 데이터 컬렉션을 구현 |
+    | ReadOnlyObservableCollection<T> | ObservableCollection<T> 와 동일하지만, 읽기 전용 버젼     |
+
+** ObservableController<T> 사용하기
+	이 클래스는 /CollectionChanged/ 라는 이벤트를 지원한다. 컬렉션에
+	변경이 가해지면 이 이벤트가 fire 된다.
+
+	아래는 가장 간단한 예제.
+
+	#+begin_src csharp
+      class People : ObservableCollection<Person> {
+          public People() {
+              CollectionChanged += LogChange;
+          }
+          public void LogChange(object sender,
+                                System.Collections.Specialized.NotifyCollectionChangedEventArgs e) {
+              // e.Action -> NotifyCollectionChangedAction.Add/Remove/Replace/Move/Reset..
+              Console.WriteLine("CollectionChanged : reason={0}", e.Action.ToString());
+              var people = sender as ObservableCollection<Person>;
+              foreach (var person in people) {
+                  Console.WriteLine("{0}", person);
+              }
+          }
+      }
+      class ObserverTest {
+          public static void Main() {
+              var people = new People() {
+                  new Person("준환", 42),
+                  new Person("신영", 38),
+                  new Person("서연", 11),
+                  new Person("은서", 5)
+              };
+              foreach (var person in people) {
+                  Console.WriteLine("{0}", person);
+              }
+      
+              Console.WriteLine("가족을 추가합니다..");
+              people.Add (new Person("가은", 7));
+      
+              Console.WriteLine("가족을 삭제합니다..");
+              people.RemoveAt(people.Count-1);
+      
+              Console.WriteLine("가족을 클리어합니다...");
+              people.Clear();
+          }
+      }
+	#+end_src
+
+	System.Collections.Specialized.NotifyCollectionChangedEventArgs
+	타입은
+	- /Action/ 속성 :(NotifyCollectionChangedAction enum값) -->
+      Add,Remove,Reset,..
+	- /OldItems/ 속성 : Remove 된 항목들의 목록
+	- /NewItems/ 속성 : Add 된 항목들의 목록
+** 사용자 정의 제네릭 메소드(Custom Generic Method). 
+	C++ template function 에서와 마찬가지로 생각하면 된다. (이 한줄에
+	책의 몇페이지가 녹아있다는.. 쿨럭) 다만, 전역함수를 만들 수가 없네
+	C# 에서는? 어쨌든 정적 멤버/인스턴스 멤버 메소드를 template 으로
+	만들 수 있다.
+** 타입유추(Inference of Type Parameter)
+	제네릭 메소드를 호출할 때 /<T>/ 에 해당하는 타입을 명시적으로
+	넣어서 호출해야 하지만, 종종 타입유추가 뻔한 경우에는 생략해도
+	*컴파일러가 알아서 <T> 부분을 넣어준다*
+
+	#+begin_src csharp
+      public static class MyGenerics
+      {
+          public static void Swap<T>(ref T a, ref T b)
+          {
+              Console.WriteLine("Instance Swaping object of {0} type", a.GetType());
+              T temp = a;
+              a = b;
+              b = temp;
+          }    
+      }
+      
+      // 사용할 때 <T> 를 명시해도 되고...
+      MyGenerics.Swap<Person>(ref me, ref you);
+      // 유추가 가능한 경우에는 그냥 <T> 없이 호출해도 된다.
+      MyGenerics.Swap(ref me, ref you);
+	#+end_src
+
+	단, 타입유추는 파라메터가 있는 경우에만 사용이 가능하다.
+
+** /default/ 키워드
+	/default/ 키워드는 switch/case 문에서도 사용되지만, 어떤 타입에
+	대해 함수처럼 호출하면
+
+	- Numeric 의 경우 : 0
+	- RefType 의 경우 : null
+	- ValueType 의 경우 : 모든 멤버가 0 또는 nil
+
+	  의 값을 가지도록 한 디폴트 값을 반환한다. 
+
+	#+begin_src csharp
+      var defaultPoint = default(Point<int>); // x=0, y=0
+      int defaultInt = default (int); // 0
+	#+end_src
+
+	어떤 타입의 ResetValue() 같은 멤버를 구현할 때 유용.
+
+** /where/ 키워드 "타입제한자(Type Constraint)"
+	종종 <T> 타입이 "...어떠어떠한 타입인 경우에만 사용할 수 있다"는
+	식으로 제한을 둘 수 있다.
+
+	- /where T : class/  --> T 는 RefType 이어야 한다.
+	- /where T : struct/ --> T 는 ValueType 이어야 한다.
+	- /where T : new()/ --> T 는 기본생성자를 가져야 한다. 다시말해,
+                /new T()/ 할 수 있어야 한다.
+	- /where T : IDrawable/ --> T 는 어떤 인터페이스를 구현해야 한다.
+	- /where T : GdiDrawable/ --> T 는 어떤 타입에서 상속된 타입이어야 한다.
+    
+	이걸 여러개 나열하여 복합 제한을 만들 수 있다. 또한 여러개의 타입
+	placeholder 들에 대해서 따로 따로 제한을 둘 수 있다. 최대한
+	복잡한(?) 예를 들어보면.
+
+	#+begin_src csharp
+      // K 는 SomeBaseClass 의 파생클래스이면서 기본생성자를 가져야 한다.
+      // T 는 ValueType 이면서 IComparable<T> 를 구현해야 한다.
+      public class MyGenericClass<K, T>
+          where K : SomeBaseClass, new ()
+          where T : struct, IComparable<T>
+      {
+          // 구현
+      }
+      
+      // T 가 ValueType이어야 한다.
+      static void SwapValueTypeOnly<T>(ref T a, ref T b) 
+          where T : struct
+      {
+          // 
+      }
+	#+end_src
+
+	이 제약사항이 코드에서 지켜지지 않으면, 컴파일러가 오류 메시지를 뿜는다.
+
+** Generic 코드에서는 4칙연산을 오버로딩하기가 어렵다.
+	Add/Subtract/Divide/Multiply 를 구현을 어떻게 하지? 나중에 알게된단다.
+
+* 10장. Delegate(대리자), Event, 그리고 람다표현(Lambda Expression)
+** Delgate 이해하기
+	Delegate란 다음의 3가지 정보(혹은 그 목록)를 담고 있는 TypeSafe
+	객체.
+
+	1) 호출할 메소드의 어드레스(*정적 메소드 / 인스턴스 메소드 모두 포함*)
+	2) 메소드의 파라메터들
+	3) 메소드의 반환값
+	
+	Delegate 를 통해 런타임에 저장된 메소드를 호출하는 방식도
+
+	- *비동기 호출* (오 예!)
+	- 동기 호출
+   
+	*모두* 가능하다.
+
+** Delegate 정의하는 법 : /delegate/ 키워드
+
+	#+begin_src csharp
+      // MyOtherDelegate 라는 이름의 delegate 를 정의
+      public delegate string MyOtherDelegate(out bool a, ref bool b, int c);
+	#+end_src
+
+	위와 같이 하면 delegate가 정의된다. 실제로 위의 코드를 C#
+	컴파일러가 컴파일 하면, /System.MultiCaseDelegate/
+	(/System.Delegate/ 의 파생클래스) 로 부터 파생된 Delegate이름(즉,
+	MyOtherDelegate)의 *클래스가 정의* 된다. ( *함수처럼 보이지만,
+	실제로는 클래스 타입이 정의된다!*)
+
+	#+begin_src csharp
+      sealed class MyDelegate: System.MulticastDelegate 
+      { 
+          public string Invoke(bool a, bool b, bool c); 
+          public IAsyncResult BeginInvoke(bool a, bool b, bool c, 
+                                          AsyncCallback cb, object state); 
+          public string EndInvoke(IAsyncResult result); 
+      } 
+	#+end_src
+
+	이 중 Invoke() 메소드는 동기호출을, BeginInvoke/EndInvoke 는
+	비동기 호출시 사용된다. 하지만, 컴파일러가 생성한 이 클래스의
+	객체를 만들어 이들 메소드를 호출 할 일은 없다. C# 이 제공하는
+	별도의 구문을 써서 하게 될 것이다.
+
+** System.MulticastDelegate 와 System.Delegate 기반클래스
+	요약하면 아래와 같이 생긴 클래스(일부 멤버만 있음!)
+	정의된 대리자의 이름은 결국 이 클래스의 파생 클래스타입. 대리자의
+	정보를 얻을 수 도 있다(Investigating a Delegate Object).
+
+	*Target 속성* 과 *Method 속성* 이 중요해 보인다. 정적 메소드가
+	대리자인 경우 Delegate클래스의 Target 속성은 null 을 반환.
+
+	#+begin_src csharp
+      public abstract class Delegate : ICloneable, ISerializable 
+      { 
+          // 호출할 함수들의 목록을 추가/삭제하는 기능
+          public static Delegate Combine(params Delegate[] delegates);
+          public static Delegate Combine(Delegate a, Delegate b); 
+          public static Delegate Remove(Delegate source, Delegate value); 
+          public static Delegate RemoveAll(Delegate source, Delegate value); 
+      
+          // 오버로딩된 연산자들
+          public static bool operator ==(Delegate d1, Delegate d2); 
+          public static bool operator !=(Delegate d1, Delegate d2); 
+      
+          // delegate의 대상에 대한 정보
+          public MethodInfo Method { get; } // 함수 포인터 역할
+          public object Target { get; }  // static 함수가 아닌 경우 객체의 포인터가 필요하다.
+      }
+      
+      public abstract class MulticastDelegate : Delegate 
+      { 
+          // 가리키고 있는 메소드들의 목록
+          public sealed override Delegate[] GetInvocationList();
+      
+          // 오버로딩된 연산자
+          public static bool operator ==(MulticastDelegate d1, MulticastDelegate d2); 
+          public static bool operator !=(MulticastDelegate d1, MulticastDelegate d2); 
+      
+          // Delegate가 관리하는 메소드 목록의 관리를 위한 내부적으로 사용되는 것들
+          private IntPtr invocationCount; 
+          private object invocationList; 
+      }     
+	#+end_src
+
+	앞서 보았던 이벤트 처리시 *+=* 연산자는 Combine() 메소드와, *-=*
+	연산자는 Remove() 메소드와 관련이 있음.
+	
+** 초간단 Delegate 사용해보기
+	#+begin_src csharp
+      public delegate int BinaryOp(int x, int y);
+      
+      class SimpleMath {
+          public static int Add (int a, int b) {
+              return a + b;
+          }
+          public static int Subtract(int a, int b) {
+              return a - b;
+          }
+      }
+      class SimpleDelegateTest {
+          public static void Main() {
+              BinaryOp b = new BinaryOp(SimpleMath.Add);
+              // b(10,5) 하면 실제로는 b.Invoke(15,5) 가 수행
+              Console.WriteLine("b(10,5) = {0}",b(10,5)); // = 15
+              b = new BinaryOp(SimpleMath.Subtract);
+              Console.WriteLine("b(10,5) = {0}", b(10,5)); // = 5
+          }
+      }
+	#+end_src
+** Delegate 실제예
+
+	실무에서 사용하는 작업수순은 다음과 같다.
+
+	#+begin_src csharp
+      class Car {
+          public Car() {
+              speed = 0;
+          }
+          public int Speed {
+              get {
+                  return speed;
+              }
+              set {
+                  Console.WriteLine("speed configured : {0}", value);
+                  if (speed != value) {
+                      OnSpeedChanged(speed, value);
+                      speed = value;
+                  }
+              }
+          }
+          private int speed;
+      
+          // 1. Delegate 정의하기(SpeedChangeHandler 라는 클래스가 만들어진다)
+          public delegate void SpeedChangeHandler(int beforeSpeed, int afterSpeed);
+          // 2. Delegate 객체 정의하기(private 필드 + 접근메소드)
+          private SpeedChangeHandler speedChangeHandler;
+          public void RegisterSpeedChangeHandler(SpeedChangeHandler handler) {
+              speedChangeHandler += handler;
+          }
+          public void UnregisterSpeedChangeHandler(SpeedChangeHandler handler) {
+              speedChangeHandler -= handler;
+          }
+          // 3. 어떤 상황에서 호출되어 Delegate를 호출하는 함수 만들기.
+          public virtual void OnSpeedChanged(int beforeSpeed, int afterSpeed) {
+              if (speedChangeHandler != null) {
+                  speedChangeHandler(beforeSpeed, afterSpeed);
+              }
+          }
+      }
+      
+      class PracticalDelegateTest {
+          // 4. 핸들러 만들기
+          public static void LogSpeedChange(int beforeSpeed, int afterSpeed) {
+              Console.WriteLine("speed change : {0} --> {1}", beforeSpeed, afterSpeed);
+          }
+          public static void Main() {
+              Car tucson = new Car();
+      
+              tucson.Speed = 10;
+              // 5. 핸들러 등록하기
+              Car.SpeedChangeHandler handler = new Car.SpeedChangeHandler(LogSpeedChange);
+              tucson.RegisterSpeedChangeHandler(handler);
+      
+              tucson.Speed = 20;
+              tucson.Speed = 30;
+      
+              // 5.1 핸들러 등록 해제하기
+              tucson.UnregisterSpeedChangeHandler(handler);
+      
+              tucson.Speed = 40;
+          }
+      }
+	#+end_src
+
+	위 코드에서 SpeedChangeHandler 를 그냥 public 필드로 놓고 써도
+	되었겠지만, 필자는 필드는 무조건 private 로 하고 속성이나 접근자를
+	만드는게 원칙이라는.. 쿨럭.
+
+** 메소드 그룹 변환(Method Group Conversion) 문법 : 가독성이 좋음
+	대리자가 실은 클래스 타입이라는 점에서는 객체로 생성하여 전달하는
+	것이 자연스럽지만, 읽고 쓰기에는 번잡하다.
+
+	#+begin_src csharp
+      // 객체로 대리자를 보는 경우
+      car.RegisterSpeedChangeHandler(new Car.SpeedChangeHandler(logger.LogSpeedChange));
+      // 함수 포인터로 대리자를 보는 경우(=메소드 그룹 변환 문법)
+      car.RegisterSpeedChangeHandler(logger.LogSpeedChange);
+	#+end_src
+
+	위의 두 줄은 동일한 일을 한다. /new DelegateType()/ 부분이
+	불필요하게 된다. 마치 C/C++ 에서 함수 포인터를 넘기는 느낌.
+	*이 구문은 C# event 처리시 유용하게 사용* 된다. 
+	
+** 제네릭 대리자(Generic Delegate)
+	Delegate 를 <T> 를 써서 타입 중립적으로 만든다.
+
+	#+begin_src csharp
+      public delegate void MyGenericDelegateInt(int arg);
+      public delegate void MyGenericDelegateString(string arg);
+      // ...
+      // 이런 종류의 정의들을 한방에 끝낸다. 
+      public delegate void MyGenericDelegate<T>(T arg);
+      
+      // 사용시에는
+      var intFunction = new MyGenericDelegate<int>(functionForInt);
+      var stringFunction = new MyGenericDelegate<string>(functionForString);
+	#+end_src
+
+** 일반적 대리자 : Action<>, Func<>, Predicate 제네릭 대리자
+	매번 비슷한 종류의 대리자를 이런 저런 클래스에 매번 만드는게
+	redudant 하게 느껴진다면, .NET에서 기본 제공하는
+
+	- Action<> 대리자 : 인자는 16개, 반환값은 void. 
+	- Func<>   대리자 : 인자는 16개, 반환값은 사용자 정의
+   
+   를 사용할 수 있다.
+
+   #+begin_src csharp
+     static int Add (int x, int y)
+     {
+         return x + y;
+     }
+     static string SumToString(int x, int y)
+     {
+         return (x + y).ToString();
+     }
+     
+     static void Main()
+     {
+         Func<int, int, int> funcTarget = new Func<int, int, int>(Add); 
+         int result = funcTarget.Invoke(40, 40); 
+         Console.WriteLine("40 + 40 = {0}", result); 
+         Func<int, int, string> funcTarget2 = new Func<int, int, string>(SumToString); 
+         string sum = funcTarget2(90, 300); 
+         Console.WriteLine(sum);
+     }
+   #+end_src
+
+** C# /event/ 키워드로 대리자를 쉽게 사용하기
+
+	대리자를 사용하려면,
+	1) 대리자를 정의
+	2) 정의된 대리자 객체를 private 멤버 필드로 정의
+	3) 대리자 객체에 콜백을 등록/등록해제 하는 메소드를 정의
+	
+	의 기본적인 작업이 많이 필요하다.
+
+	/event/ 키워드를 사용하면 위 2) 및 3) 작업을 한 줄로 끝낼 수 있다.
+	C# 컴파일러가 add_XXX(), remove_XXX() 의 등록함수와 private의
+	대리자 객체 필드를 생성한다.
+
+	#+begin_src csharp
+      public class Car
+      {
+          public delegate void CarHandler(string msg);
+          
+          // private CarHandler Exploded;
+          // public void RegisterExplodedHandler(CarHandler handler)
+          // {
+          //  Exploded += handler;
+          // }
+          // public void UnregisterExplodedHandler(CarHandler handler)
+          // {
+          //  Exploded -= handler;
+          // }
+      
+          // 위의 내용이 아래의 한줄로 해결
+          public event CarHandler Exploded;
+      
+          public override OnExploded(string msg)
+          {
+              // 실제 호출은 예전 대리자 방식과 동일.
+              Exploded(msg); // fire event !
+          }
+      }
+      pubic static void LogExplodedMessage(string msg)
+      {
+          Console.WriteLine(msg);
+      }
+      public static void Main()
+      {
+          Car myCar = new Car;
+          myCar.Exploded += LogExploded;
+      
+          myCar.goMaximum();
+      }
+	#+end_src
+
+** C# 의 Event Pattern : 제네릭 EventHandler<T> 대리자
+	앞서 /event/ 키워드를 사용하면 대리자 객체의 필드와 콜백
+	등록/등록해제 작업을 간단히 할 수 있었다. 그런데, C# 은 대리자
+	정의하는 것 까지 필요없게 해 주는 event pattern 을 여기 저기서
+	사용한다. 즉 *공통의 대리자 타입* 을 사용하는 것이다.
+
+	그것이 제네릭 EventHandler<T> 대리자 타입이다.
+
+	얘는 다음과 같은 핸들러를 등록할 수 있다.
+
+	#+begin_example
+    void MyHandler({System.Object} sender, {EventArgs의 파생클래스형} e);
+	#+end_example
+
+	즉, 반환값이 void 형이고, 첫번째 인자는 이 콜백을 호출하게 만든,
+	즉 이벤트를 날리는 전송자의 참조이고, 두번째 인자는 이벤트의
+	내용을 담는 다음과 같은 클래스 혹은 그 클래스의 파생 타입이다.
+
+	#+begin_src csharp
+      public class EventArgs 
+      { 
+          public static readonly EventArgs Empty; 
+          public EventArgs(); 
+      }
+	#+end_src
+
+	보통은 여기서 파생받아서 사용자 정의 클래스를 만들어 그걸
+	사용한다.
+
+	#+begin_src csharp
+      public class CarEventArgs : EventArgs
+      {
+          public readonly string message;
+          public CarEventArgs(string aMessage)
+          {
+              message = aMessage;
+          }
+      }
+	#+end_src
+
+	이걸 사용하면 앞서 /event/ 키워드로 간단히 했던 구문에서
+	"1)대리자의 정의" 단계가 필요없다.
+
+	#+begin_src csharp
+      public class Car
+      {
+          // public delegate void CarHandler(string msg);
+      
+          // // private CarHandler Exploded;
+          // // public void RegisterExplodedHandler(CarHandler handler)
+          // // {
+          // //  Exploded += handler;
+          // // }
+          // // public void UnregisterExplodedHandler(CarHandler handler)
+          // // {
+          // //  Exploded -= handler;
+          // // }
+      
+          // // 위의 내용이 아래의 한줄로 해결
+          // public event CarHandler Exploded;
+      
+          // 위의 내용을 더 간단히 한줄로 해결
+          public event EventHandler<CarEventArgs> Exploded;
+      
+          public override OnExploded(string msg)
+          {
+              // 실제 호출은 예전 대리자 방식과 동일.
+              Exploded(msg); // fire event !
+          }
+      }
+      public static void LogExplodedMessage(object sender, CarEventArgs eventArgs)
+      {
+          // "sender" 를 통해 호출한 쪽의 정체를 알 수 있다.
+          if (sender is Car)
+          {
+              // eventArgs 를 통해 호출한 쪽이 전달한 내용을 알 수 있다.
+              Console.WriteLine(eventArgs.message);
+          }
+      }
+      public static void Main()
+      {
+          Car myCar = new Car;
+          myCar.Exploded += LogExploded;
+            
+          myCar.goMaximum();
+      }
+	#+end_src
+
+** C# 무명 메소드(Anonymous Methods)
+	대리자에 핸들러를 추가하는 구문에 바로 메소드를 정의할 수 있다.
+	코드 가독성이 좋아진다(핸들러의 정의가 바로 보이기 때문이다).
+	기본 구문은 아래와 같다.
+	#+begin_src csharp
+      class Program
+      {
+          static void Main()
+          {
+              SomeType t= new SomeType;
+              t.SomeEvent += delegate (선택적으로_지정된_대리자_인자들) {
+                  // 실행구문이 여기에 온다.
+              }
+          }
+      }
+	#+end_src
+
+	*인자의 갯수가 대리자와 정확히 일치하지 않는 경우에도 사용이 가능*
+     하다는 점을 기억. 인자가 없는 경우에는 괄호를 아예 삭제해도
+     무방하다는 점도 기억.
+    	 
+	#+begin_src csharp
+      class Program
+      {
+          public static void Main()
+          {
+              Car c1 = new Car(Name:"SlugBug", MaxSpeed:100);
+      
+              c1.Exploded += delegate {
+                  Console.WriteLine("Exploded!");
+              }
+              c1.Exploded += delegate (object sender, CarEventArgs eventArgs){
+                  Console.WriteLine("Exploded Event from {0} : {1}",
+                                    sender, eventArgs.message);
+              }
+      
+              c1.makeItExplode();
+          }
+      }
+	#+end_src
+
+** C# 무명 메소드의 외부 변수(outer variable) 접근
+	무명 메소드는, 자신을 정의한 메소드의 로컬 변수에 접근할 수 있다.
+	--> 무명 메소드의 가장 흥미로운 기능중 하나. --> *외부 변수(outer
+	variable)* 이라 함.
+
+	1. 접근 가능
+	   1) outer class 인스턴스 변수 또는 정적 변수
+	   2) outer class 멤버변수와 동일한 이름의 지역 변수인 경우
+          멤버변수는 은폐되고, 지역변수가 사용됨.
+	2. 접근 불가능
+	   1) 무명 메소드를 정의한 메소드에 인자로 넘어온 ref 및 out 인자
+	   2) 무명 메소드내의 지역변수와 이름이 동일한 외부변수
+
+** 람다 표현식(Lambda Expression)
+	.net 이벤트 아키텍쳐와 관련한 내용의 종착역 -> C# 람다 표현식.
+	기본 구문은
+
+	#+begin_example
+	처리할_인자 => 인자를_처리하는_구문
+	#+end_example
+
+	과 같다. C# 토큰 = => =  (등호 화살표)가 중요하다. 인자의 타입은
+	명시해도 되고 명시하지 않아도 된다. int 형 인자를 받아 bool 타입을
+	반환하는 람다 표현식은 다음과 같다.
+
+	#+begin_src csharp
+      void Main()
+      {
+          // 제일 완전한 형태
+          myIntList.FindAll( (int i) => {
+                  Console.Write("숫자 {0} 가 짝수인지 확인", i)
+                  return (i%2)==0;
+              });
+      
+          // 문(statement)이 1개인 경우 중괄호는 빼도 된다.
+          myIntList.FindAll( (i) => (return (i%2)==0) );
+      
+          // 소괄호는 간단한 경우에 생략도 가능
+          myInList.FindAll( i => return (i%2) == 0 );
+      }
+	#+end_src
+
+	람다 식은 C# 컴파일러에 의해 delegate 키워드를 사용하는 무명
+	메소드로 변화된다(ildasm.exe 로 확인 가능). 그리고 실제 실행되는
+	내용은 무명 메소드 뿐 아니라 명확한 형이 지정된 대리자 객체와
+	동일하다. 
+
+** 0개 혹은 여러개의 인자를 받는 람다 표현식
+	인자가 1개 있었던 앞의 경우와 마찬가지로 각각의 인자는 형을
+	지정해도 되고 안해도 된다.
+	인자가 0개 인 경우 = => = C# 람다 계산 토큰 앞에 빈 소괄호가
+	위치한다.
+
+	아래 예는 event로 깔끔하게 정의된 대리자에 여러 인자 형식의 람다
+	표현식을 엮는 예를 포함한다.
+
+	#+begin_src csharp
+      class SimpleMath {
+          public delegate void MathMessage(string msg, int result);
+          public event MathMessage mmDelegate;
+      
+          public int Add (int a, int b) {
+              int c = a + b;
+              if (mmDelegate != null)
+              {
+                  mmDelegate("Adding has completed", c);
+              }
+              return c;
+          }
+      }
+      class LambdaMultiTest {
+          public static void Main() {
+              SimpleMath sm = new SimpleMath();
+              // 인자의 형이 암시적으로 결정;
+              sm.mmDelegate += ( (msg, result) => {
+                      Console.WriteLine(msg);
+                      Console.WriteLine("result : {0}", result);
+                  });
+              // 인자의 형이 명시적으로 지정
+              sm.mmDelegate += ( (string msg, int result) => {
+                      Console.WriteLine("2:{0}", msg);
+                      Console.WriteLine("2:result : {0}", result);
+                  });
+      
+              // 인자 갯수가 다름 (오류!!!)
+              // sm.mmDelegate += ( (string msg) => {
+              //      Console.WriteLine("2:{0}", msg);
+              //  });
+      
+              // 인자 갯수가 일부만 명시적(오류!!!)
+              // sm.mmDelegate += ( (string msg, result) => {
+              //      Console.WriteLine("2:{0}", msg);
+              //      Console.WriteLine("2:result : {0}", result);
+              //  });
+      
+              sm.Add (10, 11);
+          }
+      }
+	#+end_src
+
+* 11장. C# 언어 고급편
+** 인덱서 메소드(Indexer Method)
+	배열 항목접근과 유사하게 대괄호 연산자를 써서 항목에 접근하는
+	/class/ 또는 /struct/ 의 속성
+	
+	- 이름은 메소드이지만, 사실은 속성
+	- 속성 이름이 "this[인자_목록]" 의 형태임. 타입은 맘대로.
+	- 인터페이스에서 선언하고, 클래스에서 정의할 수 있음.
+	- 여러 인자도 사용가능(즉, 오버로딩이 가능)
+	- (내의견) 근데, 시그너쳐가 같으면 문제가 당연히 생길듯.
+
+	#+begin_src csharp
+      public interface ICategoryKeyValueProvider
+      {
+          string this[string aCategory, string aKey] { get; set; }
+      }
+            
+      public class SomeContainer : ICategoryKeyValueProvider 
+      {
+          // ICategoryKeyValueProvider 인터페이스의 메소드 정의
+          public string this[string aCategory, string aKey] {
+              get { return string.Format("카테고리:{0} 키:{1} 의 값", aCategory, aKey); }
+              set { Console.WriteLine(@"카테고리:{0} 키:{1} 의 값을 ""{2}""로 설정", aCategory, aKey, value); }
+          }
+          // 읽기 전용 인덱서
+          public int this[int row, int col] {
+              get { return row * 1000 + col; }
+          }
+          // 문자열을 인자로 받는 덱서
+          public int this[string rowColExpr] {
+              get { return this[Convert.ToInt32(rowColExpr.Substring(1,2)),
+                                Convert.ToInt32(rowColExpr.Substring(4,2))]; }
+              set { Console.Write("{0}의 값을 {1}로 설정합니다.", rowColExpr, value); }
+          }
+      }
+            
+      class IndexerTest {
+          public static void Main() {
+              SomeContainer c = new SomeContainer();
+              Console.WriteLine("c[18,17]={0}", c[18,17]);
+              Console.WriteLine("c[\"1817\"]={0}", c["r18c17"]);
+              c["r19c20"] = 1004;
+      
+              Console.WriteLine("사업아이템-3차원프린터의 값: {0}", c["사업아이템", "3차원프린터"]);
+              c["배사장회사", "업무지원"] = "만빵";
+          }
+      }
+	#+end_src
+
+** 연산자 오버로딩  : 4칙연산 + alpha
+
+	- 2항 사칙연산자 오버로딩 : 계산결과를 무조건 새로운 객체로 new
+      해서 반환하고, *정적 멤버* 로 *2개* 의 인자를 받음.
+	  --> 서로 다른 타입인 경우 lhs 와 rhs 의 위치별 타입이
+      연산자적용에 영향을 줌(타입의 순서를 달리해서 정의해야 함.)
+	  
+	  #+begin_src csharp
+        public struct MyInt
+        {
+            int intValue;
+            public MyInt(int aValue)
+            {
+                intValue = aValue;
+            }
+            public static MyInt operator+ (MyInt lhs, MyInt rhs)
+            {
+                return new MyInt(lhs.intValue + rhs.intValue);
+            }
+            public static MyInt operator- (MyInt lhs, MyInt rhs)
+            {
+                return new MyInt(lhs.intValue - rhs.intValue);
+            }
+            public static MyInt operator + (double lhs, MyInt rhs)
+            {
+                return new MyInt(Convert.lhs
+            }
+            public override string ToString()
+            {
+                return string.Format("MyInt:{0}", this.intValue);
+            }
+        }
+        class OperatorOverloadTest
+        {
+            public static void Main()
+            {
+                MyInt a = new MyInt(10);
+                MyInt b = new MyInt(3);
+        
+                MyInt c = a - b;
+                MyInt d = a + b;
+                MyInt e = a;
+                e += b;
+                Console.WriteLine("a={0}, b={1}, c={2}, d={3}, e={4}", a,b,c,d,e);
+            }
+        }
+	  #+end_src
+	  
+	  - 기타 다른 연산자 오버로딩도 있기는 한데, 일단 패스. 나중에
+        찾아보면 될 듯. 
+		
+	  - 오버로딩 가능한 연산자 목록정리
+	 
+     | C# 연산자                                      | 오버로딩 가능? | 설명                |
+     |------------------------------------------------+----------------+---------------------|
+     | +, -,!, ~, ++, --, true, false                 | O              | 단항 연산자들       |
+     |------------------------------------------------+----------------+---------------------|
+     | +, -, *, /, %, &, \vert{}, ^, <<, >>           | O              | 서로 다른 형간의    |
+     |                                                |                | 2항 연산자정의 가능 |
+     |------------------------------------------------+----------------+---------------------|
+     | ==,!=, <, >, <=, >=                            | O              | 전부 함께 정의      |
+     |                                                |                | 되어야 함           |
+     |------------------------------------------------+----------------+---------------------|
+     | []                                             | X              | 인덱스 메소드에     |
+     |                                                |                | 사용되고 있음       |
+     |------------------------------------------------+----------------+---------------------|
+     | ()                                             | X              | 커스텀 변환 메소드  |
+     |                                                |                | 를 사용하면 됨      |
+     |------------------------------------------------+----------------+---------------------|
+     | +=, -=, *=, /=, %=, &=, \vert{}=, ^=, <<=, >>= | X              | 단순 연산자를 정의  |
+     |                                                |                | 하면 생성됨         |
+     |------------------------------------------------+----------------+---------------------|
+
+** 연산자 오버로딩 : 등가 연산자(Equality Operator) 및 부등호 연산자(<, >, ...)
+	System.Object.Equals()를 오버라이드 해서 사용하면 참조타입에 대해서도 "값 기반"
+	등가 비교를 할 수 있다.
+
+	Equals() 를 오버라이드 하려치면, SYstem.Object.GetHashCode() 를
+	정의해야 한다. 하지만, 일단 정의되고 나면, == 연산자나 != 연산자의
+	재정의는 쉽다.
+
+	부등호 연산자의 재정의는 IComparable.CompareTo() 를 오버라이드 한
+	뒤에 해당 연산자를 오버로딩하는게 좋단다. *또한 CompareTo() 안에서
+	속성/필드 값의 비교를 할때, 기본 CompareTo 를 활용하는 것도 좋은
+	방법*
+
+	#+begin_src csharp
+      public class MyPoint : IComparable<MyPoint>
+      {
+          public int X  { get; set; }
+          public int Y  { get; set; }
+          public int CompareTo(MyPoint other)
+          {
+              // 기본 타입의 CompareTo 를 재활용하는 좋은 예
+              int v = this.X.CompareTo(other.X);
+              if (0==v) 
+                  return this.Y.CompareTo(other.Y);
+              return v;
+          }
+          // 비교 연산자는 귀찮아도 항상 같이 해 두는게...옳음.
+          public static bool operator < (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) < 0;
+          }
+          public static bool operator > (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) > 0;
+          }
+          public static bool operator <= (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) <= 0;
+          }
+          public static bool operator >= (MyPoint lhs, MyPoint rhs)
+          {
+              return lhs.CompareTo(rhs) >= 0;
+          }
+          public override string ToString()
+          {
+              return string.Format("(X={0}, Y={1})", X, Y);
+          }
+      }
+      
+      class CompareTest
+      {
+          public static void Main()
+          {
+              MyPoint p1 = new MyPoint {
+                  X = 10,
+                  Y = 20,
+              };;
+              MyPoint p2 = new MyPoint {
+                  X = 30,
+                  Y = 5,
+              };
+      
+              Console.WriteLine("p1={0}, p2={1}, p1 > p2 ({2}), p1 <= p2 ({3})", p1, p2, p1 > p2, p1 <= p2);
+          }
+      }
+	#+end_src
+	
+** 형 변환 연산자
+	- 숫자형 변환 : 자동지원
+	- 참조형(/class/ 객체)이 계층구조를 이루는 경우 : 계층구조에 맞으면
+      OK. 아니면, 예외가 던져짐(/as/ 연산자, /is/ 연산자...기억하지?)
+
+    - 값타입의 경우에 대해서 보통 형변환을 하는 경우가
+      많을듯(책에서도 예는 /struct/ 형에 대한 형변환을 듬. 아래 예제
+      코드 참조)
+	  
+	- 명시적 형변환
+     =public static explicit operator ToType (FromType obj)=
+	- 암시적 형변환
+     =public static implicit operator ToType (FromType obj)=
+	- 형변환 연산자는 모두 *static*
+	- 형변환시 새로운 객체를 new 하고 적절히 초기화해서 넘겨주는
+      컨셉(기존 C++의 포인터 형변환과는 완전히 다른 개념)
+
+	#+begin_src csharp
+      public struct Rectangle
+      {
+          public int Width {get; set;}
+          public int Height {get; set;}
+          public Rectangle(int w, int h) : this()
+          {
+              Width = w; Height = h;
+          }
+          public void Draw()
+          {
+              Console.WriteLine("Rectangle::Draw() : {0}", this);
+          }
+          public override string ToString()
+          {
+              return string.Format("[Width = {0}; Height = {1}]", Width, Height);
+          }
+      }
+      // Rectangle 와 완전히 다른 Hierachy.
+      public struct Square
+      {
+          public int Side { get; set; }
+          public Square(int side)
+              : this ()
+          {
+              Side = side;
+          }
+          public void Draw() {
+              Console.WriteLine("Square::Draw() : {0}", this);
+          }
+          public override string ToString()
+          {
+              return string.Format("[Side = {0}]", Side);
+          }
+          public static explicit operator Rectangle (Square s)
+          {
+              Rectangle r = new Rectangle(s.Side, s.Side);
+              return r;
+          }
+      }
+      
+      public class TypeConvertTest
+      {
+          public static void Main()
+          {
+              Square s = new Square(15);
+              s.Draw();
+      
+              Rectangle r = (Rectangle)s;
+              r.Draw();
+          }
+      
+      }
+	#+end_src
+
+** 확장 메소드(Extension Method)
+	- 와우. ObjC 처럼 기존에 존재하는 /class/ 또는 /struct/ 의 코드를
+      *전혀 손대지 않고 메소드 또는 속성을 추가* 할 수 있는 기능이다.
+	- 작성 순서
+	  1. static class 를 하나 만든다. 이름은 상관없다.
+	  2. 확장 메소드를 public static method 로 작성한다.
+	  3. 메소드의 인자는 =(this T name, 추가_인자_목록_시그너쳐)= 이다. 
+	  4. 끝.
+	- 호출 방법 : 완전히 일반 메소드 호출하는 것과 동일하다.
+	- 특정 Namespace 내 static class 에 정의한 경우, 호출시, 반드시
+      using 을 써서 해당 namespace를 포함해야 한다.
+
+	#+begin_src csharp
+      // namespace 내에 정의된 Extension Method 를
+      // 사용하기 위해 꼭 필요한 using!!!!!
+      using MyExtension;
+      
+      namespace MyExtension
+      {
+      
+      // Extension Method 는 반드시 static class 에 정의되어야 함.
+      public static class MyExtensionClass
+      {
+          // 모든 Extension Method 는 결국 static임.
+          // (static class 에 정의되므로....)
+          public static void DoSomeExtension(
+                  // 이 메소드는 System.Object 에 추가되는 메소드임을 알림
+                  this Object obj,
+                  // 실제 메소드의 첫번째 인자
+                  int additionalArg
+              )
+          {
+              Console.WriteLine("Type:{0}, AdditionalArg:{1}",
+                                obj.GetType().Name, additionalArg);
+          }
+      }
+      
+      }
+      
+      class ExtensionTest
+      {
+          public static void Main()
+          {
+              int myInt = 10;
+              myInt.DoSomeExtension(12);
+          }
+      }          
+	#+end_src
+
+	- 확장메소드는 /class/ 나 /struct/ 뿐 만 아니라, /interface/ 에
+      대해서 확장을 지원한다. 실제로 C# 에서는 LINQ API 에서 이 특징을
+      활용해 IEnumerable의 제네릭 인터페이스를 확장함으로써 여러가지
+      유용한 작업들을 해낸단다.
+	  
+	  #+begin_src csharp
+        public static class AnnoyingExtensions
+        {
+            public static void PrintAndBeep(this IEnumerable iterator)
+            {
+                foreach (var item in iterator)
+                {
+                    Console.WriteLine(item);
+                    Console.Beep();
+                }
+            }
+        }
+	  #+end_src
+
+** 무명 타입(Anonymous Type)
+	간단하게 key-value 타입으로 되어 있는 임시 타입을 만들 수 있다.
+
+	#+begin_src csharp
+      var anonTypeValue = new {
+          Name = "Joonhwan",
+          Age = 42,
+          Company = "WisePlanet"
+      };
+	#+end_src
+
+	이렇게 만든 타입의 값은
+
+	- 읽기전용(필드/속성의 값을 변경불가)
+	- System.Object 의 파생클래스(자동으로 Equals(), ToString() 등이 정의된다)
+	- 등가비교연산자는 참조값을 비교(같은 객체를 가르키는지 체크)
+	- Equals() 연산자는 멤버값을 비교(같은 key/value 를 가지는지 체크)
+	- 동일한 Namespace에서 생성된 동일 key의 쌍으로 된 타입은
+      내부적으로 같은 타입으로 여겨짐.
+	- 사용자 정의 메소드, 속성, 생성자.. 등등을 만들 수 없다.
+	- 자동적으로 /sealed/ 가 됨.
+	  
+** 포인터 타입
+	 - C# 에 있는 2가지 종류의 타입 = RefType + ValueType
+	 - 이제 3번째 타입 : *PointerType*
+	 - unsafe 키워드로 지정된 context(즉 unsafe {} 스코프) 혹은
+       함수에서 포인터 사용가능
+
+	 - *왜 쓰는가?* : C로 된 DLL호출시 포인터를 써야 할 때, 혹은 COM
+       에서 포인터를 핸들링할때. (하지만, 이경우도 System.IntPtr 혹은
+       System.Runtime.InteropServices.Marshal 타입을 쓰는게 더 낫다고 한다).
+
+	 - C++ 과 다른점 :포인터형 i,j 를 선언할때, C++ 에서는 =int *i,
+       *j;= 가 C# 에서는 =int* i, j;= 로 된다!!!
+
+	 - 가비지 콜렉터가 언제 동작하여 객체의 메모리상 위치를 옮길 지
+       모르므로, /fixed/ 키워드로 객체를 pinning 한 다음 포인터 접근을
+       해야 한다.
+	   
+	   #+begin_src csharp
+         unsafe public static void UnseAndPinPoint()
+         {
+             PointClass pt = new PointClass(); // class객체
+             pt.x = 5;
+             pt.y = 6;
+         
+             // pt 를 특정 메모리 위치에 고정(즉, Pinning=Pinned Memory)
+             fixed(int* p = &pt.x)
+             {
+                 // int* 포인터를 쓸 수 있다.
+             }
+         
+             // 여기서는 pt 의 고정이 해제된다.(언제든지 GC에 의해서 메모리상
+             // 위치가 옮겨질 수 있다)
+         }
+	   #+end_src
+
+	 - 포인터를 써서 배열을 정의할 때, C 의 alloca() 와 같이 스택에
+       동적 크기의 메모리를 할당하고자 할 때는 C# 키워드 /stackalloc/
+       을 쓴다.
+	   
+	   #+begin_src csharp
+         class MyClass
+         {
+             // 이 메소드는 오직 unsafe context 에서만 사용가능
+             unsafe static void UnsafeStackAlloc()
+             {
+                 char* p = stackalloc char[256];
+                 for (int k=0; k<256; ++k)
+                 {
+                     p[k] = char (k);
+                 }
+             }
+         }
+	   #+end_src
+
+* 12장. 객체로 LINQ
+   - LINQ 는 Language INtegrated Query 의 약자.
+   - .NET 3.5 에 추가됨
+   - 사람이 읽기편한 Sql Query문과 유사한 형태(하지만 같지는 않음!!!)로
+     코딩하면 C# 컴파일러가 내부적으로 Enumerable 정적 클래스를 통해,
+     앞서 배운 클래스 확장 메소드로 다른 여러 타입에 추가한 다양한
+     LINQ 지원 메소드를 호출하는 식으로 Invoke 하는 코드를 만들어
+     주는...
+   - LINQ 구문 구현을 위해 사용된 C# 언어의 특징
+	 1) 암시적으로 typed 된 지역 변수 - /var/
+	 2) 객체/컬렉션 초기화 구문 - 중괄호를 사용한 객체값 나열.
+	 3) 람다 표현 - {입력인자} => {처리구문}
+	 4) 확장 메소드 - 정적 클래스에 정적 메소드로 정의된, 첫인자에
+        /this/ 키워드가 붙어 해당 타입에 메소드를 외부에서 추가.
+	 5) 무명 타입 - LINQ 로 반환된 컬렉션의 항목에 대한 타입 프로젝션
+   - .NET 에는 XML, DB, Metadata Table, Collection 등 데이터를 다루기
+     위한 어셈블리가 종류별로 따로 존재 -> 하나의 방법으로 이들
+     데이터를 핸들링하는 방법(기왕이면 Query 구문)이 없을까?
+	 -> LINQ 탄생.
+     |                 | .NET 3.5 이전                              | .NET 3.5 이후 |
+     |-----------------+--------------------------------------------+---------------|
+     | 객체            | System.Array/Collection/Generics           | LINQ          |
+     | XML             | System.Xml.Dll                             | LINQ          |
+     | Metadata Table  | System.Reflection                          | LINQ          |
+     | Relational Data | System.Data.dll, System.Data.SqlClient.dll | LINQ          |
+     |-----------------+--------------------------------------------+---------------|
+
+	 LINQ 덕에 PLINQ 도 탄생 : Parallel Processing 을 LINQ 로.
+
+   - 각설하고, 책에서 나온 LINQ 구문들만 주욱 나열한다. 너무 읽기가
+     편해서 예문만 기억하면 실 사용은 문제없을듯...
+
+   #+begin_src csharp
+     using System;
+     using System.Linq; // LINQ 사용시 꼭 포함.
+     using System.Collections;         // 보통 LINQ 사용시 이거도 포함.
+     using System.Collections.Generic; // 보통 LINQ 사용시 이거도 포함.
+     
+     // 테스테에 사용할 자료구조
+     public struct ProductInfo
+     {
+         public string Name { get; set;}
+         public string Description { get; set;}
+         public int Weight { get; set;}
+         public ProductInfo(string name, string desc, int weight)
+             : this ()
+         {
+             Name = name; Description = desc; Weight = weight;
+         }
+         public override string ToString()
+         {
+             return string.Format("Name:{0}, Desc:{1}, Weight:{2}");
+         }
+     }
+     
+     class LinqTest
+     {
+         public static Array GetLinqVar(ProductInfo[] pi)
+         {
+             return (from p in pi
+                     where p.Weight > 13
+                     select new
+                         {
+                             p.Name,
+                             p.Description
+                         }).ToArray();
+         }
+         public static void Main()
+         {
+             ProductInfo[]  pi = new ProductInfo[] {
+                 new ProductInfo("제품1", "첫제품이다", 11),
+                 new ProductInfo("제품2", "<제품이다", 12),
+                 new ProductInfo("제품A", "OP제품이다", 13),
+                 new ProductInfo("제품B", "LKJ제품이다", 14),
+                 new ProductInfo("제품C", "jasdf제품이다", 15),
+             };
+     
+             foreach (var v in GetLinqVar(pi))
+             {
+                 Console.WriteLine(v);
+             }
+     
+             // LINQ Enumerable 의 확장메소드를 사용해 보기
+     
+             // - 확장 메소드 Reverse<T>()
+             // 추가 사용예로
+             //    - 인덱스를 포함하여 select하기
+             //    - 명시적으로 Linq 의 IEnumerable<T>.Select() 함수 쓰기
+             var result = (from p in pi where p.Weight <= 12
+                           select p).ToArray();
+             foreach (var prod in result.Select ((p, index) =>
+                                                 new {
+                                                     Index = index,
+                                                     Name = p.Name,
+                                                 }).Reverse())
+             {
+                 Console.WriteLine(prod);
+             }
+     
+             List<string> myCars = new List<String> { "Yugo", "Aztec", "BMW" }; 
+             List<string> yourCars = new List<String> { "BMW", "Saab", "Aztec" };
+     
+             // - 확장 메소드 Except(), Union(), Intersect(), Concat(), Distinct()
+             //   --> 서연이가 발표한 벤 다이어그램 !!!!
+             var allMyCar = (from car in myCars select car);
+             var allYourCars = (from car in yourCars select car);
+     
+             var concatUniqueCar = allMyCar.Concat(allYourCars).Distinct();
+             PrintAll("concatUnique", concatUniqueCar);
+             
+             var carUnion = allMyCar.Union(allYourCars);
+             PrintAll("union", carUnion);
+     
+             var carIntersect = allMyCar.Intersect(allYourCars);
+             PrintAll("intersect", carIntersect);
+     
+             var carExceptYours = allMyCar.Except(allYourCars);
+             PrintAll("Mine except Yours", carExceptYours);
+         }
+         public static void PrintAll(string desc, IEnumerable enumurable)
+         {
+             Console.WriteLine("\nPrinting [{0}] {1}...",
+                               desc, enumurable.GetType());
+             foreach (var item in enumurable)
+             {
+                 Console.WriteLine(item);
+             }
+         }
+     }
+   #+end_src
+
+   - LINQ 가 컴파일러에 의해 어떤식으로 처리되는지... 예제를 통해
+     기억하자.(아래 방법 1~5의 결과 쿼리식 subset 1~5 의 모든 값은 결국 동일하다)
+	 
+	 #+begin_src csharp
+       class VariousQueryBuildTest
+       {
+           static void QueryStringWithOperators() 
+           { 
+               Console.WriteLine("*** Using Query Operators ***"); 
+               string[] currentVideoGames = {"Morrowind", "Uncharted 2", 
+                                             "Fallout 3", "Daxter", "System Shock 2"}; 
+       
+               // 방법 1
+               //
+               // LINQ 구문으로 쿼리식 생성
+               var subset1 = from game in currentVideoGames 
+                             where game.Contains(" ") orderby game select game; 
+       
+               // 방법 2
+               // 
+               // Enumerable 형을 통해 기존 System.Array 배열에 추가된
+               // 확장메소드를 사용해 쿼리식을 생성.
+               var subset2 = currentVideoGames.Where(game => game.Contains(" ")) 
+                             .OrderBy(game => game).Select(game => game);
+       
+               // 방법 3
+               // 
+               // 위의 내용을 쪼개어서 생성
+               var gamesWithSpaces = currentVideoGames.Where(game => game.Contains(" ")); 
+               var orderedGames = gamesWithSpaces.OrderBy(game => game); 
+               var subset3 = orderedGames.Select(game => game);
+       
+               // 방법 4
+               // 
+               // 익명 메소드로 Func<> 대리자(delegate)를 만들어
+               // 만들어진 delegate를 Enumerable 확장메소드에 전달해서 쿼리식 생성
+               Func<string, bool> searchFilter = delegate(string game) { return game.Contains(" ");}; 
+               Func<string, string> itemToProcess = delegate(string s) { return s; }; 
+               var subset4 = currentVideoGames.Where(searchFilter) 
+                             .OrderBy(itemToProcess).Select(itemToProcess);
+       
+               // 방법 5
+               //
+               // 일반적인(?) 정적 메소드를 Func<> 대리자(delegates)로 하여
+               // Enumerable 확장메소드에 전달해서 쿼리식 생성
+               Func<string, bool> searchFilter = new Func<string, bool>(Filter); 
+               Func<string, string> itemToProcess = new Func<string,string>(ProcessItem); 
+               var subset5 = currentVideoGames 
+                             .Where(searchFilter).OrderBy(itemToProcess).Select(itemToProcess);
+           }
+           // 방법5에 사용된 대리자 함수(Delegate targets)
+           public static bool Filter(string game) {return game.Contains(" ");} 
+           public static string ProcessItem(string game) { return game; } 
+       }
+       
+	 #+end_src
+	 
+* 13장. 객체의 생성/소멸
+** 클래스, 객체, 그리고 참조 : "복습"
+	- 참조는 스택에 만들어진다(혹은 클래스 멤버인 경우 해당 클래스의 메모리영역에)
+	- 실제 객체는 Managed Heap 에 생성된다.
+	- 참조는 스택에서 Managed Heap의 객체를 가리킨다.
+	- *값 타입* : 객체가 스택에 만들어진다.
+	- *참조 타입* : 객체가 힙에 만들어진다.
+
+** 객체의 생명주기 : 기본개념
+	- "객체가 더이상 필요없어지면"  쓰레기 수거된다.
+	  --> "어느 코드에서도 접근하지 않으면...."
+	- /new/ 키워드 의 CIL 표현 : ManagedHeap 의 Next Object Pointer 를
+      필요한 양만큼 움직여 메모리 할당 하고, 생성자 호출.
+	- *객체 참조에 null 을 대입한다고 해서 바로 GC 가 발생하지는 않음* .
+	- 응용프로그램 Roots : roots는 ManagedHeap 상의 객체에 대한 참조를
+      저장하는 공간. /Rooted/ 라는 말은 /reachable/ 의 의미.
+	- Object Graph 개념 : 모든 reachable 객체들에 대한 문서(Graph Diagram)
+	- Next Object Pointer 와 GC의 Compact : 불필요한 객체가 삭제되고
+      남은 공간은 compacting. 그리고, 다음번 객체할당 위치 "Next
+      Object Pointer" 의 위치 조정이 이루어진다.
+	- GC 의 2가지 Heap : 1개는 중소사이즈의 일반 객체용 Heap, 또 다른
+      1개는 큰 사이즈의 대형 객체용 Heap(쓰레기 수거가 덜 자주 발생한다).
+
+** 객체세대(Object Generations)의 이해
+	- 용어정의
+	  1) Garbage Collector Sweep : 객체를 제거하는 동작
+	  2) Marked for collection : 수거 대상으로 지정함
+	- GC 할때 모든 객체를 다 점검한다? --> 무지 시간이 걸림.
+	- 처리시간 단축필요 : "오랜동안 Heap에 있는 객체는 상대적으로 더
+      머무를 가능성이 크다"-> 객체를 "세대(Generations)" 별로 구분지어
+      처리
+	- 세대 구분 : Gen0 + Gen1 = "단명 세대(Ephemeral Generations)"
+	  1) Gen0 : (아직) 수거 대상으로 표기되지 않은 새로 할당된 객체들
+	  2) Gen1 : 수거 대상이긴 한대, 충분한 Heap 공간이 있다면 굳이
+         삭제하지 않을 객체들
+	  3) Gen2 : 1번 이상의 GC Sweep 에서 삭제되지 않은 객체들
+	  단명 세대인 Gen0/1 객체들에 대한 GC 의 처리방식은 Gen2 와
+      다르다.
+	- 쓰레기 수거 과정
+	  1) Gen0 객체를 우선적으로 검사. 수거 대상으로 판명되면 바로
+         제거. 제거 되지 않은 객체들은 Gen1 으로 격상.
+	  2) Gen0 객체처리 후 *메모리가 여전히 더 필요하면*, Gen1
+         객체 검사/수거 --> 살아남은 객체중 일정 기간 이상 Gen1에 머문
+         객체들을 Gen2 로 격상. 나머지는 Gen1 잔류.
+	  3) Gen1 객체처리 후 *메모리가 여전히 더 필요하면*, Gen2 객체
+         검사/수거.
+	  4) *정리하자면* 지역변수와 같이 막 생성된 객체들은 빨리
+         제거되지만, 오래도록 남아 있는 객체(이를 테면 메인윈도우
+         객체)는 삭제여부를 자주 검토하지 않아 오래동안 남아있게 된다. 
+
+** Concurrent Garbage Collection : .NET 1.0~3.5
+	- Gen0/Gen1 : stop-the-world 방식(<50ms 동안 모든 쓰레드 정지)으로
+      처리. 
+	- Gen2 : dedicate thread 로 처리. 수거작업중에도 다른 쓰레드에서는
+      여전히 객체를 할당가능.
+	
+** Background Garbage Collection : .NET 4.0 이상
+	잘모르겠다. Gen0/Gen1 에 대한 수거 성능이 향상되었다는데.
+	- Gen0/Gen1 : Gen2 수거가 이루어질 때, 전용 백그라운드 쓰레드에서
+      수거한다.
+	- Gen2 : ???
+   
+** System.GC 타입
+	- mscorlib.dll 어셈블리에 있는 정적 메소드들의 클래스
+	- 직접 사용할 일이 거의 없지만, unmanaged resource 를 다룰때 종종
+      호출할 일이 있다.
+	- 강제 메모리 수거 : GC.Collect()
+	  1) 가비지 수거의 방해를 받지 않아야 하는 코드에 막 들어갈 때
+	  2) 엄청 많은 수의 객체를 할당한 다음, 곧바로 제거해야 하는 경우
+	  
+	  #+begin_src csharp
+        static void Main()
+        {
+            // 강제로 수거하고 수거 종료까지 대기
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+	  #+end_src
+	  
+** Finalize() 를 가지는 IDisposable 구현 클래스/객체
+	AppDomain(머지?)이 메모리에서 내려질 때, CLR은 자동으로 모든
+	수명을 다한 객체들의 Finalize() 를 호출한다.
+	보통은 신경쓸 일이 없겠지만, unmanaged resource(OS파일핸들,
+	데이터베이스 연결, Unmanaged Memory...)를 관리하는
+	클래스의 경우에는 반드시 구현해야 한다.
+
+	--> PInvoke 나 COM 상호운영시 필요하단다. 
+
+** System.Object.Finalize() 를 오버라이딩 하는법 : C# 에서는 소멸자!!!
+	- C#에선 희한하게도 이 메소드는 /override/ 로 오버라이딩 안됨.
+	- /struct/ 타입(값타입/ValueType)에는 사용못함. /class/ 형만 가능
+	- C#에선 Finalize() 는 소멸자 구문으로 구현하여야 함.
+	  #+begin_src csharp
+        class MyResourceWrapper {
+            public MyResourceWrapper() {
+                Console.WriteLine("ctor MyResourceWrapper.");
+            }
+            ~MyResourceWrapper() {
+                Console.WriteLine("dtor MyResourceWrapper.");
+            }
+            public static void TestClass() {
+                Console.WriteLine("creating wrapper...");
+                MyResourceWrapper wrapper = new MyResourceWrapper();
+                Console.WriteLine("using wrapper...");
+            }
+            public static void Main() {
+                TestClass();
+                Console.WriteLine("after called TestClass...");
+            }
+        }
+        // 실행결과
+        //
+        // creating wrapper...
+        // ctor MyResourceWrapper.
+        // using wrapper...
+        // after called TestClass...
+        // dtor MyResourceWrapper.
+	  #+end_src
+
+	- 소멸자가 정의되어 Finalize() 할 수 있는 객체가 힙에 생성되면,
+      런타임은 그 객체를 finalizable 로 표시하고, finalization queue
+      큐에 그 포인터를 저장해 놓는다. 수거 대상 객체는
+      "freachable("에프 리쳐블" 이라 읽는다)" 즉 finalization
+      reachable table 이란 이름의 테이블에 옮겨놓는다. 별도의 쓰레드가
+      생성되어 각 객체의 Finalize() 를 호출한다. 
+
+** 파기가능 객체(Disposable Object) 생성
+	- Finalize()가 GC의 동작과 연관이 있는 것과는 달리. Underlying
+      Unmanaged Resource 이 "아껴써야 하는 자원"이라면, GC가 수거하기
+      전에 판단하여 불필요해지면 파기할 수 있는 방법이 있으면 좋다.
+      IDisposable 의 Dispose 는 매뉴얼방식으로 리소스 해제/소멸을
+      수행하도록 하는 것 같다.
+
+	- System.IO.FileStream 같은 경우 IDisposable 을 지원한다. Close()
+      메소드를 호출하는 것 = Dispose() 호출하는 것
+
+	- 어떤 클래스/값타입이 IDisposal을 지원한다면, Dispose() 를
+      호출하는 것이 언제나 안전하다. 
+	
+** /using/ 키워드 : IDisposal::Dispose() 를 자동으로 호출.
+
+	- IDisposable을 지원하지 않는 객체에 대해 /using/ 을 사용하면
+      컴파일 오류가 발생한다. 
+
+	#+begin_src csharp
+      static void Main(string[] args) 
+      { 
+          Console.WriteLine("*** Fun with Dispose ***\n"); 
+          // 아래 using() 블럭 스코프를 탈출할 때, rw 객체의 Dispose 가
+          // 자동으로 호출된다.
+          using(MyResourceWrapper rw = new MyResourceWrapper()) 
+          { 
+              // rw객체 사용
+          }
+          // 두개이상도 가능
+          using (MyResourceWrapper rw = new MyResourceWrapper(),
+                                   rw2 = new MyResourceWrapper())
+          {
+              // rw, rw2 객체 사용
+          };
+      }
+	#+end_src
+
+	ildasm.exe 로 보면, CIL코드가 Dispose()를 호출하는 명령어가 C#
+	컴파일러에 의해 추가된 걸 확인할 수 있다. 
+
+** Finalize() 와 Dispose() 모두 지원하기 : "Disposable Pattern"
+	GC에서 Finalize()가 호출되게하건, 사용자가 객체 사용완료후
+	명시적으로 Dispose()하건, 그 어떤 경우에도 리소스 반환이
+	이루어지도록 하는게 Best!
+
+	가장 깔끔한 솔루션은 Disposable Pattern 을 적용하는 것.
+
+	#+begin_src csharp
+      class MyResourceWrapper : IDisposable
+      {
+          // Dispose() 호출 여부를 저장
+          private bool disposed = false;
+      
+          public void Dispose()
+          {
+              // Helper메소드를 호출. true 를 넘겨서
+              // managed/unmanaged resource 모두를 반환
+              CleanUp(true);
+      
+              // 모든 리소스가 반환되었으므로 Finalize()호출 필요없음.
+              GC.SuppressFinalize(this);
+          }
+          private void CleanUp(bool disposing)
+          {
+              // 아직 Dispose()처리 안된 경우만.
+              if (!this.disposed)
+              {
+                  if (disposing)
+                  {
+                      // Managed Resource 반환
+                  }
+                  // Unmanaged Resource 반환
+              }
+              disposed = true; // Dispose() 처리 완료.
+          }
+          ~MyResourceWrapper()
+          {
+              // Managed Resource는 GC에 의해 자동 반환되었을 테니...
+              // Unmanaged Resource만 반환
+              CleanUp(false);
+          }
+      }
+	#+end_src
+
+	위와 같이 해도, Dispose() 호출 이후, 메모리에 아직 객체가 남아 있는
+	상태에서 이 객체의 메소드가 호출되거나 하면 문제가 생김. (각 처리
+	메소드에서 disposed 값에 따라 처리되도록 할 필요가 있을 수 있음)
+
+** Lazy<T> 를 사용한 Lazy Object 초기화.
+	- 대용량 메모리/자원을 사용하는 객체를 실제 사용할 때 생성하도록
+	  하는 구문/클래스가 있다. flyweight pattern 인가.
+	- Lazy<T> 를 사용하면 특정 타입의 값을 Lazy 하게 생성할 수 있다.
+	- Lazy<T> 의 Value 속성이 T 형 객체이다.
+	- Lazy<T> 는 기본 생성자를 호출하지만, lambda 구문을 쓰면 특정
+      형태의 생성자를 호출할 수 있다.
+
+	  #+begin_src csharp
+        // Represents all songs on a player. 
+        class AllTracks {
+            public AllTracks() : this (100) {
+            }
+            public AllTracks(int maxTracks) : base () { 
+                // Assume we fill up the array of Song objects here.
+                Console.WriteLine("트랙 {0} 생성중...", maxTracks);
+                Thread.Sleep(10 * maxTracks);
+            } 
+        } 
+        
+        // The MediaPlayer has-an AllTracks object.
+        class MediaPlayer {
+            private AllTracks allSongs = new AllTracks();
+            public AllTracks GetAllTracks() { 
+                // Return all of the songs. 
+                return allSongs; 
+            }
+        }
+        
+        class LazyMediaPlayer { 
+            private Lazy<AllTracks> allSongs = new Lazy<AllTracks>(); 
+            public AllTracks GetAllTracks() { 
+                // Return all of the songs. 
+                return allSongs.Value; 
+            }
+        }
+        
+        class LazyBigMediaPlayer {
+            private Lazy<AllTracks> allSongs = new Lazy<AllTracks>( () =>
+                {
+                    Console.WriteLine("명시적 생성자를 호출중..");
+                    return new AllTracks(500);
+                }
+                );
+            public AllTracks GetAllTracks() { 
+                // Return all of the songs. 
+                return allSongs.Value; 
+            }
+        }
+        
+	  #+end_src
+
+* 14장. 클래스 라이브러리 생성하고 설정하기.
+** 기본개념
+	- 클래스 어셈블리(링크정보) : *.dll --> 프로젝트에서 참조 추가.
+      보통 별도의 네임스페이스를 정의한다.
+	- 클래스 형 정보(컴파일정보): using 키워드로 네임스페이스 추가
+	
+** 이름 충돌해결을 위한 alias 정의 : using 키워드 사용
+	#+begin_src csharp
+      // 2개 이상의 네임스페이스에 동일한 이름의 클래스 Hexagon 이 존재.
+      // 해결하기 위해 using 으로 typedef 한다.
+      using Tht2DHexagon = My2DShapes.Hexagon;
+      using The3DHexagon = My3DShapes.Hexagon;
+      
+      // 네임스페이스가 너무 길어서 쓰기 힘들면....
+      // using System.Runtime.Serialization.Formatters.Binary
+      // 해도 되지만 ... 줄여서 쓰는 방식으로 할 수도 있다.
+      using SRSFB = System.Runtime.Serialization.Formatters.Binary;
+      // 상기 네임스페이스의 BinaryFormatter 클래스 객체 생성
+      // --> SRSFB.BinaryFormatter b = new SRSFB.BinaryFormmatter
+	#+end_src
+
+	하지만, .NET 표준라이브러리 사용시 alias를 남발하면 남들이
+	알아보기 힘들 수 있다.
+	
+** 중첩된 네임스페이스
+	namespace 안에 namespace 를 또 적용하면..
+	OuterNameSpace.InnerNameSpace.MyClass 이런식으로 접근됨.
+
+** 기본네임스페이스(Default Namespace) : VisualStudio의 지원
+	Project설정 -> Application 탭 -> Default Namespace .. 에서 설정.
+	새로운 파일을 만들때 이 네임스페이스가 기본으로 입력된 코드가 이걸
+	포함한다.
+
+** .NET 어셈블리의 역할
+	1) 코드 재활용성을 높임
+	   - *코드 라이브러리* 혹은 *클래스 라이브러리* 는 *dll 확장자가
+         중요하지 않다*.
+	   - *exe 실행파일을 코드라이브러리로 참조할 수도 있다*.
+	   - 사용된 언어도 중요하지 안다. C# 으로 만든 라이브러리를 VB
+         에서도 쓸 수 있다(인터페이스 상속 같은것도..!!!)
+	   - 하나의 실행파일을 여러개의 .NET 어셈블리로 쪼개면 그만큼 더
+         재사용성이 높아진다.
+	2) 타입 경계(Type Boundary)
+	   - 한 타입이 어떤 어셈블리에 정의되었다면, 그들의 유일성은 다른
+         어셈블리에 동일한 이름의 타입이 정의되었다 하더라도 보장된다.
+	   - 즉, MyCars.dll 의 CarLibrary 네임스페이스의 SportsCar 나
+         YourCars.dll 의 CarLibrary 네임스페이스의 SportsCar 는 모두
+         .NET 세상에서 각각 유일한 것으로 여겨진다.
+	3) .NET 어셈블리는 버젼관리됨
+	   - <major>.<minor>.<build>.<revision> 의 4부분 숫자로 구성된
+         버젼을 어셈블리에 지정할 수 있다. 이 번호는 optional한
+         /공용키값(public key value)/ 과 함께 사용되어 동일 컴퓨터에
+         동일한 어셈블리의 서로 다른 버젼이 동시에 공존할 수 있게
+         해준다.
+	   - 참고: public key value 정보를 제공하는 어셈블리를 "강력한
+         명명(strongly named)" 된 어셈블리라 한다. 이렇게 이름지어진
+         어셈블리는,  클라이언트 사용시 CLR이 올바른 버젼의 어셈블리를
+         불러들일 수 있게 된다.
+	4) 자가 기술(Self Describing) 특성
+	   - 어셈블리는 self describing 하다 = 실행을 위해 필요한 모든
+         외부 어셈블리 목록을 포함하고 있다 --> 어셈블리의 manifest 를
+         통해서 기록된다.
+	   - manifest 는 메타데이터의 집합(blob)
+	   - 어셈블리 자체가 스스로를 기술할 수 있기 때문에, CLR은 어셈블리
+         검색시 윈도우 시스템 레지스트리를 참조하지 *않는다* (이전 COM
+         과는 다른 접근 방법).
+	5) 설정가능특성(Configurable)
+	   - 어셈블리는 private 또는 shared 로 배포될 수 있다.
+	   - *Private* 어셈블리 : 클라이언트 프로그램과 같은 디렉토리에 존재
+	   - *Shared* 어셈블리 : 전역 어셈블리 캐시(Global Assembly Cache -
+         GAC)라고 명명된 특정 디렉토리에 배포된다.
+	   - *XML 설정파일* : 어셈블리가 어떻게 배포되었는지에 상관없이,
+         CLR에게 특정위치, 특정버젼의 어셈블리를 특정 클라이언트
+         프로그램에서 사용되도록 설정할 수 있다. 심지어, 네트워크 상의
+         *다른 컴퓨터*, *웹기반 URL의 위치* 를 지정할 수도 있다. 
+** .NET 어셈블리의 (파일)형식
+	다음과 같은 요소로 구성된다.
+	1) 윈도우즈 파일 헤더
+	   - =dumpbin /headers CarLibrary.dll= 과 같이 출력해 볼 수 있다.
+	   - .NET 보다는 윈도우즈 운영체제가 파일을 메모리에 올리는것과
+         관련이 있다. 
+	2) CLR 파일 헤더
+	   - =dumpbin /clrheader CarLibrary.dll= 과 같이 출력해 볼 수 있다.
+	   - .NET 프로그래밍을 한다 해도 별로 참고할 부분은 없다.
+	   - 3) ~ 6) 부분이 더 중요하다.
+	3) CIL 코드
+	   - 플랫폼/CPU 에 상관없이 동작하는 중간언어.
+	   - 실행시간에, JIT Compiler에 의해 플랫폼/CPU별 명령어로
+         컴파일/변환된다. 
+	4) 타입 메타데이터
+	   - 어셈블리에 포함된 타입 들의 형식을 *완전하게* 기술한다.
+	   - 어셈블리가 참조하는 다른 어셈블리의 형식도 포함한다.
+	5) 어셈블리 매니페스트
+	   - 어셈블리내의 모듈들, 어셈블리 버젼정보, 해당 어셈블리가
+         참조하는 외부 어셈블리 등의 내용을 담고 있음.
+	   - CLR 은 이 내용을 참조하여 실행에 필요한 외부 어셈블리 참조의
+         위치를 찾는다.
+	6) (선택) 임베디드 리소스
+	   - 아이콘, 이미지 파일, 오디오 파일, 문자열 테이블...
+	   - .NET 도 위성 어셈블리(satellite assemblies)를 지원 ->
+         지역화된 리소스(영어/독일어/한국어 버젼...)
+** 사용자 정의 클래스 라이브러리 생성과 사용.
+	- CarLibrary.dll 을 작성.
+	- Ildasm.exe 으로 작성 DLL 의 MANIFEST 정보 확인
+	- Project 설정 창에서 Application 탭의 Assembly Information
+      버튼클릭 하여 해당 정보 편집 대화상자 띄우기 --> AssemblyInfo.cs
+      의 C# 버젼코드 확인(Attributed Programming 으로 코드화되어 저장)
+	- Ildasm.exe 으로 작성 DLL 의 특정 메소드에 대한 CIL 확인하기 -->
+      통상 CIL 을 몰라도 되지만, 어셈블리를 실행시간에 동적으로
+      생성하는 것과 같은 고급 서비스를 필요로 하는 어플개발시에는
+      이해해야 한다.
+	- 사용해보기 - C# 으로 만든 DLL 을 C#, VB 에서 사용하기 : Add
+      Reference 를 해야 한다.
+
+** Private 어셈블리
+	- 앞서 만든 CarLibrary.dll 을 Add Reference 하면 해당 DLL을 Visual
+      Studio가 Exe가 있는 디렉토리로 복사한다 --> *Private Assembly*
+      다.
+	- XCopy 배포 : EXE와 DLL을 함께 다른 폴더에 옮겨서 배포하는 방식.
+	- CLR의 Private Assembly의 식별 : 완전한 구분을 위해서는
+      DLL확장자가 빠진 파일명("친근이름")과 버젼정보가 모두
+      필요하지만, 동일위치에 버젼만 다름 동일한 이름의 DLL을 2개 이상
+      둘 수 없으므로, 실제로는 파일명만 사용됨.
+	- CLR 의 Private Assembly 검색 방식 "Probing" : 실행파일과
+      EXE디렉토리\{친근이름}.dll -> EXE디렉토리\{친근이름}.exe ->
+      EXE디렉토리\{친근이름}\{친근이름}.dll ->
+      EXE디렉토리\{친근이름}\{친근이름}.exe. *친근이름의
+      하위디렉토리까지 검색하는 점에 유의*
+	- *실행파일.exe.config 설정파일* 을 사용해 private어셈블리의 경로를
+      지정할 수 있다. 파일내용은 다음과 같은 형식으로 exe파일 있는
+      폴더에 저장해두면 된다. (*Visual Studio를 쓰면 기본 파일을 만들
+      수 있다* )
+	  #+begin_src nxml
+        <configuration>
+          <runtime>
+            <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+              <probing privatePath = "MyDlls;MyAnotherLibrary\bin">
+              </probing>
+            </assemblyBinding>
+          </runtime>
+        </configuration>
+	  #+end_src
+	  어셈블리 DLL을 여럿 쓸 경우, 각각에 probing 경로를 지정할 수는
+      없다. 대신 세미콜론으로 구분되는 *경로를 여러개 지정할 수 는
+      있다* . 또 *절대경로를 쓸 수 없다* (EXE파일이 있는 디렉토리에 대한
+      상대경로만이 가능).
+	- CLR 은 우선적으로 검색된 어셈블리를 먼저 사용해 버리므로,
+      검색경로내에 여러개의 파일이 있는 경우, 재앙이 발생할 수 도
+      있다.  *주의*
+
+** *.exe.config 파일 VisualStudio 에서 만들기
+	VS 를 이용해 프로젝트에 App.config 파일을 Add New Item 하면,
+	좋은점. --> 빌드후, EXE 파일명으로 바뀌어서 매번 타겟 경로에 복사가
+	된다! ( *단, 이렇게 되려면, 반드시 파일명이 App.Config 여야 한다*)
+
+** Shared 어셈블리
+	1) Shared 어셈블리의 위치
+	   - 4.0 이전 : C:\Windows\Assembly
+	   - 4.0 부터 : C:\Windows\Microsoft .Net\Assembly
+	2) strong name 생성(*.snk 파일)
+	   - 이전에는 sn.exe 를 써서 만들었다.
+	   - 지금은 "Project 설정 > Singing 탭" 에서 Sign the Assembly
+         체크박스에 체크표시후, 콤보박스에서 <New..> 를 사용해 만들 수
+         있다.
+	   - *.snk 파일 생성후 프로젝트에 추가된다. 
+	3) DLL 어셈블리 빌드
+	   - DLL의 매니페스트 부분에 snk 파일의 내용이 들어간다.
+	   - 이렇게 만들어진 파일은 더이상 private 어셈블리가 아니므로,
+         이 DLL을 사용하는 EXE 파일 빌드시 EXE 디렉토리로 더이상
+         복사되지 않는다.
+	4) 설치하기
+	   - 보통은 Installer 를 만들어서 설치한단다.
+	   - 테스트용도 등으로는 =gacutil.exe -i CarLibrary.dll= 를
+         실행하여 설치할 수 있다. =-u= 옵션은 uninstall, =-l= 옵션은
+         표시옵션이다.
+	5) 사용하기
+	   - 여전히 EXE 프로젝트에서 "Project 메뉴 > Add Reference 항목" 을
+         선택하여 "Browse" 해야 한다. 이 때!!! Shared 어셈블리 위치가
+         아니라, 빌드된 타겟 디렉토리 위치의 DLL을 가리켜도 된다. (실제
+         DLL 사용시에는 Shared 어셈블리 디렉토리의 DLL이 로딩된다.
+         하지만, DLL의 버젼이 계속올라가는 작업환경에서는 이렇게
+         하는게 별로 좋은 방법이 아니다. 계속 새 버젼을 사용하도록
+         하기 때문. 고정된 버젼의 DLL을 특정클라이언트가 계속 사용하게
+         하려면, Freezing을 시켜야 한다-즉, 특정 디렉토리에 이전
+         버젼의 DLL을 고이 모셔놓고 그걸 Add Reference해야 한다- )
+
+** Shared 어셈블리 설정하기.
+	- {EXE파일명}.exe.config 를 사용
+	- 버젼갱신문제
+	- 버그 수정후 배포 문제(기존 클라이언트가 새 DLL을 쓸껀가? 아니면
+      이전껄 써야 하는가?)
+	- 서로 다른 버젼을 사용하는 다양한 클라이언트 문제
+	- Private과 Shared를 혼용하는 문제(Shared어셈블리는 <privatePath>
+      요소를 참조하지 않으나, Private을 함께 사용하는 경우엔 여전히
+      필요할 수 있음).
+	- *Freezing* - Shared 어셈블리 냉동하기 : 특정어플이 계속
+      이전버젼의 DLL을 쓰도록 하려면, 프로그래머 컴퓨터에
+      C:\CarLibrary_1.0.0.0 과 같은 폴더에 이전버젼의 DLL을 넣고 EXE
+      프로젝트에서는 여기 있는 DLL 을 Add Reference 해야 한다.(VISUAL
+      STUDIO가 너무 영리해서 ? DLL의 버젼이 올라가면 올라간 버젼을
+      참조하도록 리셋시켜 버린다).
+
+** 배포 후에 특정버젼 Shared 어셈블리 사용하게 하기
+
+	SxS 와 유사한 컨셉. 아래처럼하면, 1.0.0.0 버젼을 Add Reference 한
+	EXE파일이더라도 2.0.0.0 버젼이 존재하면 그걸 쓰게 함.
+
+	#+begin_src nxml
+      <?xml version="1.0" encoding="utf-8" ?> 
+      <configuration> 
+        <!--Runtime binding info --> 
+        <runtime> 
+          <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> 
+            <dependentAssembly> 
+              <assemblyIdentity name="CarLibrary" 
+                                publicKeyToken="64ee9364749d8328" 
+                                culture="neutral"/> 
+              <bindingRedirect oldVersion= "1.0.0.0" 
+                               newVersion= "2.0.0.0"/> 
+            </dependentAssembly> 
+          </assemblyBinding> 
+        </runtime> 
+      </configuration> 
+	#+end_src
+
+	한편, =<bindingRedirect>= 요소에서 버젼을 기록할때 범위로 기록할
+	수 있음.
+
+	#+begin_src nxml
+      <bindingRedirect oldVersion="1.0.0.0-1.2.0.0" newVersion="2.0.0.0"/>
+	#+end_src
+
+** Publisher Policy 어셈블리
+	- Sxs 에서의 policy 파일과 유사함. 클라이언트별로 *.exe.config 를
+      설정하는게 아니라, GAC cache 에 설치된 shared 어셈블리별로
+      .config를 두는 셈.
+	- Publisher Policy 를 Disable 하는 법 : 클라이언트별 *.config 에
+      다음과 같은 내용을 넣으면 된다함.
+	  #+begin_src nxml
+        <configuration> 
+          <runtime> 
+            <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> 
+              <publisherPolicy apply="no" /> 
+            </assemblyBinding> 
+          </runtime>
+        </configuration>
+	  #+end_src
+
+	- 일단 당분간 쓸일은 없으니 스킵.
+
+** 설정에서 <codeBase> 의 역할
+	- 와! 원격지 위치를 지정한 shared 어셈블리는 해당 서버(물론,
+      "file:///" 로 시작하는 URL을 써서 로컬디스크도 가능)에서
+      클라이언트 실행시 자동으로 다운로드 되어 GAC 의 *다운로드
+      캐시(download cache)* 디렉토리에 저장되어 로드된다아!
+
+	- =gacutil /ldl= 을 실행하면, 다운로드된 shared 어셈블리 목록이
+      쭈욱 뜬다.
+
+	- <codeBase>의 사용예 : 맛보기
+
+	  #+begin_src nxml
+        <configuration> 
+          <!-- ...  -->
+          <runtime> 
+            <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> 
+              <dependentAssembly> 
+                <assemblyIdentity name="CarLibrary" publicKeyToken="33A2BC294331E8B9" /> 
+                <codeBase version="2.0.0.0" href="file:///C:/MyAsms/CarLibrary.dll" /> 
+              </dependentAssembly> 
+            </assemblyBinding> 
+          </runtime> 
+        </configuration> 
+	  #+end_src
+
+	- 동일 shared 어셈블리에 대해 <codeBase> 위치를 2군데 이상
+      지정하여 여러 EXE 를 운용하면, 그건 결국 *DLL HELL* ! --> 주의
+      해서 써야 할 것!
+
+** System.Configuration 네임스페이스
+	- CLR 이 어셈블리를 찾는 방식을 *.config 파일을 읽어들여 그
+      설정대로 한다 ? --> System.Configuration 네임스페이스의 클래스를
+      사용하여 설정을 불러들인다.
+	- 어플전용 데이터를 =*.config= 에 저장할 수 있다 : *<appSettings>*
+
+   #+begin_src nxml
+     <?xml version="1.0" encoding="utf-8" ?> 
+     <configuration> 
+       <startup> 
+         <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5" /> 
+       </startup> 
+       <!-- 사용자 어플리케이션 전용 설정값들!!!--> 
+       <appSettings> 
+         <add key="TextColor" value="Green" /> 
+         <add key="RepeatCount" value="8" /> 
+       </appSettings> 
+     </configuration>    
+   #+end_src
+
+	위와 같은 설정파일의 내용을 *.exe.config 에 저장하고, 그 exe 에서
+	다음과 같이 설정값을 읽을 수 있음 -> *AppSettingsReader* 클래스.
+
+	#+begin_src csharp
+      // 네임스페이스 추가
+      using System.Configuration; 
+      
+      namespace AppConfigReaderApp { 
+      
+      class Program { 
+          static void Main(string[] args) { 
+              Console.WriteLine("*** Reading <appSettings> Data ***\n"); 
+      
+              // 사용자 정의 설정값을  *.config 파일에서 읽어옴.
+              AppSettingsReader ar = new AppSettingsReader(); 
+              int numbOfTimes = (int)ar.GetValue("RepeatCount", typeof(int));
+              string textColor = (string)ar.GetValue("TextColor", typeof(string)); 
+              Console.ReadLine(); 
+          } 
+      } 
+      } 
+	#+end_src
+
+** 설정파일 스키마 : *.config 에 무슨 값들을 넣을 수 있는거지?
+	"Configuration File Schema for the .NET Framework" 라는 문서를
+	읽어보면 된단다.
+
+* 15장. Type Reflection, Late Binding, and Attribute-based Programming
+** 메타데이터의 필요성   
+	- 이걸 가지고, 실행시간에 타입정보(클래스, 인터페이스, 구조체,
+      enum, 대리자)를 뽑아낼 수 있다. --> .NET 플랫폼에서 핵심적 기능.
+	- WCF, 객체직렬화, IDE인텔리센스 등 많은 기능이 이런 능력을
+      바탕으로 구현.
+	- ildasm.exe 로 어셈블리열고, Ctrl-M 누르면 타입 관련 메타데이터를
+      볼 수 있다.
+	  
+** 메타데이터 설명
+
+	- 아. 머리아퍼 일단 스킵. 이 정보를 가지고 뒤에 나오는 Reflection
+      서비스가 가능해 진다는 것만 기억하자.
+	  
+** Reflection
+
+	- 정의 : 실행시간에 타입 정보를 알아내오는 걸 .NET 세상에서는
+      Reflection 이라 한다.
+	- ildasm.exe 가 바로 이 기능을 써서 만들어진거.
+	
+** System.Reflection 네임스페이스
+	- 클래스 목록
+	  1) Assembly
+	  2) AssemblyName
+	  3) EventInfo
+	  4) FieldInfo
+	  5) MemberInfo
+	  6) MethodInfo
+	  7) Module
+	  8) ParameterInfo
+	  9) PropertyInfo
+	- 위 클래스를 제대로(?) 쓰려면 System.Type 에 대해 알아야 한다.
+
+** System.Type 클래스
+	- 이 클래스의 메소드들은 System.Reflection 네임스페이스의 클래스형
+      객체를 반환한다.
+	- System.Object.GetType() 을 통해 System.Type 형 객체를 얻는다.
+	- System.Type.GetMethods() -> System.Reflection.MethodInfo 객체반환
+	- System.Type.GetFields() -> System.Reflection.FieldInfo 객체반환
+	  
+	- 속성목록 :
+	  1) IsArray
+	  2) IsClass
+	  3) IsCOMObject
+	  4) IsEnum
+	  5) IsGenericTypeDefinition
+	  6) IsGenericParameter
+	  7) IsInterface
+	  8) IsPrimitive
+	  9) IsNestedPrivate
+	  10) IsNestedPublic
+	  11) IsSealed
+	  12) IsValueType
+
+	- 구성요소 반환 메소드들 : 복수형의 메소드는
+      interface/method/property 등에 대한 정보를 담고 있는 객체의
+      배열을 반환. 단수형 메소드는 이름따위로 특정 객체를 반환.
+	  1) GetConstructors() / GetConstructor()
+	  2) GetEvents() / GetEvent()
+	  3) GetFields() / GetField()
+	  4) GetInterfaces() / GetInterface()
+	  5) GetMembers() / GetMember()
+	  6) GetMethods() / GetMethod()
+	  7) GetNestedTypes() / GetNestedType()
+	  8) GetProperties() / GetPropertie()
+	  
+	  한 예만 들어본다.
+	  #+begin_src csharp
+        // 어떤 타입의 속성들을 출력한다.
+        static void PrintProperty(Type aType)
+        {
+            Console.WriteLine("속성값 목록:");
+            var propertyNames = from aProperty in aType.GetProperties() select aProperty.Name;
+            foreach (var name in propertyNames)
+            {
+                Console.WriteLine(" -> {0}", name);
+            }
+            Console.WriteLine();
+        }
+	  #+end_src
+	  
+	  복수형 GetXXX() 함수는 BindingFlags 를 인자로 받는 오버로드
+      버젼이 있는데, 이 인자를 통해 "정적 멤버만..", "private
+      메소드만" .. 이런식으로 제약을 줄 수 도 있다.
+
+	- FindMembers() 메소드 : 검색조건에 따라 MemberInfoArray를 반환.
+      검색 문자열에 따라 Type 객체를 반환하는 정적 메소드
+
+	- GetType() 메소드 : 타입 명칭을 문자열로 주면 Type객체를 반환하는
+      정적 메소드
+
+	- InvokeMember() 메소드 : Qt의 Invoke() 와 유사하게 메소드 이름
+      문자열등으로 특정 메소드를 호출할 수 있다. *late binding* 의
+      필수 요소가 되겠지.
+
+** Type 객체 참조를 얻는 방법
+
+	1. C# 오퍼레이터 typeof() 를 사용.
+	   #+begin_src csharp
+         // SportsCar 라는 형의 Type 객체 참조를 얻는다.
+         Type t = typeof (SportsCar);
+	   #+end_src
+	   	System.Object.GetType() 과는 달리, 이 오퍼레이터는 해당 타입의
+       객체를 만들지 않아도 된다.
+
+	2. 정적 System.Type.GetType() 을 사용 : *이게 유용*
+	   #+begin_src csharp
+         // 인스턴스 메소드는 오직 한종류만(당연하지!) 있다.
+         
+         // 정적 System.Type.GetType() 은 여러 오버로딩이 존재한다.
+         // 못찾으면 null 반환된다.
+         
+         // public static Type GetType(string typeName)
+         // public static Type GetType(string typeName, bool throwOnError, bool ignoreCase)
+         // public static Type GetType(string typeName, bool throwOnError)
+         
+         // 못찾아도 예외던짐=X, 대소문자구문=O 
+         Type t = Type.GetType("CarLibrary.SportsCar", false, true); 
+         
+         // CarLibrary 라는 외부 어셈블리에서 타입 찾음. 
+         Type t = Type.GetType("CarLibrary.SportsCar, CarLibrary"); 
+         
+         // 현 어셈블리에서 중첩된 enum 에 대한 정보를 얻음.
+         Type t = Type.GetType("CarLibrary.JamesBondCar+SpyOptions");        
+	   #+end_src
+	   
+	   "Specifying Fully Qualified Type Names" 을 읽어보면, 문자열로
+       타입명칭을 줄 때 어떤 포맷으로 하면 되는지에 대한 상세 내용이
+       나와있음.
+	   
+** 제네릭 타입에 대한 Reflection
+
+	- 단순한 Rule 하나 : "Back tick(`)" 을 찍고, Type 의 placeholder
+      갯수를 적은 qualified name을 사용하여 GetType() 한다.
+	  
+	  #+begin_src csharp
+        // System.Collections.Generic.List<T> 의 타입얻기
+        Type t = Type.GetType("System.Collections.Generic.List`1");
+        // System.Collections.Generic.Dictionary<TKey,TValue> 의 타입 얻기
+        Type t = Type.GetType("System.Collections.Generic.Dictionary`2");
+	  #+end_src
+	  
+** 메소드 반환값과 인자에 대한 정보 얻기.
+	MethodInfo 의 ReturnType 객체 와 ParameterInfo객체 목록을 가지고
+	Handling하면 된다.
+
+	#+begin_src csharp
+      static void ListMethods(Type t) 
+      { 
+          Console.WriteLine("*** Methods ***"); 
+          MethodInfo[] mi = t.GetMethods(); 
+          foreach (MethodInfo aMethod in mi) 
+          { 
+              // Get return type. 
+              string retVal = aMethod.ReturnType.FullName; 
+              string paramInfo = "( "; 
+              // Get params. 
+              foreach (ParameterInfo aParameter in aMethod.GetParameters()) 
+              { 
+                  paramInfo += string.Format("{0} {1} ",
+                                             aParameter.ParameterType,
+                                             aParameter.Name); 
+              } 
+              paramInfo += " )"; 
+              // Now display the basic method sig. 
+              Console.WriteLine("->{0} {1} {2}", retVal, aMethod.Name, paramInfo); 
+          } 
+          Console.WriteLine(); 
+      }    
+	#+end_src
+
+	근데 사실, MethodInfo 클래스는 ToString() 을 구현하고 있는데, 그걸
+	쓰면 훨씬 쉽게 메소드 시그너쳐를 알수 있다.
+
+	#+begin_src csharp
+      static void ListMethods(Type t) 
+      { 
+          Console.WriteLine("*** Methods ***"); 
+          var methodNames = from n in t.GetMethods() select n; 
+          foreach (var name in methodNames) 
+              Console.WriteLine("->{0}", name); // MethodInfo::ToString() 호출
+          Console.WriteLine(); 
+      }     
+	#+end_src
+
+** .NEt Attribute
+	- 대괄호([])를 사용해서 어셈블리와 타입의 메타데이터에 어떤 값을 지정/추가하는거.
+	- 단순히 "코드에 주석을 다는 것" 정도로 생각할 수 있음.
+	- .NET 에서 사용되는 "사전정의"된 어트리뷰트들이 있음.
+   
+      | 어트리뷰트        | 의미                                                     |
+      |-------------------+----------------------------------------------------------|
+      | [CLSCompliant]    | Common Language Spec 을 만족하는 코드임을 표식           |
+      |-------------------+----------------------------------------------------------|
+      | [DllImport]       | C/C++기반 unmanaged library 를 .NET에서 호출할 수 있도록 |
+      |                   | 처리                                                     |
+      |-------------------+----------------------------------------------------------|
+      | [Obsolete]        | 컴파일시에 "은퇴예정"을 알리는 경고문을 띄움             |
+      |-------------------+----------------------------------------------------------|
+      | [Serializable]    | 스트림에 현 상태를 저장할 수 있음을 표식                 |
+      |-------------------+----------------------------------------------------------|
+      | [NonSerializable] | [Serializable] 과 반대                                   |
+      |-------------------+----------------------------------------------------------|
+      | [ServiceContact]  | WCF 서비스에 의해 구현된 contract method 임을 표식       |
+      |-------------------+----------------------------------------------------------|
+	- 어트리뷰트를 사용하는 대상 : C# 컴파일러
+	  (예: [Serializable] 어트리뷰트가 달린 class 나 struct 는
+      BinaryFormatter 클래스의 Serialize() 메소드에 넘겨지면, 콤팩트한
+      바이너리 포맷으로 바로 저장되도록 처리된다!)
+	  
+	- 어셈블리 수준 Attribute : =[assembly: CLSCompilant(true)]= 이런식
+	- 타입 수준 Attribute : 타입앞에 =[DllImport]= 이런식.
+	- 어트리뷰트는 *바로 다음에 오는 항목에만 적용* 된다.
+	- 어트리뷰트는 [] 안에 2개이상을 쓸 수 있다.
+   
+** 어트리뷰트 예제
+	
+	#+begin_src csharp
+      // 디스크에 저장할 객체
+      [Serializable]
+      [Obsolete("use another vehicle class!")]
+      // 또는 아래와 같이 한줄로 써도 됨.
+      // [Serializable, Obsolete("use another vehicle class!")]
+      public class MotorCycle
+      {
+          // 아래 멤버필드는 저장안함
+          [NonSerializable]
+          float weightOfCurrentPassenger;
+      
+          // [NonSerializable] 이 앞에 않 붙은 다음 필드는 저장됨.
+          bool hasRadio;
+          bool hasHeadSet;
+          bool hasSissyBar;
+      }
+	#+end_src
+
+** 어트리뷰트는 어떻게 만들어졌는가?
+
+	- =[Obsolete]= 어트리뷰트는 사실, ObsoleteAttribute 라는 클래스로
+      정의된다. Attribute 라는 접미사는 C# 컴파일러가 모든
+      어트리뷰트에 자동으로 붙여져서 처리되는 것 같다.
+	- =[Obsolete("어떤 메시지")]= 식으로 값이 입력되는 것은
+      ObsoleteAttribute 클래스의 생성자가, 문자열을 1개 받는 형태로
+      존재하기 때문이다. 
+	  
+	  #+begin_src csharp
+        public sealed class ObsoleteAttribute : Attribute 
+        { 
+            public ObsoleteAttribute(string message, bool error); 
+            public ObsoleteAttribute(string message); // 이거!
+            public ObsoleteAttribute(); 
+            public bool IsError { get; } 
+            public string Message { get; } 
+        }       
+	  #+end_src
+
+	  C# 컴파일러는 이 어트리뷰트가 있는 클래스를 만나면, 해당
+      어트리뷰트 클래스의 Message() 를 호출하여 경고문구를 뿜어내도록
+      코딩되어 있다.
+
+	- 어트리뷰트가 만들어지고 사용되는 과정은 다음과 같이 정리됨.
+	  1) System.Attribute class에서 파생된 sealed XXXX_Attribute
+         클래스를 정의한다.
+	  2) 어트리뷰트는 어셈블리/타입에 메타데이터로 추가된다.
+	  3) 어트리뷰트는 이를 Reflection해 가는 놈이 있어야 사용된다.
+	  4) C# 에서 어트리뷰트는 대괄호를 사용해 지정할 수 있다. 
+	  
+** 사용자 정의 어트리뷰트 만드는 법.
+	실제 이런 일을 할 경우가 떠오르지 않으므로, 간단히 예제 1개로
+	느낌만 기억한다.
+
+	#+begin_src csharp
+      // 어트리뷰트 클래스 정의시, AttributeUsage 어트리뷰트를 통해
+      //  - JoonhwanAttribute 가 오직 class 와 struct 에만 사용가능
+      //  - 자식 class/struct가 이 어트리뷰트는 상속받지 않게
+      // 설정할 수 있다.
+      [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, 
+                      Inherited = false)]
+      // sealed class 로 새로운 JoonhwanAttribute 를 저의
+      public sealed class JoonhwanAttribute : System.Attribute 
+      { 
+          // ... 
+      }
+      
+      // 실제 사용시
+      [JoonhwanAttribute]
+      public class MyClass
+      {
+      }
+	#+end_src
+
+** 어셈블리 수준 어트리뷰트와 AssemblyInfo.cs
+	- =[assembly: CLSCompilant(true)]= 와 같이 =assembly:= 접두사를
+      붙이면 된다.
+	- AssemblyInfo.cs 는 VisualStudio 의 프로젝트 설정창에서 설정되는
+      어셈블리 속성을 담고 있다. 예: [AssemblyVersion] 어트리뷰트
+	  
+** 어트리뷰트의 Early/Late Binding
+	- Early Binding : System.Type 객체의 GetCustomAttribute() 메소드를 사용
+	- Late Binding : System.Assembly 객체의
+      GetType("네임스페이스.어트리뷰트명") 류 메소드를 사용.
+
+** Reflection, LateBinding, 사용자 정의 어트리뷰트: 도대체 어따 쓰는 건가?
+	- 한마디로 말하자면, C/C++ 어플리케이션의 *Plugin System* 과 같은
+      걸 구현할 때 쓴다! 즉 *확장가능한 어플리케이션* 을 만들때 쓰인다.
+	- 확장가능한 어플리케이션 구현 순서
+	  1) DynamicLoading : 어셈블리 동적 로딩 한다.
+	  2) Reflection : 로딩된 어셈블리에 특정 기능을 구현하고 있는
+         지 확인한다.
+	  3) LateBinding : 구현된 기능에 대한 참조를 얻어 멤버를 호출하여
+         실제 동작을 시킨다.
+	  4) 부가단계 : 구현된 기능의 어트리뷰트 데이터를 가져와서 처리할
+         수 도 있다.
+	  #+begin_src csharp
+        private bool LoadExternalModule(string path)
+        {
+            bool foundSnapIn = false;
+            Assembly theSnapInAsm = null;
+            try
+            {
+                // 단계1 :주어진 경로에서 어셈블리를 불러들인다.
+                // "Dynamic Loading"
+                theSnapInAsm = Assembly.LoadFrom(path);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return foundSnapIn;
+            }
+            // 단계2: 특정 인터페이스 IAppFunctionality 를 구현한 클래스를 찾는다.
+            // Reflection
+            var theClassTypes = from t in theSnapInAsm.GetTypes()
+                                where t.IsClass && (t.GetInterface("IAppFunctionality") != null)
+                                select t;
+            // Now, create the object and call DoIt() method.
+            foreach (Type t in theClassTypes)
+            {
+                foundSnapIn = true;
+                
+                // 단계3: 객체를 생성하고 서비스를 받는다.
+                // Late Binding.
+                IAppFunctionality itfApp = (IAppFunctionality)theSnapInAsm.CreateInstance(t.FullName, true);
+                itfApp.DoIt();
+                lstLoadedSnapIns.Items.Add(t.FullName);
+        
+                // 부가단계 : 어트리뷰트를 참조하여 특정동작을 수행한다.
+                DisplayComanyData(t);
+            }
+            return foundSnapIn;
+        }
+        
+        private void DisplayCompanyData(Type t) 
+        { 
+            // [CompanyInfo] 데이터를 가져온다(실제 FullName은 CompanyInfoAttribute가 된다).
+            var compInfo = from ci in t.GetCustomAttributes(false) where 
+                           (ci.GetType() == typeof(CompanyInfoAttribute)) 
+                           select ci; 
+            // 데이터를 표시한다.
+            foreach (CompanyInfoAttribute c in compInfo) 
+            { 
+                MessageBox.Show(c.CompanyUrl, 
+                                string.Format("More info about {0} can be found at", c.CompanyName)); 
+            } 
+        } 
+	  #+end_src
+	  
+* 16장. 동적타입 과 DLR(Dynamic Language Runtime)
+   - /dynamic/ 키워드 !!!
+	 1) /var/ 는 암시적 타입. 그러나 정적 타입으로, 한번 타입이
+        결정되면 고정되는 형식. 결정된 다음 다른 타입의 객체 대입은
+        컴파일 수준에서 안됨.
+	 2) System.Object 는 void* 혹은 QObject* 같은 SuperBaseType.
+        멤버접근을 위해서는 구체적인 형으로 형변환을 해야 하고,
+        형변환이 안되는 경우, 런타임 오류발생.
+	 3) *dynamic* 은 런타임에 계속 형식이 변경될 수 있는 타입.
+        지원되지 않는 멤버접근은 런타임 오류발생.
+** Microsoft.CSharp.dll
+	- dynamic 관련 Exception 클래스 2개를 정의하는 작은 라이브러리. ->
+      *Microsoft.CSharp 네임스페이스*
+	 1) RuntimeBinderException : 지원되지 않는 멤버의 접근시 발생하는
+        예외.
+	 2) RuntimeBinderInternalCompilerException : ???
+** dynamic 키워드의 scope 와 제한
+    | 타입        | var 키워드 | dynamic 키워드 |
+    |-------------+------------+----------------|
+    | 로컬 변수   | o          | o              |
+    | 함수 인자   | x          | o              |
+    | 함수 반환값 | x          | o              |
+    | 람다        | o          | x              |
+
+	아래와 같은 게 dynamic 은 안됨.
+
+	#+begin_src csharp
+      dynamic aValue = GetSomeDynamicValue();
+
+      // dynamic 형의 메소드 인자로 Labmda 사용 불가
+      aValue.DoSomething(arg => Console.WriteLine(arg);
+      
+      // 람다식 사용 불가
+      var data = from d in aValue select d
+	#+end_src
+
+** dynamic 키워드가 유용한 경우의 예
+	- 기본적으로 없어도 되는 개념임. 편이를 위해서만 제한적으로 사용.
+	- 보통 코딩양을 줄이기 위해 사용.
+	  1) late binding 을 많이 쓰는 경우
+	  2) MS OFFICE COM객체와 같은 이전 COM객체를 다루는 경우
+
+** DLR(Dynamic Language Runtime)의 역할
+	- dynamic ? 실은 python, ruby, lisp, smalltalk 등 많은 언어가
+      사용하고 있는 방법
+	- 정적 타입이 더 안전(?)한 방법이긴 하나, 동적 타입을 쓰면...
+	  1) 코드 베이스가 유연 : 코드 리팩토링시 수정해야 할 대상이
+         극도로 줄어듬.
+	  2) 서로 다른 플랫폼/언어간 상호 운용성 증대.
+	  3) 런타임시에 특정 타입의 멤버 추가/삭제 가능.
+	  4) 다른 언어에 .NET 지원을 할 수 있게됨 -> IronPython,
+         IronRuby...
+** DLR을 실제 사용시 이득을 볼 수 있는 예
+	- Late Binding 을 수행하는 코드에서 코드 가독성이 향상
+	  #+begin_src csharp
+        static void CreateUsingLateBinding(Assembly asm) 
+        { 
+            try 
+            { 
+                Type miniVan = asm.GetType("CarLibrary.MiniVan"); 
+                // object obj = Activator.CreateInstance(miniVan); 
+                // MethodInfo mi = miniVan.GetMethod("TurboBoost"); 
+                // mi.Invoke(obj, null);
+        
+                // 위 처럼 System.Object 와 MethodInfo의 Invoke() 를 사용하지
+                // 않고, 실제 객체 생성/메서드 호출의 느낌으로 사용가능
+        
+                dynamic obj = Activator.CreateInstance(miniVan); 
+                obj.TurboBoost();
+            } 
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.Message); 
+            } 
+        }       
+	  #+end_src
+
+** DLR 과 Expression Tree
+	잘 모르겠다. 하여튼. dynamic 키워드를 쓴 변수가 들어가 표현식은
+	"Expression Tree" 로 만들어져 DLR이 각각의 binding 혹은 COM 으로
+	넘겨준다함.
+	  
+** COM과 상호운용성에서 DLR의 역할
+	- COM 을 써야 한다? --> Interop Assembly 를 만드는 방법
+	- Primary Interop Assembly(PIA) : COM 배포 업체에서 "공식" Interop
+      Assembly 를 제공
+	- COM Interop 의 힘든점 :
+	  1) 선택적 인자 : Type.Missing 을 사용해 매꿔줘야함 :( 
+         (이것도 <.NET 3.5 에서는 아예 불가능)
+	  2) 이름있는 인자 : C# 에도 그런 기능 있음
+	  3) Variant : DLR 덕분에 dynamic 으로 사용가능(IDE 에서 "Embed
+         Interop Types" 속성을 True 로 하면 된다함).
+	- 실제 COM 사용예
+   
+      DLR 을 사용한 깔끔한 코드는 ...
+
+	  #+begin_src csharp
+        static void ExportToExcel(List<Car> carsInStock) 
+        { 
+            // 액셀 객체 생성하고 워크북을 하나 만든다.
+            Excel.Application excelApp = new Excel.Application(); 
+            excelApp.Workbooks.Add(); 
+            // 현재 워크시트에 대한 참조
+            Excel. Worksheet workSheet = excelApp.ActiveSheet; 
+            // 컬럼 머리말을 설정
+            workSheet.Cells[1, "A"] = "Make"; 
+            workSheet.Cells[1, "B"] = "Color"; 
+            workSheet.Cells[1, "C"] = "Pet Name"; 
+            //  List<Car> 의 각 항목을 액셀의 각 셀에 입력
+            int row = 1; 
+            foreach (Car c in carsInStock) 
+            { 
+                row++; 
+                workSheet.Cells[row, "A"] = c.Make; 
+                workSheet.Cells[row, "B"] = c.Color; 
+                workSheet.Cells[row, "C"] = c.PetName; 
+            } 
+            // 테이블 꾸미기
+            workSheet.Range["A1"].AutoFormat(Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2);
+        
+            // 액셀파일 저장, 액셀 종료한 뒤 사용자에게 알림
+            workSheet.SaveAs(string.Format(@"{0}\Inventory.xlsx", Environment.CurrentDirectory)); 
+            excelApp.Quit(); 
+            MessageBox.Show("The Inventory.xslx file has been saved to your app folder", 
+                            "Export complete!"); 
+        }
+	  #+end_src
+	  
+	  DLR 없이 하려고 한다면... 이렇게 지저분.
+	  #+begin_src csharp
+        static void ExportToExcel2008(List<Car> carsInStock) 
+        { 
+            Excel.Application excelApp = new Excel.Application(); 
+            // 모든 선택 인자를 Type.Missing 으로 반드시  매꿔야 함.
+            excelApp.Workbooks.Add(Type.Missing); 
+            // 객체를 _Worksheet 형으로 변환해야 함.
+            Excel._Worksheet workSheet = (Excel. Worksheet)excelApp.ActiveSheet; 
+            // 각 Cell 객체를 Range 객체로 형변환한 다음에서야 Value2 라는
+            // 이상한 이름의 속성에 접근 할 수 있음.
+            ((Excel.Range)excelApp.Cells[1, "A"]).Value2 = "Make"; 
+            ((Excel.Range)excelApp.Cells[1, "B"]).Value2 = "Color"; 
+            ((Excel.Range)excelApp.Cells[1, "C"]).Value2 = "Pet Name"; 
+            int row = 1; 
+            foreach (Car c in carsInStock) 
+            { 
+                row++; 
+                // 위에서와 마찬가지
+                ((Excel.Range)workSheet.Cells[row, "A"]).Value2 = c.Make; 
+                ((Excel.Range)workSheet.Cells[row, "B"]).Value2 = c.Color; 
+                ((Excel.Range)workSheet.Cells[row, "C"]).Value2 = c.PetName; 
+            } 
+            // get_Range 메소드를 통해 Range객체를 얻고, 이 객체의 메소드(엄청
+            // 선택인자가 많음)의 선택인자를 모두 Type.Missing으로 채워야 함. :(
+            excelApp.get_Range("A1", Type.Missing).AutoFormat( 
+                    Excel.XlRangeAutoFormat.xlRangeAutoFormatClassic2, 
+                    Type.Missing, Type.Missing, Type.Missing, 
+                    Type.Missing, Type.Missing, Type.Missing); 
+            // 마찬가지 .... Typ.Missing, Typ.Missing, Typ.Missing, ...
+            workSheet.SaveAs(string.Format(@"{0}\Inventory.xlsx", Environment.CurrentDirectory), 
+                             Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, 
+                             Type.Missing, Type.Missing, Type.Missing); 
+            excelApp.Quit(); 
+            MessageBox.Show("The Inventory.xslx file has been saved to your app folder", 
+                            "Export complete!"); 
+        }
+	  #+end_src
+	  
+	  DLR 을 쓰는 경우 함수 반환값, 인자 등등에 /dynamic/ 형의 값들이
+      사용되었기 때문에, 이렇게 간단해 질 수 있는 거란다.
+
+* 17장. 프로세스, AppDomain, 그리고 Object Context
+** 개요
+	- AppDomain (Application Domain) 이란? : 일련의 관련 .NET
+      어셈블리를 사용하는 주어진 프로세스에 대한 논리적 구분. 하나의
+      프로세스에 여러개의 AppDomain 이 존재할 수 있다.(적어도 1개는
+      있다). AppDomain 사이에는 객체단위의 접근은 불가하고, 직렬화나
+      Remoting을 통해서만 통신할 수 있다. 
+	- Contexual Boundary : AppDomain 은, 또 다시 비슷한 마인드로
+      작성된 .NET 객체들을 그룹화 하여 나눈다. 
+** 윈도우즈 프로세스/쓰레드
+	내가 아는 개념
+** .NET 에서 프로세스 다루기
+	왜 그런지 모르겠는데, 이걸 하는 .NET 네임스페이스는
+	System.Diagnostics 이다. 몇개만 정리
+
+    | System.Diagnostics 클래스 | 역할                                            |
+    |---------------------------+-------------------------------------------------|
+    | Process                   | 로컬/리모트 프로세스 열거,시작,종료             |
+    | ProcessThread             | 프로세스의 쓰레드 집합을 열거(시작/종료는 못함) |
+
+** TODO 추가 정리 필요
+
+* TODO 18장. CIL
+* 19장. 멀티쓰레딩, 병렬처리, 비동기 프로그래밍
+** Process / AppDomain / ObjectContext / Thread
+	- Process 1개는 적어도 1개 이상의 AppDomain을 가짐
+	- .NET 어셈블리는 Process 가 아니라 AppDomain에서 수행됨.
+	- AppDomain : Thread  는 1:1 관계가 아님
+	- AppDomain 1개가 여러개의 Thread 를 가질 수 있음.
+	- Thread 1개는 여러 AppDomain 에 걸쳐 수행됨.
+	- 특정 시간에는 Thread 는 오직 1개의 AppDomain 에서만 수행됨.
+	  =Thread.GetDomain()= 하면 수행 AppDomain 을 얻을 수 있음.
+	- ObjectContext : AppDomain 1개는 적어도 1개의 ObjectContext 를
+      가짐. 대부분의 .NET Object 는 context 0 에 로딩됨.???
+** 병렬성의 문제
+	늘 알고 있던 문제.
+	- Thread 는 언제 실행될 지 모르며, 바로 수행을 시작하게 할 수 도
+      없음. (전적으로 OS가 결정함)
+	- Thread Volatile 은 항상 문제 (Partially Modified State 문제)
+	- Atomic 동작이 필요 : Thread동기화 필요
+** delegate 의 비동기지원 : Sytem.MulticastDelegate 클래스
+	- 모든 delegate 객체는 Sytem.MulticastDelegate 클래스에서 파생받은
+      클래스 객체로, Invoke()라는 동기화 호출과 BeginInvoke()
+      /EndInvoke() 로 구성된 비동기 호출지원을 모두 지원.
+	  #+BEGIN_SRC csharp
+        // 아래와 같이 delegate 를 선언하면...
+        public delegate int BinaryOp(int x, int y);
+        
+        // 아래와 같은 클래스가 C# 컴파일러에 의해 만들어진다.
+        public sealed class BinaryOp: System.MulticastDelegate 
+        { 
+            public BinaryOp(object target, uint functionAddress);
+            public IAsyncResult BeginInvoke(int x, int y, AsyncCallback cb, object state);
+            // 원 함수가 int 를 반환하므로, 아래 두 함수도 int 반환
+            public int EndInvoke(IAsyncResult result);
+            public int Invoke(int x, int y); 
+        } 
+        
+	  #+END_SRC
+	- System.IAsyncResult 인터페이스 : BeginInvoke() 의 반환객체의
+      인터페이스. 이걸로 비동기 동작이 끝났는지 여부를 확인가능.
+	  #+BEGIN_SRC csharp
+        public interface IAsyncResult 
+        { 
+            object AsyncState { get; } 
+            WaitHandle AsyncWaitHandle { get; } 
+            bool CompletedSynchronously { get; } 
+            bool IsCompleted { get; } 
+        }      
+	  #+END_SRC
+	  확인이 끝나면, EndInvoke() 에 다시 집어넣어 원래 비동기동작의
+      반환값을 확인할 수 있다. 
+	  
+	  #+BEGIN_SRC csharp
+        static int Add (int a, int b)
+        {
+            Thread.Sleep(10000);
+            return a + b;
+        }
+        
+        static void Main(string[] args) 
+        { 
+            BinaryOp b = new BinaryOp(Add); 
+            IAsyncResult asyncResult = b.BeginInvoke(
+                    10,    // Add의 첫번째 인자
+                    10,    // Add의 두번째 인자
+                    null,  // AsyncCallback 객체
+                    null   // 상태객체(IAsynResult의 AsyncState 속성으로 접근)
+                ); 
+        
+            // .. 여기서 다른 작업을 병렬로 수행할 수 있다. 
+        
+            // ... 또는 기다리면서 조그마한 작업들을 수행할 수 도 있다.
+            while (asynResult.IsCompleted)
+            {
+                // DoSomething()
+                Thread.Sleep(10);
+            }
+        
+            // 원래 함수의 반환값은 EndInvoke()로 확인가능
+            int answer = b.EndInvoke(asyncResult); 
+            Console.WriteLine("10 + 10 is {0}.", answer); 
+            Console.ReadLine(); 
+        }
+	  #+END_SRC
+
+	- AsyncCallback 대리자의 역할 : BeginInvoke()의 인자. 비동기
+      호출이 완료될 때 호출될 대리자객체. 시그너쳐는
+	  =void MyAsyncCallbackMethod(IAsyncResult iftAR)= 이며, 비동기
+      호출을 한 쓰레드와 동일 쓰레드에서 호출됨.
+	  
+** System.Threading 네임스페이스
+
+	- Monitor : Win32 의 Critical Section. C# 의 lock 키워드로 scoped
+      lock 구현가능. AppDomain 간 공유는 안됨. 
+	- Mutex : AppDomain 간 동기화
+	- Semaphore : win32 의 세마포어와 동일.
+	- Thread : Start()/Start(Object 쓰레드진입함수인자),
+      Suspend()/Resume(), Abort(), Interrupt(), ... --> Abort 와
+      Suspend의 호출은 조심. 쓰레드 자원이 줄줄 셀 수 있다.
+	- Timer / TimerCallback
+
+** System.Threading.Thread 클래스
+	- Thread.CurrentThread : 현재 쓰레드 객체(Thread클래스형)
+	- Thread.GetDomain().FriendlyName : 현 AppDomain객체의
+      이름(기본값은 exe파일명)
+	- Thread.CurrentContext.ContextID : 현 Context의 ID(기본값은 0)
+	- aThread.Priority : 쓰레드 우선순위
+	- aThread.IsAlive : 쓰레드 시작됨?
+	- aThread.ThreadState : Runnning/Suspended/Stopped?
+
+** 쓰레드 만들기 : 인자 없는 쓰레드 진입함수 
+	예제로 기억.
+	#+BEGIN_SRC csharp
+      using System;
+      using System.Threading;
+      
+      public class MyWorker
+      {
+          private int m_count;
+          public MyWorker()
+              : this (10)
+          {
+          }
+          public MyWorker(int count)
+          {
+              m_count = count;
+          }
+          public void PrintNumbers()
+          {
+              for (int i = 0; i < m_count; ++i)
+              {
+                  Random r = new Random();
+                  var number = r.Next(5);
+                  // Console.Write("number {0} : ", number);
+                  Thread.Sleep(100 * r.Next(10));
+                  Console.Write("{0}, ", i);
+              }
+              Console.WriteLine();
+          }
+      }
+      
+      public class ThreadTest
+      {
+          public static void Main()
+          {
+              MyWorker worker = new MyWorker(20);
+              Thread myThread = new Thread(worker.PrintNumbers);
+              myThread.Start();
+              // PrintNumbers();
+              myThread.Join();
+              Console.WriteLine("End.");
+          }
+      }
+	#+END_SRC
+
+** 쓰레드 만들기 : 인자 있는 쓰레드 진입함수.
+	ParameterizedThreadStart 객체와 Thread.Start(Object) 메소드를
+	사용.. 이때, 쓰레드 진입함수를 반드시 ParameterizedThreadStart 로
+	감쌀 필요는 없어보인다(아래 예제 코드 주석 참조)
+	#+BEGIN_SRC csharp
+      using System;
+      using System.Threading;
+      
+      class MyThreadParam
+      {
+          public int a, b;
+          public MyThreadParam(int a, int b)
+          {
+              this.a = a;
+              this.b = b;
+          }
+      }
+      
+      class ParamThreadTest
+      {
+          public static void Add (Object param)
+          {
+              MyThreadParam mtp = param as MyThreadParam;
+              if (mtp!=null)
+              {
+                  Console.WriteLine("{0} + {1} = ...", mtp.a, mtp.b);
+                  Thread.Sleep(2000);
+                  Console.WriteLine(".... = {0}", (mtp.a + mtp.b) );
+              }
+          }
+      
+          public static void Main()
+          {
+              MyThreadParam myParam = new MyThreadParam(10, 40);
+      
+              // 둘중 아무거나 다 됨.
+              Thread myThread = new Thread(Add); 
+              // Thread myThread = new Thread(new ParameterizedThreadStart(Add));
+      
+              myThread.Start(myParam);
+              myThread.Join();
+          }
+      }
+	#+END_SRC
+
+** AutoResetEvent : Win32 자동 리셋 Event객체
+
+	- 생성자는 초기 값을 받음 : =new AutoResetEvent(false)= --> 초기
+      상태 unsignaled상태인 event 생성
+	- aEvent.WaitOne() : WaitForSingleObject()
+	- aEvent.Set() : SetEvent()
+
+** Foreground 쓰레드 vs Background 쓰레드
+	- Foreground 쓰레드 : 모든 Foreground 쓰레드가 정지해야 AppDomain
+      이 Unload 될 수 있음.
+	- Thread클래스 객체 IsBackground 의 속성값을 어떻게 주느냐에 따라 결정
+	- 디폴트는 Foreground Thread
+** /lock/ 키워드를 사용한 동기화
+	- System.Threading.Monitor 클래스(~=크리티컬섹션)을 내부적으로
+      사용하는 동기화기법.
+	- lock 을 쓰지 않으면 try ~ finally 블럭을 사용해야 된다(예외가
+      던져지는 경우등등을 고려하여..)
+	- lock 을 걸 대상 객체(그냥 아무 객체여도 된다)을 사용.
+      =lock(anyObject)= 이런 느낌.
+	  #+BEGIN_SRC csharp
+        public class ThreadedPrinter
+        {
+            private object threadLock = new object ();
+        
+            public void PrintNumbers()
+            {
+                lock (threadLock)
+                {
+                    // 먼가 출력한다.
+                }
+            }
+        }
+	  #+END_SRC

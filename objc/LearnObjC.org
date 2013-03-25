@@ -1,4 +1,5 @@
-#+title:Objective-C 배우기
+#+TITLE:Objective-C 학습
+#+STARTUP:overview
 #+OPTIONS: ^:{}
 
 * IOS.Nerd.Ranch.Guide 제2판

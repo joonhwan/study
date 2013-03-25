@@ -3,12 +3,12 @@
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>Objective-C 배우기</title>
+<title>Objective-C 학습</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-<meta name="title" content="Objective-C 배우기"/>
+<meta name="title" content="Objective-C 학습"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-03-24T15:39+0900"/>
-<meta name="author" content="Joonhwan"/>
+<meta name="generated" content="2013-03-25T11:25+0900"/>
+<meta name="author" content=""/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
 <style type="text/css">
@@ -115,7 +115,7 @@ for the JavaScript code in this tag.
 </div>
 
 <div id="content">
-<h1 class="title">Objective-C 배우기</h1>
+<h1 class="title">Objective-C 학습</h1>
 
 
 <div id="table-of-contents">
@@ -413,21 +413,21 @@ for the JavaScript code in this tag.
 
 
 
-<pre class="src src-objc"><span style="color: #728a05;">@interface</span> <span style="color: #a57705;">MyCalc</span> : <span style="color: #a57705;">NSObject</span>
+<pre class="src src-objc"><span style="color: #729a05;">@interface</span> <span style="color: #a57705;">MyCalc</span> : <span style="color: #a57705;">NSObject</span>
 +(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">add</span>:(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">a</span> <span style="color: #2075c7;">withInt</span>:(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">b</span>;
 +(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">add</span>:(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">a</span> <span style="color: #2075c7;">withDouble</span>:(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">b</span>;
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 
-<span style="color: #728a05;">@implementation</span> <span style="color: #a57705;">MyCalc</span>
+<span style="color: #729a05;">@implementation</span> <span style="color: #a57705;">MyCalc</span>
 +(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">add</span>:(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">a</span> <span style="color: #2075c7;">withInt</span>:(<span style="color: #a57705;">int</span>)<span style="color: #2075c7;">b</span>
 {
-    <span style="color: #728a05;">return</span> a+b;
+    <span style="color: #729a05;">return</span> a+b;
 }
 +(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">add</span>:(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">a</span> <span style="color: #2075c7;">withDouble</span>:(<span style="color: #a57705;">double</span>)<span style="color: #2075c7;">b</span>
 {
-    <span style="color: #728a05;">return</span> a+b;
+    <span style="color: #729a05;">return</span> a+b;
 }
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 
 </pre>
 
@@ -661,13 +661,13 @@ for the JavaScript code in this tag.
 
 <pre class="src src-objc">-(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">finishFindingLocation</span>:(<span style="color: #a57705;">CLLocation</span>*)<span style="color: #2075c7;">newLocation</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">locationManager:didUpdateToLocation:fromLocation: &#51060;&#46976; selector &#47484; &#53685;&#54644;</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54644;&#45817; &#47700;&#49884;&#51648;&#47484; &#53945;&#51221; &#44061;&#52404;&#44032; &#48155;&#51012; &#49688; &#51080;&#45716;&#51648; &#54869;&#51064;&#54620;&#45796;.</span>
-    <span style="color: #a57705;">SEL</span> <span style="color: #2075c7;">updateMethod</span> = <span style="color: #728a05;">@selector</span> (locationManager:didUpdateToLocation:fromLocation:);
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47564;&#51068; &#47700;&#49548;&#46300;&#44032; &#44396;&#54788;&#46104;&#50612; &#51080;&#45796;&#47732;, &#47700;&#49884;&#51648;&#47484; &#48372;&#45240;&#45796;.</span>
-    <span style="color: #728a05;">if</span> ([[<span style="color: #728a05;">self</span> delegate] respondsToSelector:updateMethod]) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47700;&#49884;&#51648; &#51204;&#49569;</span>
-        [[<span style="color: #728a05;">self</span> delegate] locationManager:<span style="color: #728a05;">self</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">locationManager:didUpdateToLocation:fromLocation: &#51060;&#46976; selector &#47484; &#53685;&#54644;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54644;&#45817; &#47700;&#49884;&#51648;&#47484; &#53945;&#51221; &#44061;&#52404;&#44032; &#48155;&#51012; &#49688; &#51080;&#45716;&#51648; &#54869;&#51064;&#54620;&#45796;.</span>
+    <span style="color: #a57705;">SEL</span> <span style="color: #2075c7;">updateMethod</span> = <span style="color: #729a05;">@selector</span> (locationManager:didUpdateToLocation:fromLocation:);
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47564;&#51068; &#47700;&#49548;&#46300;&#44032; &#44396;&#54788;&#46104;&#50612; &#51080;&#45796;&#47732;, &#47700;&#49884;&#51648;&#47484; &#48372;&#45240;&#45796;.</span>
+    <span style="color: #729a05;">if</span> ([[<span style="color: #729a05;">self</span> delegate] respondsToSelector:updateMethod]) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47700;&#49884;&#51648; &#51204;&#49569;</span>
+        [[<span style="color: #729a05;">self</span> delegate] locationManager:<span style="color: #729a05;">self</span>
                       didUpdateToLocation:newLocation
                             fromLocation:oldLocation];
     }
@@ -695,7 +695,7 @@ for the JavaScript code in this tag.
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">CLLocationManager</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">CLLocationManager</span>
 @property (<span style="color: #a57705;">nonatomic</span>, <span style="color: #a57705;">assign</span>) <span style="color: #a57705;">id</span> <span style="color: #2075c7;">delegate</span>;
 </pre>
 
@@ -780,8 +780,8 @@ for the JavaScript code in this tag.
 <pre class="src src-objc"><span style="color: #a57705;">int</span> <span style="color: #2075c7;">main</span>(<span style="color: #a57705;">int</span> <span style="color: #2075c7;">argc</span>, <span style="color: #a57705;">char</span>* <span style="color: #2075c7;">argv</span>[])
 {
     @autoreleasepool {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));</span>
-        <span style="color: #728a05;">return</span> UIApplicationMain(argc, argv, <span style="color: #259185;">nil</span>, <span style="color: #259185;">nil</span>);
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));</span>
+        <span style="color: #729a05;">return</span> UIApplicationMain(argc, argv, <span style="color: #259185;">nil</span>, <span style="color: #259185;">nil</span>);
     }
 }
 
@@ -1482,7 +1482,7 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #728a05;">enum</span> {
+<pre class="src src-objc"><span style="color: #729a05;">enum</span> {
     <span style="color: #2075c7;">UIViewAutoresizingNone</span>                 = 0,
     <span style="color: #2075c7;">UIViewAutoresizingFlexibleLeftMargin</span>   = 1 &lt;&lt; 0,
     <span style="color: #2075c7;">UIViewAutoresizingFlexibleWidth</span>        = 1 &lt;&lt; 1,
@@ -1650,11 +1650,11 @@ post내용(NSNotification*) = name(NSString*)
 {
     NSLog(@<span style="color: #259185;">"commitEditingStyle for row(%d) section(%d)"</span>, [indexPath row], [indexPath section]);
 
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49325;&#51228;&#46041;&#51089;&#51064; &#44221;&#50864;....</span>
-    <span style="color: #728a05;">if</span> (editingStyle == UITableViewCellEditingStyleDelete) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50896;&#48376; &#51088;&#47308;&#44396;&#51312; &#48320;&#44221;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49325;&#51228;&#46041;&#51089;&#51064; &#44221;&#50864;....</span>
+    <span style="color: #729a05;">if</span> (editingStyle == UITableViewCellEditingStyleDelete) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50896;&#48376; &#51088;&#47308;&#44396;&#51312; &#48320;&#44221;</span>
         [itemArray removeObjectAtIndex:[indexPath row]];
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">table view &#50640;&#49436; &#54637;&#47785; &#49325;&#51228;</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">table view &#50640;&#49436; &#54637;&#47785; &#49325;&#51228;</span>
         [tableView deleteRowsAtIndexPaths:[<span style="color: #a57705;">NSArray</span> arrayWithObjects:indexPath,<span style="color: #259185;">nil</span>] withRowAnimation:<span style="color: #259185;">YES</span>];
     }
 }
@@ -1845,22 +1845,22 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#51060;&#48120;&#51648; &#49444;&#51221;&#54616;&#44592; &#48260;&#53948;&#51012; &#45572;&#47476;&#47732; &#54840;&#52636;&#46104;&#45716; action</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#51060;&#48120;&#51648; &#49444;&#51221;&#54616;&#44592; &#48260;&#53948;&#51012; &#45572;&#47476;&#47732; &#54840;&#52636;&#46104;&#45716; action</span>
 -(<span style="color: #a57705;">IBAction</span>) <span style="color: #2075c7;">takePicture</span>:(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">sender</span>
 {
     <span style="color: #a57705;">UIImagePickerController</span> *<span style="color: #2075c7;">imagePicker</span> = [[<span style="color: #a57705;">UIImagePickerController</span> alloc] init];
-    [imagePicker setDelegate:<span style="color: #728a05;">self</span>];
-    [<span style="color: #728a05;">self</span> presentViewController:imagePicker animated:<span style="color: #259185;">YES</span> completion:<span style="color: #259185;">nil</span>];
+    [imagePicker setDelegate:<span style="color: #729a05;">self</span>];
+    [<span style="color: #729a05;">self</span> presentViewController:imagePicker animated:<span style="color: #259185;">YES</span> completion:<span style="color: #259185;">nil</span>];
 }
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#45208;&#51473;&#50640; &#45796;&#47480; &#54632;&#49688;&#50640;&#49436;, &#50948;&#50640;&#49436; presented &#46108; view controller &#47484;</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">dismiss &#49884;&#53416;&#45796;.</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#45208;&#51473;&#50640; &#45796;&#47480; &#54632;&#49688;&#50640;&#49436;, &#50948;&#50640;&#49436; presented &#46108; view controller &#47484;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">dismiss &#49884;&#53416;&#45796;.</span>
 -(<span style="color: #a57705;">void</span>)  <span style="color: #2075c7;">imagePickerController</span>:(<span style="color: #a57705;">UIImagePickerController</span> *)<span style="color: #2075c7;">picker</span>
  <span style="color: #2075c7;">didFinishPickingMediaWithInfo</span>:(<span style="color: #a57705;">NSDictionary</span> *)<span style="color: #2075c7;">info</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">.... &#44592;&#53440; &#51089;&#50629;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">.... &#44592;&#53440; &#51089;&#50629;</span>
 
-    [<span style="color: #728a05;">self</span> dismissViewControllerAnimated:<span style="color: #259185;">YES</span> completion:<span style="color: #259185;">nil</span>];
+    [<span style="color: #729a05;">self</span> dismissViewControllerAnimated:<span style="color: #259185;">YES</span> completion:<span style="color: #259185;">nil</span>];
 }
 </pre>
 
@@ -1924,8 +1924,8 @@ post내용(NSNotification*) = name(NSString*)
 
 <pre class="src src-objc">- (<span style="color: #a57705;">IBAction</span>)<span style="color: #2075c7;">backgroundTabbed</span>:(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">sender</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49324;&#49892; sender &#44032; [self view]</span>
-    [[<span style="color: #728a05;">self</span> view] endEditing:<span style="color: #259185;">YES</span>];
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49324;&#49892; sender &#44032; [self view]</span>
+    [[<span style="color: #729a05;">self</span> view] endEditing:<span style="color: #259185;">YES</span>];
 }
 </pre>
 
@@ -1946,9 +1946,9 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">"MyKey" &#46972;&#45716; &#47928;&#51088;&#50676; &#53412; &#44050;&#50640; &#45824;&#54620; &#44050;&#51004;&#47196; someObject &#44061;&#52404;&#47484; &#51648;&#51221;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">"MyKey" &#46972;&#45716; &#47928;&#51088;&#50676; &#53412; &#44050;&#50640; &#45824;&#54620; &#44050;&#51004;&#47196; someObject &#44061;&#52404;&#47484; &#51648;&#51221;</span>
 [someDictionary setObject:someObject forKey:@<span style="color: #259185;">"MyKey"</span>];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">"MyKey" &#46976; &#53412;&#50640; &#54644;&#45817;&#54616;&#45716; &#44050;(&#44061;&#52404;)&#51012; &#50619;&#51020;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">"MyKey" &#46976; &#53412;&#50640; &#54644;&#45817;&#54616;&#45716; &#44050;(&#44061;&#52404;)&#51012; &#50619;&#51020;</span>
 <span style="color: #a57705;">id</span> <span style="color: #2075c7;">myObject</span> = [someDictionary objectForKey:@<span style="color: #259185;">"MyKey"</span>];
 </pre>
 
@@ -1984,10 +1984,10 @@ post내용(NSNotification*) = name(NSString*)
 <pre class="src src-objc"><span style="color: #a57705;">CFUUIDRef</span> <span style="color: #2075c7;">uuid</span> = CFUUIDCreate(kCFAllocatorDefault);
 <span style="color: #a57705;">CFStringRef</span> <span style="color: #2075c7;">uuidString</span> = CFUUIDCreateString(kCFAllocatorDefault, uuid);
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Toll-free bride</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Toll-free bride</span>
 <span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">key</span> = (__bridge <span style="color: #a57705;">NSString</span> *)uuid;
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">key &#47484; &#49324;&#50857;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">key &#47484; &#49324;&#50857;</span>
 
 <span style="color: #a57705;">CFRelease</span>(<span style="color: #2075c7;">uuid</span>);
 <span style="color: #a57705;">CFRelease</span>(<span style="color: #2075c7;">uuidString</span>);
@@ -2049,18 +2049,18 @@ post내용(NSNotification*) = name(NSString*)
 
 <pre class="src src-objc">-(<span style="color: #a57705;">void</span>) <span style="color: #2075c7;">viewDidLoad</span>
 {
-    [<span style="color: #728a05;">super</span> viewDidLoad];
+    [<span style="color: #729a05;">super</span> viewDidLoad];
 
     <span style="color: #a57705;">UIUserInterfaceIdiom</span> <span style="color: #2075c7;">idom</span> =
         [[<span style="color: #a57705;">UIDevice</span> currentDevice] userInterfaceIdiom];
-    <span style="color: #728a05;">switch</span> (idiom)
+    <span style="color: #729a05;">switch</span> (idiom)
     {
-    <span style="color: #728a05;">case</span> UIUserInterfaceIdiomPhone:
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">iphone&#51060;&#45348;.</span>
-        <span style="color: #728a05;">break</span>;
-    <span style="color: #728a05;">case</span> UIUserInterfaceIdiomPad:
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">ipad &#44396;&#45208;!</span>
-        <span style="color: #728a05;">break</span>;
+    <span style="color: #729a05;">case</span> UIUserInterfaceIdiomPhone:
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">iphone&#51060;&#45348;.</span>
+        <span style="color: #729a05;">break</span>;
+    <span style="color: #729a05;">case</span> UIUserInterfaceIdiomPad:
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">ipad &#44396;&#45208;!</span>
+        <span style="color: #729a05;">break</span>;
     }
 }
 </pre>
@@ -2126,27 +2126,27 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">UIToolbar &#51032; BarButtonItem &#51060; &#45580;&#47160;&#51012; &#46412;&#51032; &#54648;&#46308;&#47084;.</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">UIToolbar &#51032; BarButtonItem &#51060; &#45580;&#47160;&#51012; &#46412;&#51032; &#54648;&#46308;&#47084;.</span>
 -(<span style="color: #a57705;">IBAction</span>)<span style="color: #2075c7;">showImagePicker</span>:(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">sender</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">content view controller &#49373;&#49457;(&#48143; delegate&#49444;&#51221;)</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">content view controller &#49373;&#49457;(&#48143; delegate&#49444;&#51221;)</span>
     <span style="color: #a57705;">UIImagePickerController</span> *<span style="color: #2075c7;">imagePicker</span>
         = [[<span style="color: #a57705;">UIImagePickerController</span> alloc] init];
-    [imagePicker setDelegate:<span style="color: #728a05;">self</span>];
+    [imagePicker setDelegate:<span style="color: #729a05;">self</span>];
 
-    <span style="color: #728a05;">if</span> (usingPopOverView)  {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">popover view controller &#49373;&#49457;(&#48143; delegate&#49444;&#51221;)</span>
+    <span style="color: #729a05;">if</span> (usingPopOverView)  {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">popover view controller &#49373;&#49457;(&#48143; delegate&#49444;&#51221;)</span>
         <span style="color: #a57705;">UIPopoverController</span> *<span style="color: #2075c7;">imagePickerPopover</span>
             = [[<span style="color: #a57705;">UIPopoverController</span> alloc] initWithContentViewController:imagePicker];
-        [iamgePickerPopover setDelegate:<span style="color: #728a05;">self</span>];
+        [iamgePickerPopover setDelegate:<span style="color: #729a05;">self</span>];
 
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">popover view &#54364;&#49884;</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">popover view &#54364;&#49884;</span>
         [imagePickerPopover presentPopoverFromBarButtonItem:sender
                                    permittedArrowDirections:UIPopoverArrowDirectionAny
                                                    animated:<span style="color: #259185;">YES</span>];
-    } <span style="color: #728a05;">else</span> {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">full screen modal view</span>
-        [<span style="color: #728a05;">self</span> presentViewController:imagePicker
+    } <span style="color: #729a05;">else</span> {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">full screen modal view</span>
+        [<span style="color: #729a05;">self</span> presentViewController:imagePicker
                            animated:<span style="color: #259185;">YES</span>
                          completion:<span style="color: #259185;">nil</span>];
     }
@@ -2154,9 +2154,9 @@ post내용(NSNotification*) = name(NSString*)
 
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">popoverControllerDidDismissPopover</span>:(<span style="color: #a57705;">UIPopoverController</span> *)<span style="color: #2075c7;">popoverController</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49324;&#50857;&#51088;&#44032; pop over view &#47484; &#45803;&#51008; &#44221;&#50864;&#50640; &#50668;&#44592;&#47196; &#46308;&#50612;&#50740;.</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49324;&#50857;&#51088;&#44032; pop over view &#47484; &#45803;&#51008; &#44221;&#50864;&#50640; &#50668;&#44592;&#47196; &#46308;&#50612;&#50740;.</span>
 
-    <span style="color: #728a05;">self</span>.imagePickerPopover = <span style="color: #259185;">nil</span>; <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47716;&#48260;&#48320;&#49688;&#51032; reference count&#47484; -1 &#54632;.</span>
+    <span style="color: #729a05;">self</span>.imagePickerPopover = <span style="color: #259185;">nil</span>; <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47716;&#48260;&#48320;&#49688;&#51032; reference count&#47484; -1 &#54632;.</span>
 }
 
 </pre>
@@ -2334,10 +2334,10 @@ post내용(NSNotification*) = name(NSString*)
 </p>
 
 
-<pre class="src src-objc"><span style="color: #728a05;">@protocol</span> <span style="color: #a57705;">NSCoding</span>
+<pre class="src src-objc"><span style="color: #729a05;">@protocol</span> <span style="color: #a57705;">NSCoding</span>
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">encodeWithCoder</span>:(<span style="color: #a57705;">NSCoder</span> *)<span style="color: #2075c7;">aCoder</span>;
 -(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">initWithCoder</span>:(<span style="color: #a57705;">NSCoder</span> *)<span style="color: #2075c7;">aDecoder</span>;
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 </pre>
 
 <p>
@@ -2352,33 +2352,33 @@ post내용(NSNotification*) = name(NSString*)
 </p>
 
 
-<pre class="src src-objc"><span style="color: #728a05;">@interface</span> <span style="color: #a57705;">BNRItem</span> : <span style="color: #a57705;">NSObject</span>&lt;<span style="color: #a57705;">NSCoding</span>&gt;
+<pre class="src src-objc"><span style="color: #729a05;">@interface</span> <span style="color: #a57705;">BNRItem</span> : <span style="color: #a57705;">NSObject</span>&lt;<span style="color: #a57705;">NSCoding</span>&gt;
 
 -(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">initWithCoder</span>:(<span style="color: #a57705;">NSCoder</span> *)<span style="color: #2075c7;">aDecoder</span>
 {
-    <span style="color: #728a05;">self</span> = [<span style="color: #728a05;">super</span> init];
-    <span style="color: #728a05;">if</span> (<span style="color: #728a05;">self</span>) {
-        [<span style="color: #728a05;">self</span> setItemName:[aDecoder decodeObjectForKey:@<span style="color: #259185;">"itemName"</span>]];
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; NSString &#44061;&#52404;&#47484; alloc</span>
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; NSString &#51032; initWithCoder &#47484; &#54840;&#52636;&#54620;&#45796;.</span>
-        [<span style="color: #728a05;">self</span> setValueInDollars:[aDecoder decodeIntForKey:@<span style="color: #259185;">"valueInDollars"</span>]];
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; &#44061;&#52404;&#44032; &#50500;&#45772; &#44221;&#50864; decodeIntForKey, decodeBlaBlaTypeForKey &#47484; &#54840;&#52636;</span>
+    <span style="color: #729a05;">self</span> = [<span style="color: #729a05;">super</span> init];
+    <span style="color: #729a05;">if</span> (<span style="color: #729a05;">self</span>) {
+        [<span style="color: #729a05;">self</span> setItemName:[aDecoder decodeObjectForKey:@<span style="color: #259185;">"itemName"</span>]];
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; NSString &#44061;&#52404;&#47484; alloc</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; NSString &#51032; initWithCoder &#47484; &#54840;&#52636;&#54620;&#45796;.</span>
+        [<span style="color: #729a05;">self</span> setValueInDollars:[aDecoder decodeIntForKey:@<span style="color: #259185;">"valueInDollars"</span>]];
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; &#44061;&#52404;&#44032; &#50500;&#45772; &#44221;&#50864; decodeIntForKey, decodeBlaBlaTypeForKey &#47484; &#54840;&#52636;</span>
     }
-    <span style="color: #728a05;">return</span> <span style="color: #728a05;">self</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #729a05;">self</span>;
 }
 
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">encodeWithCoder</span>:(<span style="color: #a57705;">NSCoder</span> *)<span style="color: #2075c7;">aCoder</span>
 {
     [aCoder encodeObject:itemName forKey:@<span style="color: #259185;">"itemName"</span>];
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; NSString&#44061;&#52404; 'itemName'&#51060; "itemName" key&#51032; &#44050;&#51004;&#47196; &#51200;&#51109;</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; NSString &#51060; &#44396;&#54788;&#54616;&#45716; encodeWithCoder: &#44032; &#54840;&#52636;&#46108;&#45796;.</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; NSString&#44061;&#52404; 'itemName'&#51060; "itemName" key&#51032; &#44050;&#51004;&#47196; &#51200;&#51109;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; NSString &#51060; &#44396;&#54788;&#54616;&#45716; encodeWithCoder: &#44032; &#54840;&#52636;&#46108;&#45796;.</span>
 
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">...</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">...</span>
 
     [aCoder encodeInt:valueInDollars forKey:@<span style="color: #259185;">"valueInDollars"</span>];
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; &#44061;&#52404;&#44032; &#50500;&#45772;&#44221;&#50864; encodeInt, encodeBlaBlaType &#51012; &#54840;&#52636;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; &#44061;&#52404;&#44032; &#50500;&#45772;&#44221;&#50864; encodeInt, encodeBlaBlaType &#51012; &#54840;&#52636;</span>
 }
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 </pre>
 
 
@@ -2395,13 +2395,13 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">iOS 6.0 &#51060;&#51204; &#48169;&#49885;(NSCoding)</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">iOS 6.0 &#51060;&#51204; &#48169;&#49885;(NSCoding)</span>
 <span style="color: #a57705;">id</span> <span style="color: #2075c7;">obj</span> = [aDecoder decodeObjectForKey:@<span style="color: #259185;">"myKey"</span>];
-<span style="color: #728a05;">if</span> (<span style="color: #c60007;">!</span>[obj isKindOfClass:[<span style="color: #a57705;">MyClass</span> class]]) {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">fail...</span>
+<span style="color: #729a05;">if</span> (<span style="color: #c60007;">!</span>[obj isKindOfClass:[<span style="color: #a57705;">MyClass</span> class]]) {
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">fail...</span>
 }
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">iOS 6.0 &#51060;&#54980; &#48169;&#49885;(NSSecureCoding)</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">iOS 6.0 &#51060;&#54980; &#48169;&#49885;(NSSecureCoding)</span>
 <span style="color: #a57705;">id</span> <span style="color: #2075c7;">obj</span> = [aDecoder decodeObjectOfClass:[<span style="color: #a57705;">MyClass</span> class] forKey:@<span style="color: #259185;">"myKey"</span>];
 </pre>
 
@@ -2466,7 +2466,7 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #728a05;">enum</span> {
+<pre class="src src-objc"><span style="color: #729a05;">enum</span> {
    <span style="color: #2075c7;">NSApplicationDirectory</span> = 1,
    <span style="color: #2075c7;">NSDemoApplicationDirectory</span>,
    <span style="color: #2075c7;">NSDeveloperApplicationDirectory</span>,
@@ -2495,25 +2495,25 @@ post내용(NSNotification*) = name(NSString*)
    <span style="color: #2075c7;">NSAllLibrariesDirectory</span> = 101,
    <span style="color: #2075c7;">NSTrashDirectory</span> = 102
 };
-<span style="color: #728a05;">typedef</span> <span style="color: #a57705;">NSUInteger</span> <span style="color: #a57705;">NSSearchPathDirectory</span>;
+<span style="color: #729a05;">typedef</span> <span style="color: #a57705;">NSUInteger</span> <span style="color: #a57705;">NSSearchPathDirectory</span>;
 
 -(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">itemArchivePath</span>
 {
     <span style="color: #a57705;">NSArray</span> *<span style="color: #2075c7;">documentDirectories</span> =
         NSSearchPathForDirectoriesInDomain(
-                <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#52395;&#48264;&#51704; &#51064;&#51088;&#44032; &#51473;&#50836;&#54632;.</span>
+                <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#52395;&#48264;&#51704; &#51064;&#51088;&#44032; &#51473;&#50836;&#54632;.</span>
                 NSDocumentDirectory,
-                <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">iOS &#50640;&#49436;&#45716; &#50500;&#47000; 2 &#51064;&#51088;&#45716;</span>
-                <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44144;&#51032; &#48148;&#45068;&#51648; &#50506;&#51020;.</span>
+                <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">iOS &#50640;&#49436;&#45716; &#50500;&#47000; 2 &#51064;&#51088;&#45716;</span>
+                <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44144;&#51032; &#48148;&#45068;&#51648; &#50506;&#51020;.</span>
                 NSUserDomainMask,
                 <span style="color: #259185;">YES</span>);
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">iOS &#50640;&#49436;&#45716; sandbox &#46104;&#50612; &#50500;&#47000;&#51032; &#44221;&#47196; &#47785;&#47197;&#51008; &#44144;&#51032; 1&#44060; &#47564; &#51080;&#45796;. &#51060;</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44221;&#47196;&#50640; &#50612;&#54540;&#51032; &#45936;&#51060;&#53552;&#54028;&#51068;&#51012; &#51200;&#51109;&#54620;&#45796;.</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">iOS &#50640;&#49436;&#45716; sandbox &#46104;&#50612; &#50500;&#47000;&#51032; &#44221;&#47196; &#47785;&#47197;&#51008; &#44144;&#51032; 1&#44060; &#47564; &#51080;&#45796;. &#51060;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44221;&#47196;&#50640; &#50612;&#54540;&#51032; &#45936;&#51060;&#53552;&#54028;&#51068;&#51012; &#51200;&#51109;&#54620;&#45796;.</span>
     <span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">documentDirectory</span>  =
         [documentDirectories objectAtIndex:0];
 
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#46356;&#47113;&#53664;&#47532;&#47749;&#50640; "item.archive" &#46972;&#45716; &#54028;&#51068;&#47749;&#51012; &#48537;&#51064;&#45796;</span>
-    <span style="color: #728a05;">return</span> [documentDirectory stringByAppendingPathComponent:@<span style="color: #259185;">"item.archive"</span>];
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#46356;&#47113;&#53664;&#47532;&#47749;&#50640; "item.archive" &#46972;&#45716; &#54028;&#51068;&#47749;&#51012; &#48537;&#51064;&#45796;</span>
+    <span style="color: #729a05;">return</span> [documentDirectory stringByAppendingPathComponent:@<span style="color: #259185;">"item.archive"</span>];
 }
 </pre>
 
@@ -2553,7 +2553,7 @@ post내용(NSNotification*) = name(NSString*)
 
 
 <pre class="src src-objc">[rButton addTarget:temperatureViewController
-            action:<span style="color: #728a05;">@selector</span> (resetTemperature:)
+            action:<span style="color: #729a05;">@selector</span> (resetTemperature:)
   forControlEvents:UIControlEventTouchUpInsde | UIControlEventTouchUpOutside];
 </pre>
 
@@ -2564,22 +2564,22 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49345;&#49464; &#44396;&#54788;&#51008; "&#51032;&#49324;&#53076;&#46300;"&#51648;&#47564;, &#54840;&#52636;&#54632;&#49688;&#45716; "&#49892;&#51316;&#54616;&#45716;" &#54632;&#49688;&#45796;!</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49345;&#49464; &#44396;&#54788;&#51008; "&#51032;&#49324;&#53076;&#46300;"&#51648;&#47564;, &#54840;&#52636;&#54632;&#49688;&#45716; "&#49892;&#51316;&#54616;&#45716;" &#54632;&#49688;&#45796;!</span>
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">touchesEnded</span>:(<span style="color: #a57705;">NSSet</span> *)<span style="color: #2075c7;">touches</span>
           <span style="color: #2075c7;">withEvent</span>:(<span style="color: #a57705;">UIEvent</span> *)<span style="color: #2075c7;">event</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54788;&#51116;&#51032; &#53552;&#52824;&#44061;&#52404;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54788;&#51116;&#51032; &#53552;&#52824;&#44061;&#52404;</span>
     <span style="color: #a57705;">UITouch</span> *<span style="color: #2075c7;">touch</span> = [touches anyObject];
 
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54788;&#51116; &#48624; &#49345;&#51032; &#53552;&#52824; &#50948;&#52824;</span>
-    <span style="color: #a57705;">CGPoint</span> <span style="color: #2075c7;">touchLocation</span> = [touch locationInView:<span style="color: #728a05;">self</span>];
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54788;&#51116; &#48624; &#49345;&#51032; &#53552;&#52824; &#50948;&#52824;</span>
+    <span style="color: #a57705;">CGPoint</span> <span style="color: #2075c7;">touchLocation</span> = [touch locationInView:<span style="color: #729a05;">self</span>];
 
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#48624; &#50689;&#50669; &#45236;&#50640; &#51080;&#45716;&#44032;?</span>
-    <span style="color: #728a05;">if</span> (CGRectContainsPoint([<span style="color: #728a05;">self</span> bounds], touchLocation)) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">TouchUp Inside &#50529;&#49496;&#48156;&#49373;!</span>
-        [<span style="color: #728a05;">self</span> sendActionsForControlEvents:UIControlEventTouchUpInsde];
-    } <span style="color: #728a05;">else</span> {
-        [<span style="color: #728a05;">self</span> sendActionsForControlEvents:UIControlEventTouchUpOutside];
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#48624; &#50689;&#50669; &#45236;&#50640; &#51080;&#45716;&#44032;?</span>
+    <span style="color: #729a05;">if</span> (CGRectContainsPoint([<span style="color: #729a05;">self</span> bounds], touchLocation)) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">TouchUp Inside &#50529;&#49496;&#48156;&#49373;!</span>
+        [<span style="color: #729a05;">self</span> sendActionsForControlEvents:UIControlEventTouchUpInsde];
+    } <span style="color: #729a05;">else</span> {
+        [<span style="color: #729a05;">self</span> sendActionsForControlEvents:UIControlEventTouchUpOutside];
     }
 }
 </pre>
@@ -2657,16 +2657,16 @@ post내용(NSNotification*) = name(NSString*)
 
 <pre class="src src-objc">-(<span style="color: #a57705;">id</span>) <span style="color: #2075c7;">initWithFrame</span>:(<span style="color: #a57705;">CGRect</span>)<span style="color: #2075c7;">r</span>
 {
-    <span style="color: #728a05;">self</span> = [<span style="color: #728a05;">super</span> initWithFrame:r];
-    <span style="color: #728a05;">if</span> (<span style="color: #728a05;">self</span>) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">....</span>
+    <span style="color: #729a05;">self</span> = [<span style="color: #729a05;">super</span> initWithFrame:r];
+    <span style="color: #729a05;">if</span> (<span style="color: #729a05;">self</span>) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">....</span>
 
         <span style="color: #a57705;">UITapGestureRecognizer</span> *<span style="color: #2075c7;">rec</span> =
-            [[<span style="color: #a57705;">UITapGestureRecognizer</span> alloc] initWithTarget:<span style="color: #728a05;">self</span>
-                                                    action:<span style="color: #728a05;">@selector</span> (tap:)];
-        [<span style="color: #728a05;">self</span> addGestureRecognizer:rec];
+            [[<span style="color: #a57705;">UITapGestureRecognizer</span> alloc] initWithTarget:<span style="color: #729a05;">self</span>
+                                                    action:<span style="color: #729a05;">@selector</span> (tap:)];
+        [<span style="color: #729a05;">self</span> addGestureRecognizer:rec];
     }
-    <span style="color: #728a05;">return</span> <span style="color: #728a05;">self</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #729a05;">self</span>;
 }
 </pre>
 
@@ -2734,30 +2734,30 @@ post내용(NSNotification*) = name(NSString*)
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">UIView &#54028;&#49373;&#53364;&#47000;&#49828;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">UIView &#54028;&#49373;&#53364;&#47000;&#49828;</span>
 -(<span style="color: #a57705;">id</span>) <span style="color: #2075c7;">initWithFrame</span>:(<span style="color: #a57705;">CGRect</span>)<span style="color: #2075c7;">r</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">...</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">...</span>
     <span style="color: #a57705;">UILongPressGestureRecognizer</span> *<span style="color: #2075c7;">gesture</span> =
         [[<span style="color: #a57705;">UILongPressGestureRecognizer</span> alloc]
-            initWithTarget:<span style="color: #728a05;">self</span>
-                    action:<span style="color: #728a05;">@selector</span> (longPress:)];
-    [<span style="color: #728a05;">self</span> addGestureRecognizer:gesture];
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">...</span>
+            initWithTarget:<span style="color: #729a05;">self</span>
+                    action:<span style="color: #729a05;">@selector</span> (longPress:)];
+    [<span style="color: #729a05;">self</span> addGestureRecognizer:gesture];
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">...</span>
 
-    <span style="color: #728a05;">return</span> <span style="color: #728a05;">self</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #729a05;">self</span>;
 }
 
 -(<span style="color: #a57705;">void</span>) <span style="color: #2075c7;">longPress</span>:(<span style="color: #a57705;">UIGestureRecognizer</span> *)<span style="color: #2075c7;">gesture</span>
 {
-    <span style="color: #728a05;">switch</span> (gesture.state)
+    <span style="color: #729a05;">switch</span> (gesture.state)
     {
-    <span style="color: #728a05;">case</span> UIGestureRecognizerStateBegan:
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">do something</span>
-        <span style="color: #728a05;">break</span>;
-    <span style="color: #728a05;">case</span> UIGestureRecognizerStateEnded:
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">do something </span>
-        <span style="color: #728a05;">break</span>;
+    <span style="color: #729a05;">case</span> UIGestureRecognizerStateBegan:
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">do something</span>
+        <span style="color: #729a05;">break</span>;
+    <span style="color: #729a05;">case</span> UIGestureRecognizerStateEnded:
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">do something </span>
+        <span style="color: #729a05;">break</span>;
     }
 }
 </pre>
@@ -2796,10 +2796,10 @@ post내용(NSNotification*) = name(NSString*)
 <pre class="src src-objc">-(<span style="color: #a57705;">BOOL</span>) <span style="color: #2075c7;">gestureRecognizer</span>:(<span style="color: #a57705;">UIGestureRecognizer</span> *)<span style="color: #2075c7;">gestureRecognizer</span>
 <span style="color: #2075c7;">shouldRecognizeSimultaneouslyWithGenstureRecognizer</span>:(<span style="color: #a57705;">UIGestureRecognizer</span> *)<span style="color: #2075c7;">other</span>
 {
-    <span style="color: #728a05;">if</span> (gestureRecognizer == panGestureRecognizer) {
-        <span style="color: #728a05;">return</span> <span style="color: #259185;">YES</span>;
+    <span style="color: #729a05;">if</span> (gestureRecognizer == panGestureRecognizer) {
+        <span style="color: #729a05;">return</span> <span style="color: #259185;">YES</span>;
     }
-    <span style="color: #728a05;">return</span> <span style="color: #259185;">NO</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #259185;">NO</span>;
 }
 
 </pre>
@@ -2850,7 +2850,7 @@ post내용(NSNotification*) = name(NSString*)
 
 
 <pre class="src src-objc"><span style="color: #a57705;">CALayer</span> *<span style="color: #2075c7;">boxLayer</span>;
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">....</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">....</span>
 <span style="color: #a57705;">UIImage</span> *<span style="color: #2075c7;">image</span> = [[<span style="color: #a57705;">UIImage</span> imageNamed:@<span style="color: #259185;">"Hypno"</span>] CGImage];
 boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 </pre>
@@ -2876,14 +2876,14 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 </p>
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">UIVIew &#54028;&#49373; &#53364;&#47000;&#49828; &#47700;&#49548;&#46300;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">UIVIew &#54028;&#49373; &#53364;&#47000;&#49828; &#47700;&#49548;&#46300;</span>
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">touchesMoved</span>:(<span style="color: #a57705;">NSSet</span> *)<span style="color: #2075c7;">touches</span>
           <span style="color: #2075c7;">withEvent</span>:(<span style="color: #a57705;">UIEvent</span> *)<span style="color: #2075c7;">event</span>
 {
     [<span style="color: #a57705;">CATransaction</span> begin];
     [<span style="color: #a57705;">CATransaction</span> setDisableActions:<span style="color: #259185;">YES</span>];
 
-    aLayer.position = [[touches anyObject] locationInView:<span style="color: #728a05;">self</span>];
+    aLayer.position = [[touches anyObject] locationInView:<span style="color: #729a05;">self</span>];
 
     [<span style="color: #a57705;">CATransaction</span> commit];
 }
@@ -2982,27 +2982,27 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 <pre class="src src-objc"><span style="color: #a57705;">interface</span> <span style="color: #2075c7;">MyAnimation</span> : CABasicAnimation
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 
-<span style="color: #728a05;">@implementation</span> <span style="color: #a57705;">MyAnimation</span>
+<span style="color: #729a05;">@implementation</span> <span style="color: #a57705;">MyAnimation</span>
 +(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">animationWithKeyPath</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">keyPath</span>
 {
     <span style="color: #a57705;">MyAnimation</span> *<span style="color: #2075c7;">instance</span> = [[<span style="color: #a57705;">MyAnimation</span> alloc] init];
     instance.keyPath = keyPath;
-    <span style="color: #728a05;">return</span> instance;
+    <span style="color: #729a05;">return</span> instance;
 }
 -(<span style="color: #a57705;">id</span>)<span style="color: #2075c7;">init</span>
 {
-    <span style="color: #728a05;">self</span> = [<span style="color: #728a05;">super</span> init];
+    <span style="color: #729a05;">self</span> = [<span style="color: #729a05;">super</span> init];
     NSLog(@<span style="color: #259185;">"MyAnimation ctor"</span>);
-    <span style="color: #728a05;">return</span> <span style="color: #728a05;">self</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #729a05;">self</span>;
 }
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">dealloc</span>
 {
     NSLog(@<span style="color: #259185;">"MyAnimation dtor"</span>);
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">[super dealloc];</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">[super dealloc];</span>
 }
-<span style="color: #728a05;">@end</span>      
+<span style="color: #729a05;">@end</span>      
 </pre>
 
 </li>
@@ -3052,20 +3052,20 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#44061;&#52404; &#49373;&#49457;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#44061;&#52404; &#49373;&#49457;</span>
 <span style="color: #a57705;">CAAnimation</span> *<span style="color: #2075c7;">fader</span> = [<span style="color: #a57705;">CABasicAnimation</span> animationWithKeyPath:@<span style="color: #259185;">"opacity"</span>];
 <span style="color: #a57705;">CAAnimation</span> *<span style="color: #2075c7;">mover</span> = [<span style="color: #a57705;">CABasicAnimation</span> animationWithKeyPath:@<span style="color: #259185;">"position"</span>];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47751;&#52488; &#46041;&#50504; &#50528;&#45768;&#47700;&#51060;&#49496;?</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47751;&#52488; &#46041;&#50504; &#50528;&#45768;&#47700;&#51060;&#49496;?</span>
 [fader setDuration:2.0];
 [mover setDuration:1.0];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#52488;&#44592;&#44050; &#49444;&#51221;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#52488;&#44592;&#44050; &#49444;&#51221;</span>
 [fader setFromValue:[<span style="color: #a57705;">NSNumber</span> numberWithFloat:1.0]];
 [mover setFromValue:[<span style="color: #a57705;">NSValue</span> valueWithCGPoint:CGPointMake(0.0, 100.0)]];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47560;&#51648;&#47561;&#44050; &#49444;&#51221;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47560;&#51648;&#47561;&#44050; &#49444;&#51221;</span>
 [fader setToValue:[<span style="color: #a57705;">NSNumber</span> numberWithFloat:0.0]];
 [mover setToValue:[<span style="color: #a57705;">NSValue</span> valueWithCGPoint:CGPointMake(100.0, 100.0)]];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#49884;&#51089;?! &#50668;&#44592; &#51060;&#47492; "BigFade" &#45716; &#49884;&#49828;&#53596;&#51008; &#47924;&#49884;&#54632;. &#54616;&#51648;&#47564;</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#45208;&#51473;&#50640; &#51060; &#50528;&#45768;&#47700;&#51060;&#49496;&#51012; &#51473;&#45800;&#54616;&#44144;&#45208; &#54624;&#46412; &#51060; &#51060;&#47492;&#51004;&#47196; &#52280;&#51312;&#44032;&#45733;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#49884;&#51089;?! &#50668;&#44592; &#51060;&#47492; "BigFade" &#45716; &#49884;&#49828;&#53596;&#51008; &#47924;&#49884;&#54632;. &#54616;&#51648;&#47564;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#45208;&#51473;&#50640; &#51060; &#50528;&#45768;&#47700;&#51060;&#49496;&#51012; &#51473;&#45800;&#54616;&#44144;&#45208; &#54624;&#46412; &#51060; &#51060;&#47492;&#51004;&#47196; &#52280;&#51312;&#44032;&#45733;</span>
 [myLayer addAnimation:fader forKey:@<span style="color: #259185;">"BigFade"</span>];
 [myLayer addAnimation:mover forKey:@<span style="color: #259185;">"BigMove"</span>];
 </pre>
@@ -3171,10 +3171,10 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 <pre class="src src-objc">[spin setDuration:1.0];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">timing function &#49444;&#51221;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">timing function &#49444;&#51221;</span>
 <span style="color: #a57705;">CAMediaTimingFunction</span> *<span style="color: #2075c7;">timing</span> = [<span style="color: #a57705;">CAMediaTimingFunction</span> functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 [spin setTimingFunction:timing];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Layer&#50640; &#49444;&#51221;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Layer&#50640; &#49444;&#51221;</span>
 [myLayer addAnimation:spin]
 </pre>
 
@@ -3192,13 +3192,13 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">/* </span><span style="color: #81908f; font-style: italic;">Delegate methods for CAAnimation. */</span>
-<span style="color: #728a05;">@interface</span> <span style="color: #a57705;">NSObject</span> (<span style="color: #a57705;">CAAnimationDelegate</span>)
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#49884;&#51089;&#49884; &#54840;&#52636;&#46120;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">/* </span><span style="color: #698b69; font-style: italic;">Delegate methods for CAAnimation. */</span>
+<span style="color: #729a05;">@interface</span> <span style="color: #a57705;">NSObject</span> (<span style="color: #a57705;">CAAnimationDelegate</span>)
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#49884;&#51089;&#49884; &#54840;&#52636;&#46120;</span>
 - (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">animationDidStart</span>:(<span style="color: #a57705;">CAAnimation</span> *)<span style="color: #2075c7;">anim</span>;
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#51333;&#47308;&#49884; &#54840;&#52636;&#46120;(&#44053;&#51228;&#51333;&#47308;&#46104;&#47732; flag&#45716; NO)</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50528;&#45768;&#47700;&#51060;&#49496; &#51333;&#47308;&#49884; &#54840;&#52636;&#46120;(&#44053;&#51228;&#51333;&#47308;&#46104;&#47732; flag&#45716; NO)</span>
 - (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">animationDidStop</span>:(<span style="color: #a57705;">CAAnimation</span> *)<span style="color: #2075c7;">anim</span> <span style="color: #2075c7;">finished</span>:(<span style="color: #a57705;">BOOL</span>)<span style="color: #2075c7;">flag</span>;
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 </pre>
 
 
@@ -3491,11 +3491,11 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 <pre class="src src-objc"><span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">search</span> = @<span style="color: #259185;">"Play some \"Abba\" Songs"</span>;
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#51320;&#46972; &#44596; &#47700;&#49884;&#51648;&#47749; "&#53945;&#51221; &#51064;&#53076;&#46377;&#51012; &#49324;&#50857;&#54644; &#54140;&#49468;&#53944; &#51060;&#49828;&#52992;&#51060;&#54532;&#46108; &#47928;&#51088;&#50676;&#51012;</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54140;&#49468;&#53944;&#44592;&#54840;&#47196; &#47564;&#46304; &#47928;&#51088;&#50676;&#51012; &#48152;&#54872;&#54616;&#46972;"</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#51320;&#46972; &#44596; &#47700;&#49884;&#51648;&#47749; "&#53945;&#51221; &#51064;&#53076;&#46377;&#51012; &#49324;&#50857;&#54644; &#54140;&#49468;&#53944; &#51060;&#49828;&#52992;&#51060;&#54532;&#46108; &#47928;&#51088;&#50676;&#51012;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54140;&#49468;&#53944;&#44592;&#54840;&#47196; &#47564;&#46304; &#47928;&#51088;&#50676;&#51012; &#48152;&#54872;&#54616;&#46972;"</span>
 <span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">escapedSearch</span> =
     [search stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44208;&#44284;&#44050;&#51008; "Play%20some%20%22Abba%22%20Songs" &#47196; &#45208;&#50740;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44208;&#44284;&#44050;&#51008; "Play%20some%20%22Abba%22%20Songs" &#47196; &#45208;&#50740;</span>
 </pre>
 
 </li>
@@ -3541,8 +3541,8 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc">- (<span style="color: #a57705;">void</span>) <span style="color: #2075c7;">parser</span>:(<span style="color: #a57705;">NSXMLParser</span> *)<span style="color: #2075c7;">parser</span>   <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">xml parser &#44061;&#52404;</span>
-<span style="color: #2075c7;">didStartElement</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">elementName</span> <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Element&#51060;&#47492;</span>
+<pre class="src src-objc">- (<span style="color: #a57705;">void</span>) <span style="color: #2075c7;">parser</span>:(<span style="color: #a57705;">NSXMLParser</span> *)<span style="color: #2075c7;">parser</span>   <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">xml parser &#44061;&#52404;</span>
+<span style="color: #2075c7;">didStartElement</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">elementName</span> <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Element&#51060;&#47492;</span>
    <span style="color: #2075c7;">namespaceURI</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">nameUri</span>
   <span style="color: #2075c7;">qualifiedName</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">qualifiedName</span>
      <span style="color: #2075c7;">attributes</span>:(<span style="color: #a57705;">NSDictionary</span> *)<span style="color: #2075c7;">attributeDict</span>
@@ -3556,8 +3556,8 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc">- (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">parser</span>:(<span style="color: #a57705;">NSXMLParser</span> *)<span style="color: #2075c7;">parser</span> <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">xml parser &#44061;&#52404;</span>
-<span style="color: #2075c7;">foundCharacters</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">string</span>; <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#52286;&#51008; &#47928;&#51088;&#50676;</span>
+<pre class="src src-objc">- (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">parser</span>:(<span style="color: #a57705;">NSXMLParser</span> *)<span style="color: #2075c7;">parser</span> <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">xml parser &#44061;&#52404;</span>
+<span style="color: #2075c7;">foundCharacters</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">string</span>; <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#52286;&#51008; &#47928;&#51088;&#50676;</span>
 </pre>
 
 </li>
@@ -3566,7 +3566,7 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 <pre class="src src-objc">-(<span style="color: #a57705;">void</span>) <span style="color: #2075c7;">parser</span>:(<span style="color: #a57705;">NSXMLParser</span> *)<span style="color: #2075c7;">parser</span>
- <span style="color: #2075c7;">didEndElement</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">element</span> <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#52286;&#51008; element&#51060;&#47492;</span>
+ <span style="color: #2075c7;">didEndElement</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">element</span> <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#52286;&#51008; element&#51060;&#47492;</span>
   <span style="color: #2075c7;">namespaceURI</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">uri</span>
  <span style="color: #2075c7;">qualifiedName</span>:(<span style="color: #a57705;">NSString</span> *)<span style="color: #2075c7;">qualifiedName</span>;
 </pre>
@@ -3621,7 +3621,7 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 <pre class="src src-objc">-(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">setCircleColor</span>:(<span style="color: #a57705;">UIColor</span>*)<span style="color: #2075c7;">color</span>
 {
     circleColor = color;
-    [<span style="color: #728a05;">self</span> setNeedsDisplay];     <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54868;&#47732;&#44081;&#49888;</span>
+    [<span style="color: #729a05;">self</span> setNeedsDisplay];     <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54868;&#47732;&#44081;&#49888;</span>
 }
 </pre>
 
@@ -3635,7 +3635,7 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 <pre class="src src-objc">-(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">setX</span>:(<span style="color: #a57705;">UIColor</span>*)<span style="color: #2075c7;">x</span>
 {
     x = x
-    [<span style="color: #728a05;">self</span> setNeedsDisplay];     <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54868;&#47732;&#44081;&#49888;</span>
+    [<span style="color: #729a05;">self</span> setNeedsDisplay];     <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54868;&#47732;&#44081;&#49888;</span>
 }
 </pre>
 
@@ -3726,25 +3726,25 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">NSObCRuntime.h &#51473;&#50640;&#49436;...</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">NSObCRuntime.h &#51473;&#50640;&#49436;...</span>
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Marks methods and functions which return an object that needs to be</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">released by the caller but whose names are not consistent with</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Cocoa naming rules. The recommended fix to this is to rename the</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">methods or functions, but this macro can be used to let the clang</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">static analyzer know of any exceptions that cannot be fixed. This</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">macro is ONLY to be used in exceptional circumstances, not to</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">annotate functions which conform to the Cocoa naming rules.</span>
-<span style="color: #81908f; font-style: italic;">//</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">--&gt; &#50500;&#47000;&#51032; NS_RETURNS_RETAINED &#47588;&#53356;&#47196;&#47484; ARC &#51648;&#50896;&#54872;&#44221;&#50640;&#49436; &#52980;&#54028;&#51068;&#54616;&#47732;</span>
-<span style="color: #81908f; font-style: italic;">//     </span><span style="color: #81908f; font-style: italic;">retained&#46108; &#49345;&#53468;&#47196; &#48152;&#54872;&#46108; &#44061;&#52404;&#51032; release&#47484; &#52980;&#54028;&#51068;&#47084;&#44032; &#51088;&#46041;&#51004;&#47196;</span>
-<span style="color: #81908f; font-style: italic;">//     </span><span style="color: #81908f; font-style: italic;">&#54644;&#51456;&#45796;. &#54616;&#51648;&#47564;, &#51060; &#47588;&#53356;&#47196;&#47484; &#49324;&#50857;&#54616;&#45716; &#44163; &#48372;&#45796;&#45716; "&#54632;&#49688;&#51032; &#51060;&#47492;"&#51012;</span>
-<span style="color: #81908f; font-style: italic;">//     </span><span style="color: #81908f; font-style: italic;">&#48148;&#44984;&#50612; &#51221;&#51201; &#48516;&#49437;&#44592;&#44032; &#51064;&#49885;&#54616;&#46020;&#47197; &#54616;&#45716; &#44163;&#51060;&#45796;. </span>
-<span style="color: #bd3612;">#if</span> __has_feature(attribute_ns_returns_retained)
-<span style="color: #bd3612;">#define</span> <span style="color: #2075c7;">NS_RETURNS_RETAINED</span> __attribute__((ns_returns_retained))
-<span style="color: #bd3612;">#else</span>
-<span style="color: #bd3612;">#define</span> <span style="color: #2075c7;">NS_RETURNS_RETAINED</span>
-<span style="color: #bd3612;">#endif</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Marks methods and functions which return an object that needs to be</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">released by the caller but whose names are not consistent with</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Cocoa naming rules. The recommended fix to this is to rename the</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">methods or functions, but this macro can be used to let the clang</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">static analyzer know of any exceptions that cannot be fixed. This</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">macro is ONLY to be used in exceptional circumstances, not to</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">annotate functions which conform to the Cocoa naming rules.</span>
+<span style="color: #698b69; font-style: italic;">//</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">--&gt; &#50500;&#47000;&#51032; NS_RETURNS_RETAINED &#47588;&#53356;&#47196;&#47484; ARC &#51648;&#50896;&#54872;&#44221;&#50640;&#49436; &#52980;&#54028;&#51068;&#54616;&#47732;</span>
+<span style="color: #698b69; font-style: italic;">//     </span><span style="color: #698b69; font-style: italic;">retained&#46108; &#49345;&#53468;&#47196; &#48152;&#54872;&#46108; &#44061;&#52404;&#51032; release&#47484; &#52980;&#54028;&#51068;&#47084;&#44032; &#51088;&#46041;&#51004;&#47196;</span>
+<span style="color: #698b69; font-style: italic;">//     </span><span style="color: #698b69; font-style: italic;">&#54644;&#51456;&#45796;. &#54616;&#51648;&#47564;, &#51060; &#47588;&#53356;&#47196;&#47484; &#49324;&#50857;&#54616;&#45716; &#44163; &#48372;&#45796;&#45716; "&#54632;&#49688;&#51032; &#51060;&#47492;"&#51012;</span>
+<span style="color: #698b69; font-style: italic;">//     </span><span style="color: #698b69; font-style: italic;">&#48148;&#44984;&#50612; &#51221;&#51201; &#48516;&#49437;&#44592;&#44032; &#51064;&#49885;&#54616;&#46020;&#47197; &#54616;&#45716; &#44163;&#51060;&#45796;. </span>
+<span style="color: #9d4632;">#if</span> __has_feature(attribute_ns_returns_retained)
+<span style="color: #9d4632;">#define</span> <span style="color: #2075c7;">NS_RETURNS_RETAINED</span> __attribute__((ns_returns_retained))
+<span style="color: #9d4632;">#else</span>
+<span style="color: #9d4632;">#define</span> <span style="color: #2075c7;">NS_RETURNS_RETAINED</span>
+<span style="color: #9d4632;">#endif</span>
 
 </pre>
 
@@ -3762,10 +3762,10 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Won't work:</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Won't work:</span>
 @property <span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">newTitle</span>;
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Works:</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Works:</span>
 @property (getter=theNewTitle) <span style="color: #a57705;">NSString</span> *<span style="color: #2075c7;">newTitle</span>;
 </pre>
 
@@ -3801,43 +3801,43 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #728a05;">@implementation</span> <span style="color: #a57705;">MyClass</span>
+<pre class="src src-objc"><span style="color: #729a05;">@implementation</span> <span style="color: #a57705;">MyClass</span>
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54624;&#45817;&#51088; &#50724;&#48260;&#46972;&#51060;&#46377;&#51008; alloc, allocWithZone &#47784;&#46160; &#54644;&#50556; &#54616;&#51648;&#47564;, alloc &#46020;</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44208;&#44397; allocWithZone &#51012; &#54840;&#52636;&#54616;&#48064;&#47196; &#44536;&#45285; allocWithZone &#54616;&#45208;&#47564;</span>
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50724;&#48260;&#46972;&#51060;&#46377; &#54616;&#47732; &#46108;&#45796;.</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54624;&#45817;&#51088; &#50724;&#48260;&#46972;&#51060;&#46377;&#51008; alloc, allocWithZone &#47784;&#46160; &#54644;&#50556; &#54616;&#51648;&#47564;, alloc &#46020;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44208;&#44397; allocWithZone &#51012; &#54840;&#52636;&#54616;&#48064;&#47196; &#44536;&#45285; allocWithZone &#54616;&#45208;&#47564;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50724;&#48260;&#46972;&#51060;&#46377; &#54616;&#47732; &#46108;&#45796;.</span>
 -(<span style="color: #a57705;">id</span>) <span style="color: #2075c7;">allocWithZone</span>:(<span style="color: #a57705;">NSZone</span> *)<span style="color: #2075c7;">zone</span>
 {
-    <span style="color: #728a05;">return</span> [<span style="color: #728a05;">self</span> theInstance];
+    <span style="color: #729a05;">return</span> [<span style="color: #729a05;">self</span> theInstance];
 }
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Singleton &#51217;&#44540;&#54632;&#49688;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Singleton &#51217;&#44540;&#54632;&#49688;</span>
 -(<span style="color: #a57705;">id</span>) <span style="color: #2075c7;">theInstance</span>
 {
-    <span style="color: #728a05;">static</span> <span style="color: #a57705;">MyClass</span> *<span style="color: #2075c7;">inst</span> = <span style="color: #259185;">nil</span>;
-    <span style="color: #728a05;">if</span> (<span style="color: #c60007;">!</span>inst) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50896;&#47000;&#45716; &#48512;&#47784;&#51032; alloc &#51012; &#54840;&#52636;&#54616;&#44592; &#49789;&#51648;&#47564;, &#44208;&#44397; alloc &#46020;</span>
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">allocWithZone &#51012; &#54840;&#52636;&#54616;&#48064;&#47196;, &#50500;&#50696; &#52376;&#51020;&#48512;&#53552; allocWithZone &#51012;</span>
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#54840;&#52636;&#54616;&#47732; &#45908; shortcut&#51060;&#45796;.</span>
-        inst = [[<span style="color: #728a05;">super</span> allocWithZone:NULL] init];
+    <span style="color: #729a05;">static</span> <span style="color: #a57705;">MyClass</span> *<span style="color: #2075c7;">inst</span> = <span style="color: #259185;">nil</span>;
+    <span style="color: #729a05;">if</span> (<span style="color: #c60007;">!</span>inst) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50896;&#47000;&#45716; &#48512;&#47784;&#51032; alloc &#51012; &#54840;&#52636;&#54616;&#44592; &#49789;&#51648;&#47564;, &#44208;&#44397; alloc &#46020;</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">allocWithZone &#51012; &#54840;&#52636;&#54616;&#48064;&#47196;, &#50500;&#50696; &#52376;&#51020;&#48512;&#53552; allocWithZone &#51012;</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#54840;&#52636;&#54616;&#47732; &#45908; shortcut&#51060;&#45796;.</span>
+        inst = [[<span style="color: #729a05;">super</span> allocWithZone:NULL] init];
     }
-    <span style="color: #728a05;">return</span> inst;
+    <span style="color: #729a05;">return</span> inst;
 }
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49892;&#51228; &#44061;&#52404; &#49373;&#49457;&#51088;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49892;&#51228; &#44061;&#52404; &#49373;&#49457;&#51088;</span>
 -(<span style="color: #a57705;">id</span>) <span style="color: #2075c7;">init</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">XCode 4.2 &#48512;&#53552; &#51060;&#47088;&#49885;&#51004;&#47196; &#48512;&#47784;&#51032; &#49373;&#49457;&#51088;&#47484; &#54840;&#52636;&#54620; &#44208;&#44284;&#47484; self&#50640;</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#45824;&#51077;&#54616;&#46020;&#47197; &#54632;. &#44144;&#51032; idiom</span>
-    <span style="color: #728a05;">self</span> = [<span style="color: #728a05;">super</span> init];
-    <span style="color: #728a05;">if</span> (<span style="color: #728a05;">self</span>) {
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#49892;&#51228; &#52488;&#44592;&#54868; &#47336;&#54004;&#51060; &#50668;&#44592;&#50640; &#50740;.</span>
-        <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#47716;&#48260; &#44061;&#52404;&#46308;&#50640; &#45824;&#54620; &#54624;&#45817;/&#52488;&#44592;&#54868; &#47336;&#54004;&#51060; &#48372;&#53685; &#50668;&#44592;&#50640;...</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">XCode 4.2 &#48512;&#53552; &#51060;&#47088;&#49885;&#51004;&#47196; &#48512;&#47784;&#51032; &#49373;&#49457;&#51088;&#47484; &#54840;&#52636;&#54620; &#44208;&#44284;&#47484; self&#50640;</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#45824;&#51077;&#54616;&#46020;&#47197; &#54632;. &#44144;&#51032; idiom</span>
+    <span style="color: #729a05;">self</span> = [<span style="color: #729a05;">super</span> init];
+    <span style="color: #729a05;">if</span> (<span style="color: #729a05;">self</span>) {
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#49892;&#51228; &#52488;&#44592;&#54868; &#47336;&#54004;&#51060; &#50668;&#44592;&#50640; &#50740;.</span>
+        <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#47716;&#48260; &#44061;&#52404;&#46308;&#50640; &#45824;&#54620; &#54624;&#45817;/&#52488;&#44592;&#54868; &#47336;&#54004;&#51060; &#48372;&#53685; &#50668;&#44592;&#50640;...</span>
     }
-    <span style="color: #728a05;">return</span> <span style="color: #728a05;">self</span>;
+    <span style="color: #729a05;">return</span> <span style="color: #729a05;">self</span>;
 }
 
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 
 </pre>
 
@@ -4446,19 +4446,19 @@ boxLayer.contents = (__bridge <span style="color: #a57705;">id</span>)image;
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#48708;&#53944;&#47605; GD&#49373;&#49457;</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#48708;&#53944;&#47605; GD&#49373;&#49457;</span>
 UIGraphicsBeginImageContextWithOptions(
-        size, <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">CGSize size</span>
-        <span style="color: #259185;">NO</span>,   <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">BOOL opaque</span>
-        1.0   <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">CGFloat scale</span>
+        size, <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">CGSize size</span>
+        <span style="color: #259185;">NO</span>,   <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">BOOL opaque</span>
+        1.0   <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">CGFloat scale</span>
     );
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#50668;&#44592;&#49436; Drawing&#51089;&#50629; &#49688;&#54665;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#50668;&#44592;&#49436; Drawing&#51089;&#50629; &#49688;&#54665;</span>
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44536;&#47140;&#51652; &#44208;&#44284;&#47932;&#51012; &#51060;&#48120;&#51648;&#47196; &#50619;&#51020;.</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44536;&#47140;&#51652; &#44208;&#44284;&#47932;&#51012; &#51060;&#48120;&#51648;&#47196; &#50619;&#51020;.</span>
 <span style="color: #a57705;">UIImage</span> *<span style="color: #2075c7;">result</span> = UIGraphicsGetImageFromCurrentImageContext();
 
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#48708;&#53944;&#47605;GD &#51228;&#44144;</span>
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#48708;&#53944;&#47605;GD &#51228;&#44144;</span>
 UIGraphicsEndImageContext();
 </pre>
 
@@ -4509,22 +4509,22 @@ render tree.
 
 
 
-<pre class="src src-objc"><span style="color: #81908f; font-style: italic;">/* </span><span style="color: #81908f; font-style: italic;">Delegate methods for CAAnimation. */</span>
+<pre class="src src-objc"><span style="color: #698b69; font-style: italic;">/* </span><span style="color: #698b69; font-style: italic;">Delegate methods for CAAnimation. */</span>
 
-<span style="color: #728a05;">@interface</span> <span style="color: #a57705;">NSObject</span> (<span style="color: #a57705;">CAAnimationDelegate</span>)
+<span style="color: #729a05;">@interface</span> <span style="color: #a57705;">NSObject</span> (<span style="color: #a57705;">CAAnimationDelegate</span>)
 
-<span style="color: #81908f; font-style: italic;">/* </span><span style="color: #81908f; font-style: italic;">Called when the animation begins its active duration. */</span>
+<span style="color: #698b69; font-style: italic;">/* </span><span style="color: #698b69; font-style: italic;">Called when the animation begins its active duration. */</span>
 
 - (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">animationDidStart</span>:(<span style="color: #a57705;">CAAnimation</span> *)<span style="color: #2075c7;">anim</span>;
 
-<span style="color: #81908f; font-style: italic;">/* </span><span style="color: #81908f; font-style: italic;">Called when the animation either completes its active duration or</span>
-<span style="color: #81908f; font-style: italic;"> * is removed from the object it is attached to (i.e. the layer). 'flag'</span>
-<span style="color: #81908f; font-style: italic;"> * is true if the animation reached the end of its active duration</span>
-<span style="color: #81908f; font-style: italic;"> * without being removed. */</span>
+<span style="color: #698b69; font-style: italic;">/* </span><span style="color: #698b69; font-style: italic;">Called when the animation either completes its active duration or</span>
+<span style="color: #698b69; font-style: italic;"> * is removed from the object it is attached to (i.e. the layer). 'flag'</span>
+<span style="color: #698b69; font-style: italic;"> * is true if the animation reached the end of its active duration</span>
+<span style="color: #698b69; font-style: italic;"> * without being removed. */</span>
 
 - (<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">animationDidStop</span>:(<span style="color: #a57705;">CAAnimation</span> *)<span style="color: #2075c7;">anim</span> <span style="color: #2075c7;">finished</span>:(<span style="color: #a57705;">BOOL</span>)<span style="color: #2075c7;">flag</span>;
 
-<span style="color: #728a05;">@end</span>
+<span style="color: #729a05;">@end</span>
 </pre>
 
 
@@ -4553,22 +4553,22 @@ render tree.
 {
     <span style="color: #a57705;">UIAlertView</span> *<span style="color: #2075c7;">av</span> = [[<span style="color: #a57705;">UIAlertView</span> alloc] initWithTitle:@<span style="color: #259185;">"&#47700;&#49884;&#51648; &#49345;&#51088; &#53440;&#51060;&#53952;"</span>
                                                  message:@<span style="color: #259185;">"&#47700;&#49884;&#51648; &#49345;&#51088;&#50640; &#54364;&#49884;&#46104;&#45716; &#47928;&#51088;&#50676;"</span>
-                                           <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#45236; &#49828;&#49828;&#47196;&#50640;&#44172; &#53685;&#51648;&#50836;&#52397;</span>
-                                                delegate:<span style="color: #728a05;">self</span>
-                                           <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#52395;&#48264;&#51704; &#48260;&#53948;&#51060; "cancel" &#48260;&#53948;&#51076;. &#54616;&#51648;&#47564;,</span>
-                                           <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">&#44845; "&#52712;&#49548;"&#51032; &#44592;&#45733;&#51068; &#54596;&#50836;&#45716; &#50630;&#51020;.</span>
+                                           <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#45236; &#49828;&#49828;&#47196;&#50640;&#44172; &#53685;&#51648;&#50836;&#52397;</span>
+                                                delegate:<span style="color: #729a05;">self</span>
+                                           <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#52395;&#48264;&#51704; &#48260;&#53948;&#51060; "cancel" &#48260;&#53948;&#51076;. &#54616;&#51648;&#47564;,</span>
+                                           <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">&#44845; "&#52712;&#49548;"&#51032; &#44592;&#45733;&#51068; &#54596;&#50836;&#45716; &#50630;&#51020;.</span>
                                        cancelButtonTitle:@<span style="color: #259185;">"&#54869;&#51064;"</span>
-                                       otherButtonTitles:<span style="color: #728a05;">self</span>];
+                                       otherButtonTitles:<span style="color: #729a05;">self</span>];
     [av show];
 }
 
-<span style="color: #bd3612;">#pragma</span> mark -
-<span style="color: #bd3612;">#pragma</span> mark - UIAlertView delegate
+<span style="color: #9d4632;">#pragma</span> mark -
+<span style="color: #9d4632;">#pragma</span> mark - UIAlertView delegate
 
 -(<span style="color: #a57705;">void</span>)<span style="color: #2075c7;">alertView</span>:(<span style="color: #a57705;">UIAlertView</span> *)<span style="color: #2075c7;">alertView</span> <span style="color: #2075c7;">willDismissWithButtonIndex</span>:(<span style="color: #a57705;">NSInteger</span> *)<span style="color: #2075c7;">buttonIndex</span>
 {
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">buttonIndex &#44032; 0 &#51060;&#47732; cancelButton(&#44032;&#51109; &#48152;&#51677;&#51060;&#45716; &#46356;&#54260;&#53944; &#48260;&#53948;)</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">AlertView&#51032; &#48260;&#53948;&#51060; &#45580;&#47532;&#47732; &#45803;&#55176;&#47732;&#49436; delegate&#50640; &#51060; &#47700;&#49884;&#51648;&#47484; &#51204;&#49569;&#54632;.</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">buttonIndex &#44032; 0 &#51060;&#47732; cancelButton(&#44032;&#51109; &#48152;&#51677;&#51060;&#45716; &#46356;&#54260;&#53944; &#48260;&#53948;)</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">AlertView&#51032; &#48260;&#53948;&#51060; &#45580;&#47532;&#47732; &#45803;&#55176;&#47732;&#49436; delegate&#50640; &#51060; &#47700;&#49884;&#51648;&#47484; &#51204;&#49569;&#54632;.</span>
 }
 
 </pre>
@@ -4599,12 +4599,12 @@ render tree.
 </p>
 
 
-<pre class="src src-objc"><span style="color: #bd3612;">#pragma</span> mark - Table view data source
+<pre class="src src-objc"><span style="color: #9d4632;">#pragma</span> mark - Table view data source
 - (<span style="color: #a57705;">NSInteger</span>)<span style="color: #2075c7;">numberOfSectionsInTableView</span>:(<span style="color: #a57705;">UITableView</span> *)<span style="color: #2075c7;">tableView</span>
 {
-<span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">#warning Potentially incomplete method implementation.</span>
-    <span style="color: #81908f; font-style: italic;">// </span><span style="color: #81908f; font-style: italic;">Return the number of sections.</span>
-    <span style="color: #728a05;">return</span> 0;
+<span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">#warning Potentially incomplete method implementation.</span>
+    <span style="color: #698b69; font-style: italic;">// </span><span style="color: #698b69; font-style: italic;">Return the number of sections.</span>
+    <span style="color: #729a05;">return</span> 0;
 }
 </pre>
 
@@ -4830,8 +4830,8 @@ render tree.
 </div>
 
 <div id="postamble">
-<p class="date">Date: 2013-03-24T15:39+0900</p>
-<p class="author">Author: Joonhwan</p>
+<p class="date">Date: 2013-03-25T11:25+0900</p>
+<p class="author">Author: </p>
 <p class="creator"><a href="http://orgmode.org">Org</a> version 7.9.3f with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
 <a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
 
