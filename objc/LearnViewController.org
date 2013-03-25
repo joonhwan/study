@@ -108,5 +108,387 @@ tab 대화상자와 비슷.
   생성.
 
 ** ViewController 의 컨텐츠는 여러방법으로 표시
+아래와 같은 방법으로 ViewController 의 컨텐츠가 사용자에게 보여짐.
+1) 윈도우의 rootViewController 로 설정
+2) Container ViewController 의 자식으로 설정
+3) Popover 컨트롤에 표시
+4) 다른 ViewController 로 부터 present
+
+** 여러 ViewController 가 모여 앱의 인터페이스를 구성
+ViewController 는 자기의 View들 및 연관된 객체들을 관리하지만, 다른
+ViewController 들과 협업으로 사용자 인터페이스를 구성. -->
+ViewController 간의 통신이 중요. --> ViewController 간의 관계를 맺어
+상호작용함. 그 관계는 어떤것들이?
+
+*** 부모-자식 관계 : 포함(Containment)
+탭 4개로 구성된 UITabViewController 의 예. 첫번째 탭은 네비게이션
+컨트롤러. 나머지는 컨텐트 뷰 컨트롤러. 네비게이션 컨트롤러는 다시
+마스터와 디테일 컨트롤러를 구성.
+[[file:img/LearnViewController_20130325_195604_.png]]
+
+화살표는 부모->자식 관계를 표시. 가장 상위의 ViewController 가
+rootViewController 임. 얘는 window 로부터 크기를 가져와 탭바 를
+구성하고 나머지 화면공간을 자식들에 배분. 각 자식 ViewController 는
+배분 받은 걸 기준으로 자신의 view 에게 화면을 배분. 이러한
+View-ViewController 관계로 앱의 이벤트 처리를 위한 Responder Chain 도
+구성.
+
+*** 컨테이너 안에서의 이웃관계
+뷰컨에 따라서는 자신의 자식들간에 독특한 관계를 형성하기도 함.
+
+- 탭 뷰컨트롤러 에서 각 탭은 컨텐츠를 구분된 화면의 컨텐츠를 의미.
+  따라서, 자식들간에는 특별한 관계가 필요는 없음(만들 수는 있겠지만).
+- 네비 뷰컨트롤러 에서 자식들은 선택/복귀의 관계가 있음(스택의 형태로
+  이웃하는 자식들이 관리됨) --> 이 경우, 이웃하는 것들끼리는 어떤
+  연결의 형태가 있음.
+  
+네비 뷰컨의 예. 네비뷰에서 특정 자식이 선택되면, 스택의 맨 앞으로
+push된다(그럼 화면에 보여진다).
+
+[[file:img/LearnViewController_20130325_200558_.png]]
+  
+*** 다른 인터페이스상에 동적화면을 프리젠테이션
+ViewController 는 어떤 작업을 수행하기 위한 다른 ViewController 가
+필요할 때 화면에 띄울 수 있다("Present"). "대화상자"처럼.
+[[file:img/LearnViewController_20130325_201550_.png]]
+
+다음 예에서, Content가 Modal 을 띄울 때, rootViewController 로 부터
+Presentation Context를 제공받는데, 이 Context 에서 Modal이 표시될
+화면 영역이 정의된다. Presentation Context 는 Modal을 Present하는
+Content 로 부터 제공받을 수 도 있는데... 그럼 아마 화면 표시영역이
+달라지겠지.
+
+[[file:img/LearnViewController_20130325_202314_.png]]
+
+*** 컨텐츠 컨트롤러들간의 연동이 순서도로 표현
+여러 ViewController 를 가지는 앱에서는 보통, 앱이 수행되는 동안,
+생성/파괴를 반복하게 된다. ViewController 가 파괴되기 전까지, 서로
+통신하여 부드러운 사용자 경험을 제공한다. 이러한 관계가 앱의 제어
+흐름으로 표현된다.
+
+ViewController 가 생성될때 새로운 순서도의 동작이 일어난다. 보통,
+ViewController 는 다른 ViewController 안에서의 동작으로 인해
+생성된다.
+
+1) Source ViewController : 동작이 일어난 ViewController
+2) Destination ViewController : 그로인해 생성된 ViewController
+  
+보통 2) 가 표시할 데이터는 1) 에 의해서 제공됨. 만일 2) 로부터
+데이터를 1) 로 가져와야 한다면, 1)은 둘간의 연결을 구성하도록 해야
+한다.
+
+source-desitnation 간 통신의 종류
+- 내비 컨트롤러가 스택에 다른 자식을 push
+- 다른 ViewController 를 present
+- 다른 ViewController 를 popover
+
+[[file:img/LearnViewController_20130325_203833_.png]]  
+  
+  
+각 컨트롤러는 자신보다 앞선 컨트롤러에 의해 설정 --> 통신 체인 형성
+위 그림의 위 각 연결에서 제어흐름은 다음과 같은 규칙으로 구성된다.
+
+- Destination ViewController 는 데이터와 Presentation을 설정하기 위해
+  사용되는 속성을 제공한다.
+- Destination ViewController가 위 그림과 같은 연결고리상에서 자신보다
+  앞에 있는 컨트롤러와 통신해야 하면, delegation 을 사용한다. 즉
+  Source ViewController 가 Destination ViewController 의 delegation
+  을 위한 프로토콜을 구현한다. 
+  
+제어흐름을 구현시 가장 중요한 점은 *Source ViewController 는
+Destination 을 알아도, Destination 은 Source 에 대해 모르게 구현*
+해야 한다는 것. -> 가급적 커플링을 끝어서 재사용성을 높임. 
+
+*** 스토리 보드
+별로 안조은거. 생략.
+
+* ViewController 사용하기.
+** 스토리 보드로 ViewController 생성하기.
+*** 스토리 보드란?
+제어흐름이 Visual하게 보이는 장점. 코딩안해도 되는 점. ViewController
+들을 작업흐름에 따라 화면에 보이는 순서를 정해 생성하고, 이들간의
+관계를 설정함으로써, 앱 전체를 개발하는 식.
+
+관계를 어떻게 맺느냐에 따라 각 ViewController 의 생성시기가 다름.
+
+1) Segue : Destination ViewController 는 Segue 가 trigger 될 때
+   자동으로 생성된다.
+2) Containment : Child ViewController 는 부모가 생성될 때 자동으로
+   생성된다.
+3) 위 1) 혹은 2) 어느쪽도 아니면, 절대 자동생성되지 않는다. 직접 코드를
+   짜서 스토리보드로 부터 생성해야 한다.
+   
+스토리 보드내에서의 ViewController 또는 Segue 는 IB 에서 Identifier
+String 문자열로 참조할 수 있음(특히, 코드로 직접 ViewController 를
+생성하고자 한다면, 이게 있어야 함). 맘편하게 아예 모든 Segue /
+ViewController 에 Identifier String 을 붙여놓는게 나중에 편하다(특히,
+segue 동작시 이 값이 함수로 전달되어 어느 segue에 의해 ViewController
+가 생성되었는지 알 수 있단다).
+
+*** 스토리보드의 ViewController 를 iOS가 생성하게 하기.
+앱의 info.plist 파일에 Main Storyboard 가 설정되어 있다면, 앱이
+실행될때 iOS 는 다음과 같은 작업을 함.
+1) window 를 생성해줌
+2) Main Storyboard 를 불러들이고, initial ViewController 를 생성.
+3) 2)에서 생성된 ViewController 를 window 의 /rootViewController/ 로
+   설정함.
+   
+Segue 가 trigger 되면, iOS 는 다음을 수행.
+
+1) Instantiation : 스토리 보드에서 제공된 어트리뷰트 값을 사용해 Destination
+   ViewController 를 생성
+2) Configuration : Source ViewController 에게 Destination
+   ViewController 를 설정할 수 있는 기회제공(메소드 호출)
+3) Transition : Segue 에 설정된 transition 을 수행
+
+*유의사항* Custom ViewController 를 직접 만들고 스토리 보드에서
+사용되도록 할 경우, 위의 동작이 이루어질 수 있도록 속성/메소드를
+선언해야 한다. 
+
+**** Segue 를 코드로 trigger 하기.
+보통은 control 이나 gesture recognizer 와 같은 Source ViewController
+와 연관된 객체들이 Segue 를 tirgger한다. 하지만, Segue 에 identifier
+string 이 지정되어 있다면, 이걸가지고 코드상에서 trigger가 가능.
+예를들면, 게임에서 경기가 끝나면 어떤 Segue 를 강제로 trigger할
+필요가 있다.
+
+ViewController 의 performSegueWithIdentifier:sender: 메소드를
+호출하되, segue 의 identifier 와 sender 객체를 넘겨주면 된다. Source
+ViewController 로 하여금 새로이 생기는 이 ViewController 를
+설정하도록 메소드가 호출될때, 이 2개의 인자가 넘어가서 작업을 수행할
+수 있다. 다음 예는 기기의 방향이 바뀔 때, 바뀐 방향에 맞는 새로운
+ViewController 가 생성되도록 Segue가 trigger 된다.
+
+#+BEGIN_SRC objc
+  -(void)orientationChanged:(NSNotification *)notification
+  {
+      UIDeviceOrientation *devOrient = [UIDevice currentDevice].orientation;
+      if (UIDeviceOrientationIsLandscape(devOrient) &&
+          !isShowingLandscapeView)
+      {
+          [self performSegueWithIdentifier:@"DisplayAlternateView"
+                                    sender:self];
+          isShowingLandscapeView = YES;
+      }
+  
+      // 나머지 구현부는 생략.
+  }
+#+END_SRC
+
+*** 스토리보드의 ViewController 를 코드로 직접 생성하기.
+Segue 를 사용하지 않고, VieController 를 코드로 생성한다고? 그래도
+여전히 스토리보드는 값어치가 있다. View의 계층 뿐 아니라
+ViewController 의 속성까지 스토리보드상에서 설정할 수 있기 때문이다.
+
+이렇게 하면 된다.
+
+1) UIStoryboard 클래스의 객체를 얻는다. 
+   
+   동일 스토리 보드 상에서 이미 생성된 ViewController 로 부터 새로운
+   ViewController 를 만드는 경우라면, 기존 ViewController 의
+   /sotryboard/ 속성값을 사용해 스토리보드 객체를 참조가능.
+   
+   그렇제 않은 경우라면, UIStoryboard 클래스의
+   storyboardWithName:bundle: 클래스 메소드에 스토리보드 파일명과
+   선택적 인자인 번들객체를 넘겨서 새로이 UIStoryboard 객체를 만들 수
+   있다. 
+
+2) 스토리보드 객체의 instantiateVieControllerWithIdentifier: 메소드에
+   IB에서 해당 ViewController에 지정한 indentifier string 를 넘겨서
+   원하는 ViewController 를 생성할 수 있다.
+   
+   또는 instantiateInitialViewController 를 쓰면 특별하게 initial
+   ViewController 를 만들수 있다(이 경우 identifier string 이 필요없음).
+
+3) 새로운 ViewController 객체의 속성값을 정하는 등의 설정작업을
+   수행한다.
+
+4) 만들어진 ViewController 를 화면에 표시한다.
+   
+   Window의 rootViewController 로 설정하거나, present하거나, Container
+   ViewController의 자식으로 만들거나, Popover하거나....
+   
+   다음은 자주 사용되는 기법의 예. 
+   #+BEGIN_SRC objc
+     -(IBAction)presentMySpecialViewController:(id)sender
+     {
+         // UIStoryboard 객체 참조를 얻음.
+         UIStoryboard *sb = self.storyboard;
+     
+         // storyboard를 통해 ViewController 객체 생성
+         MySpecialViewController *svc
+             = [stroyboard instatiateViewControllerWithIdentifier:@"MySpecialViewCon"];
+     
+         // svc 에 대한 설정작업을 여기에서 한다.
+     
+         // 화면에 표시
+         [self presentViewController:svc
+                            animated:YES
+                          completion:nil];
+     }
+   #+END_SRC
+
+   다음은 또 다른 자주 사용되는 용례. AppDelegate 에서 아래와 같은
+   메소드를 호출해서 window 객체를 얻은 다음, makeKeyAndVisible 을
+   호출 할 수 있겠다.
+   #+BEGIN_SRC objc
+     -(UIWindow *)windowFromStoryboard:(NSString *)storyboardName
+                              onScreen:(UIScreen *)screen
+     {
+         UIWindow *window = [[UIWindow alloc] initWithFrame:[screen bounds]];
+         window.screen = screen;
+     
+         UIStoryboard *sb = [UIStoryboard storyboardWithName:storyboardName
+                                                      bundle:nil];
+         MainViewController *mainView = [sb instantiateInitialViewController];
+     
+         // 새로이 생성된 mainView 객체의 속성을 설정
+     
+         // root ViewController 로 지정
+         window.rootViewController = mainView;
+     
+         return window;
+     }
+   #+END_SRC
+
+**** 별도의 스토리보드로 장면전환하기 위해서는 코드로 해야...
+Segue 는 하나의 스토리보드내에 있는 장면들만을 연결한다. 다른
+스토리보드 파일에 있는 ViewController 를 표시하기 위해서는 해당
+스토리보드 파일을 불러들여 코드로 생성해야 함.
+
+*앱내에서 스토리보드 파일은 몇개라도 사용가능* ! 다수의 스토리보드
+파일을 사용하는 경우의 이점은 다음과 같음.
+
+- 대규모 프로그래밍 팀이 작업을 나누어서 하는 경우
+- 상용 라이브러리가 별도의 스토리보드를 가지고 있는 경우
+- 외부화면에 표시되어야 할 컨텐츠가 있는 경우, 외부화면용 스토리보드
+  파일을 따로 두면 편함.
+  
+*** Container ViewController 는 자식 ViewController 를 자동생성
+스토리보드 파일내의 Container ViewController 가 생성될 때는, 자식
+ViewController 들도 함께 생성됨. 자식 ViewController 가 Container 인
+경우 그 놈의 자식들도 함께 동시 생성됨.
+
+생성한 다음, 설정하기 전까지 모든 자식/손자 ViewController 들이 주욱
+생성된다. 설정작업은 주로 컨텐츠 ViewController 에 대하여 수행되는
+경우가 많으므로 이러한 동작특성은 중요하다(컨텐츠 ViewController
+수준의 자식레벨까지 전부 생성되므로).
+
+** 스토리보드가 아닌 ViewController 생성하기.
+Objective-C 코드로 ViewController 를 할당하고, 초기화. -_-; 
+
+** ViewController 를 코딩으로 표시하기.
+ViewController 의 화면표시방법
+1) Window 의 rootViewController 로 만들기
+   #+BEGIN_SRC objc
+     -(void) applicationDidFinishLaunching:(UIApplication *)application
+     {
+         UIWindow *window = [[UIWindow alloc]
+                                initWithFrame:[[UIScreen mainScreen] bounds]];
+         levelViewController = [[LevelViewController alloc] init];
+         window.rootViewController = levelViewController;
+         [window makeKeyAndVisible];
+     }
+   #+END_SRC
+2) 현재 표시중인 Container ViewController 의 자식으로 만들기
+3) 다른 표시중인 ViewController 로 부터 Present
+4) Popover로 Present 하기 (iPad만 지원!)
+
+*주의사항* : ViewController 의 /view/ 를 특정 /view/ 부모-자식 계층에
+직접 넣으면 안됨(subview 에 addObject ?). View 를 적절히 present 하고
+관리하기 위해, 시스템은 표시하고자 하는 각 view들(그리고 연관된
+ViewController들)을 기억해 놓는다. 이 정보는 나중에 사용자의 앱에
+ViewController 관련 이벤트를 보고할 때 사용된다. 예를들어, 장치의
+방향이 바뀌면 Window 는 이 계층 정보를 사용해, 가장 앞쪽에 있는
+ViewController 를 찾는다.
+사용자정의 Container ViewController 를 구현하려 한다면, 다른
+ViewController 의 view 를 자신의 view계층에 추가하는 것에 앞서
+부모-자식 관계를 먼저 생성해 주어야 한다. 이렇게 해야 이벤트가
+옳바르게 전달된다.
+
+* 커스텀 Content ViewController 만들기
+기존에 없는 Content ViewController를 구현하는 일은 어플 개발의
+핵심이다. 앱의 독특한 컨텐츠를 표시하기 위해 필요. 모든 어플은 적어도
+1개의 커스텀 Content ViewController 를 가진다.
+
+ViewController에는 많은 요구사항이 있다. 이런 요구사항들은 어플에서
+정의된 요구되는 역할들이지만, 그 중 일부는 iOS가 요구하는 것도 있다.
+
+** 커스텀 Content ViewController 의 구성
+UIViewController 클래스는 커스텀 ViewController 를 구현하기 위한
+기본적인 인프라를 제공한다. 우선 UIViewController 를 상속받은
+클래스를 정의한다. 이 서브클래스는 데이터를 표시하는 view 를 생성하기
+위한 코드를 제공하며, 사용자의 동작에 반응한다. ViewController 의
+기본 동작을 변경하기 위해서는 UIViewController 클래스의 메소드를
+오버라이드한다. 원하는 동작을 구현하기 위해 다른 UIKit 클래스들과
+상호작용을 해야 할 수도 있다.
+
+다음과 같은 요소를 가진다.
+- 표시할 커스텀 데이터 객체들
+- view 와 이 view의 subview로 구성된 계층
+  
+  [[file:img/LearnViewController_20130325_233123_.png]]
+
+결국, 새로운 ViewController 설계시 다음과 같은 요구사항으로 귀결
+- 내부적 관리 : 자신의 데이터 객체나 view 계층
+- 외부적 관리 : 다른 ViewController 들과의 동작
+
+*** ViewController 는 리소스를 관리한다.
+1) 처음부터 끝까지 항상 필요한 리소스
+2) contents가 화면에 표시될 때만 필요한 리소스 : "view"
+필요한 리소스만 메모리에 들고 있도록 잘 짜야 한다.
+
+*** ViewController 는 View(또는 여러 View들)를 관리한다.
+- 자신의 /view/ 와 그 view의 subview 들을 관리
+- /view/ 의 frame 은 ViewController 가 관리하지 못한다(다른 요소. ex:
+  기기 방향. 등에 의해 결정)
+- 외부로 부터 제공받은 frame 에 자신의 view 를 잘 layout 하도록
+  설계해야 함.
+  
+*** ViewController 는 이벤트에 반응한다.
+ViewController는 자신이 관리하는 view들 및 control들 간의 동작을
+조율하는 데 있어 중심적인 역할을 함. 대개, 사용자가 controls을 조작할
+때, control로 하여금 자신의 ViewController 에 메시지를 보내어
+처리되도록 설계함. ViewController 는 이 메시지를 처리하여,
+ViewController 내에 저장된 데이터나 view들에 필요한 변경을 가하는
+식으로 구현되어야 한다.
+
+ViewController 는 또한 *Responder Chain* 에 속해, 이벤트를 앱에
+전달한다. 기존 ViewController 메소드를 오버라이드해서 이벤트처리에
+직접 참여할 수도 있고, 시스템 통지, 타이머, 혹은 앱에 특화된 어떤
+이벤트에 반응하기 위한 메소드를 정의할 수 도 있다.
+
+*** ViewController 는 다른 ViewController 와 협업한다.
+그럴려면, 한 ViewController 의 기능/속성/데이터를 외부에 노출시켜야
+하는데, 너무 많이 노출시키면, 작업을 지속할 수록 점점 일이 어려워
+진다. 가능한 최소한으로 노출시키자.
+
+*** ViewController 는 Container 와 자주 연동된다.
+ViewController 가 Container 내에 위치하면, 추가적인 제약사항이
+부여된다. 아래 그림에서 "Optional objects requested by containing
+view controller" 라고 표시된 부분이 그런거. 원래 관리하는 것과는
+별도의 데이터가 요구되는 것. 이게 있어야 Container 의 UI 를 제대로
+설정할 수 있다. 예) Tab ViewController 내에 있는 Content
+ViewController 는 탭에 표시할 Tab Bar Item 을 제공해야 한다.
+
+[[file:img/LearnViewController_20130325_235237_.png]]
+
+UIKit 에서 제공되는 이런 추가적인 속성들은 UIViewController 클래스에
+정의되어 있다. "View Controller Catalog for iOS" 문서를 참조.
+
+*** ViewController 는 다른 ViewController 로 부터 Present될 수 있다.
+대화상자 doModal() 하는 것과 유사. 앱의 작업흐름을 잠시 중단하고,
+임시적인 정보의 수집/표시를 위해 필요. 작업을 마치면 원래의 흐름으로
+돌아감.
 
 
+** 커스텀 Content ViewController 설계하기
+코딩하기 전, 다음의 체크리스트 확인.
+1) 스토리보드를 쓸 것인가?
+2) 언제 생성하는가?
+3) 무슨 데이터를 표시하는가?
+4) 어떤 작업을 수행하는가?
+5) 화면에 어떻게 표현할 것인가?
+6) 다른 ViewController 와 어떻게 연동되는가?
+   
+   
