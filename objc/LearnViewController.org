@@ -394,19 +394,33 @@ ViewController 의 화면표시방법
 3) 다른 표시중인 ViewController 로 부터 Present
 4) Popover로 Present 하기 (iPad만 지원!)
 
-*주의사항* : ViewController 의 /view/ 를 특정 /view/ 부모-자식 계층에
-직접 넣으면 안됨(subview 에 addObject ?). View 를 적절히 present 하고
-관리하기 위해, 시스템은 표시하고자 하는 각 view들(그리고 연관된
-ViewController들)을 기억해 놓는다. 이 정보는 나중에 사용자의 앱에
-ViewController 관련 이벤트를 보고할 때 사용된다. 예를들어, 장치의
-방향이 바뀌면 Window 는 이 계층 정보를 사용해, 가장 앞쪽에 있는
-ViewController 를 찾는다.
+**** *주의사항*
+ViewController 의 /view/ 를 특정 /view/ 부모-자식 계층에 직접 넣지
+말것!(/view/ 에 addSubview 호출하지 말아라?)
+
+그런데, UICatalog 같은 Sample Code 를 보면 아래와 같이 하던데? 흠..
+이전에 만든거라 좀 다른가?
+#+BEGIN_SRC objc
+  - (void)applicationDidFinishLaunching:(UIApplication *)application
+  {
+      // add the navigation controller's view to the window
+      [window addSubview: navigationController.view];
+      [window makeKeyAndVisible];
+  }
+#+END_SRC
+
+View 를 적절히 present 하고 관리하기 위해, 시스템은 표시하고자 하는 각
+view들(그리고 연관된 ViewController들)을 기억해 놓는다. 이 정보는
+나중에 사용자의 앱에 ViewController 관련 이벤트를 보고할 때 사용된다.
+예를들어, 장치의 방향이 바뀌면 Window 는 이 계층 정보를 사용해, 가장
+앞쪽에 있는 ViewController 를 찾는다.
+
 사용자정의 Container ViewController 를 구현하려 한다면, 다른
 ViewController 의 view 를 자신의 view계층에 추가하는 것에 앞서
-부모-자식 관계를 먼저 생성해 주어야 한다. 이렇게 해야 이벤트가
-옳바르게 전달된다.
+부모-자식 관계를 먼저 생성해 주어야 한다. 이렇게 해야 이벤트가 옳바르게
+전달된다.
 
-* 커스텀 Content ViewController 만들기
+* TODO 커스텀 Content ViewController 만들기
 기존에 없는 Content ViewController를 구현하는 일은 어플 개발의
 핵심이다. 앱의 독특한 컨텐츠를 표시하기 위해 필요. 모든 어플은 적어도
 1개의 커스텀 Content ViewController 를 가진다.
@@ -490,5 +504,82 @@ UIKit 에서 제공되는 이런 추가적인 속성들은 UIViewController 클�
 4) 어떤 작업을 수행하는가?
 5) 화면에 어떻게 표현할 것인가?
 6) 다른 ViewController 와 어떻게 연동되는가?
-   
-   
+
+*** 스토리보드를 사용해 ViewController 구현하기
+상세 구현을 위해 스토리보드를 사용할 것인지 아닌지 고려해야 하는데, 그
+결과에 따라 ViewController 가 어떻게 구현되는지 및 다른 객체가 어떻게
+새로운 ViewController 와 협업하는지에 영향을 준다.
+
+*특별한 이유가 없다면 스토리보드를 사용해야 한다*
+
+스토리보드를 통해 사용할 경우 설계:
+
+- iOS는 보통 ViewController 를 자동으로 생성하게 된다.
+- 생성과정을 마무리하기 위해 awakeFromNib 메소드를 오버라이드 한다.
+  nib의 로딩이 끝나고, outlet과 action 연결이 다 끝난 상태에서
+  호출된다. 
+- 다른 객체들이 이 ViewController 속성을 통해 ViewController 를
+  설정한다. 
+- IB에서 View 계층과 다른 연관객체들을 만든다. 이 객체들은 View가
+  필요로 할때 자동으로 로딩된다.
+- 다른 ViewController 들과의 관계를 스토리보드상에서 맺어준다.
+  
+ViewController 를 코딩으로 생성/사용할 경우 설계:
+
+- alloc/init 으로 ViewController 를 생성한다.
+- ViewController 를 초기화하기 위한 사용자 정의 초기화 메소드를
+  만든다.
+- 다른 객체들이 ViewController의 초기화 메소드 및 속성을 통해
+  ViewController를 설정한다.
+- 마찬가지로 코딩을 통해 다른 ViewController 들과의 관계를 맺어준다.
+
+*** 설계된 ViewController 가 언제 생성되는지 확인하자.
+ViewController 의 생성시점은 앱이 어떻게 동작하는지에 대한 정보를
+알려준다. 예로, 동일 객체에서만 ViewController 가 생성되는 경우가
+있을 것이다. ViewController 를 생성하는 것은 (다른) ViewController
+들인 경우가 많다. 어떤경우라도, 언제, 왜, 무엇에 의해 ViewController
+가 생성되었는지를 안다면 ViewController들 및 이들을 생성한 객체간에
+주고받는 정보에 대해 파악하기 쉬울 것이다.
+
+"이해가 안가네."
+
+*** 설계된 ViewController 가 표시하고 반환하는 데이터를 확인하자.
+이 내용을 확인하게 되면, 앱에 대한 데이터 모델을 뿐 아니라 그 데이터가
+ViewController들 사이에 상호교환되어야 하는지에 대하여 이해할 수
+있다.
+
+ViewController 에서 흔희 보여지는 패턴들을 살펴보자.
+
+- VC 는 다른 VC로 부터 데이터를 받아서 화면에 표시하되 편집하지
+  않으면 ? 그 어떤 데이터도 반환되지 않는다.
+- VC 가 새로운 데이터를 입력받는 기능을 한다면, 사용자의 편집작업이
+  끝나고 새로 생성된 데이터를 다른 VC 에게 반환해야 한다.
+- VC 가 다른 VC 로 부터 데이터를 받고 사용자가 이를 편집할 수 있다면,
+  편집 종료후 새로운 데이터를 다른 VC 에게 반환한다.
+- VC 가 데이터를 주지도 받지도 않는다면, 얘는 Static View 를 표시하는 것.
+- VC 가 데이터를 주지도 받지도 않지만, 내부 구현상으로 데이터를 다른
+  곳에서 받아오는 경우. 예를 들면, GKAchievementViewController
+  클래스는 게임플레이어가 기기에 접속했는지를 확인하고 접속했으면
+  플레이어의 데이터를 게임 센터로 부터 가져와 표시하는 방법을
+  내부적으로 가지고 있다. 
+
+위와 같은 설계에만 국한될 필요는 없다.
+
+데이터가 VC 의 안팎으로 들락거린다면, 데이터 모델 클래스를 설계하여
+다른 VC에게 전송될 데이터를 들고 있도록 할 수 도 있다.  예로,
+/Your Second iOS App: Storyboards/ 에서는 마스터 VC 가 BirdSighting
+객체를 사용해 sighting 과 관련된 데이터를 디테일 VC 에게 전송한다.
+이런식으로 구현하면, VC 클래스의 메소드 시그너쳐를 바꾸지 않고도
+추가적인 속성을 데이터에 더하는게 쉬워진다.
+
+*** 설계된 VC 는 사용자에게 어떤 작업을 수행할 수 있게 하는지를 확인하자.
+어떤 VC 는 CRUD 한다. 또 어떤 VC 는 컨텐츠의 내용을 여러 화면에 걸쳐
+조회할 수 있게 한다. 그리고, 어떤 VC 는 사용자가 수행할 수 있는
+작업을 제공하기도 한다. 예로, MFMailComposeViewController 는 사용자로
+하여금 email 을 작성/전송할 수 있게 해 준다. 저수준의 메일전송과
+관련한 상세구현을 포함하고 있는 것이다.
+
+*** VC 가 화면에 어떻게 표시되는지 확인하자.
+
+
+* 
