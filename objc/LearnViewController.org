@@ -7,7 +7,7 @@ ViewController 는 앱의 데이터와 UI간의 중요한 연결고리 역할. i
 UI를 표시할 때, 표시된 컨텐츠는 모두 1개 이상 ViewController 에 의해
 관리되거나 여러 ViewController 그룹들간 상호 작용을 통해 관리된다.
 
-전통적인 MVC 디자인에서 컨트롤러 역할 뿐 아니라 더 많은 작업을
+전통적인 MView Controller 디자인에서 컨트롤러 역할 뿐 아니라 더 많은 작업을
 iOS에서는 수행(화면회전등에 대한 표준 구현...)
 
 * ViewController 기초
@@ -16,13 +16,13 @@ iOS장치들은 화면이 작음. 따라서, 많은 양의 데이터를 표시�
 *숨기는 작업* 을 조율하고 그 *내용을 관리* 하는 인프라를 제공.
 
 ** Screen, Windows, 그리고 Views 가 시각적 인터페이스를 생성
-- /UIScreen/ 객체 : 장치에 연결된 물리적 스크린
-- /UIWindow/ 객체 : 스크린상에 그리기 기능을 제공
-- 일련의 /UIView/ 객체들 : 윈도우가 요청하면 각각 자신의 영역에
+- =UIScreen= 객체 : 장치에 연결된 물리적 스크린
+- =UIWindow= 객체 : 스크린상에 그리기 기능을 제공
+- 일련의 =UIView= 객체들 : 윈도우가 요청하면 각각 자신의 영역에
   그림을 그림.
 - 뷰 시스템
   [[file:img/LearnViewController_20130324_164341_.png]]
-
+  
   View 는 다음과 같은 특징을 가짐.
   1) UI요소(특정영역을 점유하면서 컨텐츠를 사용자에게 표시하고
      사용자 이벤트에 반응).
@@ -57,7 +57,7 @@ ViewController 는 앱의 전체 데이터 중 일부만을 화면에 표시하�
 
 ViewController 의 공통점이 드러나는 예제.
 1) 모든 Vie는 오직 하나의 ViewController 에 의해 제어됨.
-   UIViewController 의 /view/ 속성을 통해 소유됨. view 가 subview
+   UIViewController 의 =view= 속성을 통해 소유됨. view 가 subview
    라면, 소유하는 ViewController 에 의해서 제어될 수 도, 아닐 수도
    있음.
 2) 모든 ViewController 는 데이터의 전체가 아닌 부분만을 다룬다.
@@ -78,9 +78,9 @@ ViewController 의 공통점이 드러나는 예제.
 - 사용자로 부터 데이터를 수집
 - 특정 작업을 수행
 - 게임 시작 옵션과 같은 일련의 명령/옵션을 선택
-
+  
 *** UITableViewController 예.
-UITabeViewController 는 /view/ 속성 외에도 /tableView/ 속성을 가지고
+UITabeViewController 는 =view= 속성 외에도 =tableView= 속성을 가지고
 table view를 소유/제어
 
 ** Cotainer ViewController
@@ -103,17 +103,17 @@ tab 대화상자와 비슷.
 - UISplitViewController : 화면을 Master /Detail 로 나란히 배치하여
   Master 에서 선택한 사항의 상세 내용을 Detail 쪽에 표시.
 - UIPopoverController : portrait 모드에서 마스터 뷰가 표시할 수 있는
-  특별한 컨트롤. /popover/.
+  특별한 컨트롤. =popover=.
 - UIPageViewController : 페이지 레이아웃을 구현. 책과 같은 UI 를
   생성.
-
+  
 ** ViewController 의 컨텐츠는 여러방법으로 표시
 아래와 같은 방법으로 ViewController 의 컨텐츠가 사용자에게 보여짐.
 1) 윈도우의 rootViewController 로 설정
 2) Container ViewController 의 자식으로 설정
 3) Popover 컨트롤에 표시
 4) 다른 ViewController 로 부터 present
-
+   
 ** 여러 ViewController 가 모여 앱의 인터페이스를 구성
 ViewController 는 자기의 View들 및 연관된 객체들을 관리하지만, 다른
 ViewController 들과 협업으로 사용자 인터페이스를 구성. -->
@@ -146,7 +146,7 @@ View-ViewController 관계로 앱의 이벤트 처리를 위한 Responder Chain 
 push된다(그럼 화면에 보여진다).
 
 [[file:img/LearnViewController_20130325_200558_.png]]
-  
+
 *** 다른 인터페이스상에 동적화면을 프리젠테이션
 ViewController 는 어떤 작업을 수행하기 위한 다른 ViewController 가
 필요할 때 화면에 띄울 수 있다("Present"). "대화상자"처럼.
@@ -172,7 +172,7 @@ ViewController 는 다른 ViewController 안에서의 동작으로 인해
 
 1) Source ViewController : 동작이 일어난 ViewController
 2) Destination ViewController : 그로인해 생성된 ViewController
-  
+   
 보통 2) 가 표시할 데이터는 1) 에 의해서 제공됨. 만일 2) 로부터
 데이터를 1) 로 가져와야 한다면, 1)은 둘간의 연결을 구성하도록 해야
 한다.
@@ -181,10 +181,10 @@ source-desitnation 간 통신의 종류
 - 내비 컨트롤러가 스택에 다른 자식을 push
 - 다른 ViewController 를 present
 - 다른 ViewController 를 popover
-
+  
 [[file:img/LearnViewController_20130325_203833_.png]]  
-  
-  
+
+
 각 컨트롤러는 자신보다 앞선 컨트롤러에 의해 설정 --> 통신 체인 형성
 위 그림의 위 각 연결에서 제어흐름은 다음과 같은 규칙으로 구성된다.
 
@@ -230,7 +230,7 @@ segue 동작시 이 값이 함수로 전달되어 어느 segue에 의해 ViewCon
 실행될때 iOS 는 다음과 같은 작업을 함.
 1) window 를 생성해줌
 2) Main Storyboard 를 불러들이고, initial ViewController 를 생성.
-3) 2)에서 생성된 ViewController 를 window 의 /rootViewController/ 로
+3) 2)에서 생성된 ViewController 를 window 의 =rootViewController= 로
    설정함.
    
 Segue 가 trigger 되면, iOS 는 다음을 수행.
@@ -240,7 +240,7 @@ Segue 가 trigger 되면, iOS 는 다음을 수행.
 2) Configuration : Source ViewController 에게 Destination
    ViewController 를 설정할 수 있는 기회제공(메소드 호출)
 3) Transition : Segue 에 설정된 transition 을 수행
-
+   
 *유의사항* Custom ViewController 를 직접 만들고 스토리 보드에서
 사용되도록 할 경우, 위의 동작이 이루어질 수 있도록 속성/메소드를
 선언해야 한다. 
@@ -286,23 +286,23 @@ ViewController 의 속성까지 스토리보드상에서 설정할 수 있기 �
    
    동일 스토리 보드 상에서 이미 생성된 ViewController 로 부터 새로운
    ViewController 를 만드는 경우라면, 기존 ViewController 의
-   /sotryboard/ 속성값을 사용해 스토리보드 객체를 참조가능.
+   =sotryboard= 속성값을 사용해 스토리보드 객체를 참조가능.
    
    그렇제 않은 경우라면, UIStoryboard 클래스의
    storyboardWithName:bundle: 클래스 메소드에 스토리보드 파일명과
    선택적 인자인 번들객체를 넘겨서 새로이 UIStoryboard 객체를 만들 수
    있다. 
-
+   
 2) 스토리보드 객체의 instantiateVieControllerWithIdentifier: 메소드에
    IB에서 해당 ViewController에 지정한 indentifier string 를 넘겨서
    원하는 ViewController 를 생성할 수 있다.
    
    또는 instantiateInitialViewController 를 쓰면 특별하게 initial
    ViewController 를 만들수 있다(이 경우 identifier string 이 필요없음).
-
+   
 3) 새로운 ViewController 객체의 속성값을 정하는 등의 설정작업을
    수행한다.
-
+   
 4) 만들어진 ViewController 를 화면에 표시한다.
    
    Window의 rootViewController 로 설정하거나, present하거나, Container
@@ -327,7 +327,7 @@ ViewController 의 속성까지 스토리보드상에서 설정할 수 있기 �
                           completion:nil];
      }
    #+END_SRC
-
+   
    다음은 또 다른 자주 사용되는 용례. AppDelegate 에서 아래와 같은
    메소드를 호출해서 window 객체를 얻은 다음, makeKeyAndVisible 을
    호출 할 수 있겠다.
@@ -350,7 +350,7 @@ ViewController 의 속성까지 스토리보드상에서 설정할 수 있기 �
          return window;
      }
    #+END_SRC
-
+   
 **** 별도의 스토리보드로 장면전환하기 위해서는 코드로 해야...
 Segue 는 하나의 스토리보드내에 있는 장면들만을 연결한다. 다른
 스토리보드 파일에 있는 ViewController 를 표시하기 위해서는 해당
@@ -393,10 +393,10 @@ ViewController 의 화면표시방법
 2) 현재 표시중인 Container ViewController 의 자식으로 만들기
 3) 다른 표시중인 ViewController 로 부터 Present
 4) Popover로 Present 하기 (iPad만 지원!)
-
+   
 **** *주의사항*
-ViewController 의 /view/ 를 특정 /view/ 부모-자식 계층에 직접 넣지
-말것!(/view/ 에 addSubview 호출하지 말아라?)
+ViewController 의 =view= 를 특정 =view= 부모-자식 계층에 직접 넣지
+말것!(=view= 에 addSubview 호출하지 말아라?)
 
 그런데, UICatalog 같은 Sample Code 를 보면 아래와 같이 하던데? 흠..
 이전에 만든거라 좀 다른가?
@@ -415,7 +415,7 @@ view들(그리고 연관된 ViewController들)을 기억해 놓는다. 이 정�
 예를들어, 장치의 방향이 바뀌면 Window 는 이 계층 정보를 사용해, 가장
 앞쪽에 있는 ViewController 를 찾는다.
 
-사용자정의 Container ViewController 를 구현하려 한다면, 다른
+커스텀 Container ViewController 를 구현하려 한다면, 다른
 ViewController 의 view 를 자신의 view계층에 추가하는 것에 앞서
 부모-자식 관계를 먼저 생성해 주어야 한다. 이렇게 해야 이벤트가 옳바르게
 전달된다.
@@ -442,19 +442,19 @@ UIViewController 클래스는 커스텀 ViewController 를 구현하기 위한
 - view 와 이 view의 subview로 구성된 계층
   
   [[file:img/LearnViewController_20130325_233123_.png]]
-
+  
 결국, 새로운 ViewController 설계시 다음과 같은 요구사항으로 귀결
 - 내부적 관리 : 자신의 데이터 객체나 view 계층
 - 외부적 관리 : 다른 ViewController 들과의 동작
-
+  
 *** ViewController 는 리소스를 관리한다.
 1) 처음부터 끝까지 항상 필요한 리소스
 2) contents가 화면에 표시될 때만 필요한 리소스 : "view"
 필요한 리소스만 메모리에 들고 있도록 잘 짜야 한다.
 
 *** ViewController 는 View(또는 여러 View들)를 관리한다.
-- 자신의 /view/ 와 그 view의 subview 들을 관리
-- /view/ 의 frame 은 ViewController 가 관리하지 못한다(다른 요소. ex:
+- 자신의 =view= 와 그 view의 subview 들을 관리
+- =view= 의 frame 은 ViewController 가 관리하지 못한다(다른 요소. ex:
   기기 방향. 등에 의해 결정)
 - 외부로 부터 제공받은 frame 에 자신의 view 를 잘 layout 하도록
   설계해야 함.
@@ -504,7 +504,7 @@ UIKit 에서 제공되는 이런 추가적인 속성들은 UIViewController 클�
 4) 어떤 작업을 수행하는가?
 5) 화면에 어떻게 표현할 것인가?
 6) 다른 ViewController 와 어떻게 연동되는가?
-
+   
 *** 스토리보드를 사용해 ViewController 구현하기
 상세 구현을 위해 스토리보드를 사용할 것인지 아닌지 고려해야 하는데, 그
 결과에 따라 ViewController 가 어떻게 구현되는지 및 다른 객체가 어떻게
@@ -527,12 +527,12 @@ UIKit 에서 제공되는 이런 추가적인 속성들은 UIViewController 클�
 ViewController 를 코딩으로 생성/사용할 경우 설계:
 
 - alloc/init 으로 ViewController 를 생성한다.
-- ViewController 를 초기화하기 위한 사용자 정의 초기화 메소드를
+- ViewController 를 초기화하기 위한 커스텀 초기화 메소드를
   만든다.
 - 다른 객체들이 ViewController의 초기화 메소드 및 속성을 통해
   ViewController를 설정한다.
 - 마찬가지로 코딩을 통해 다른 ViewController 들과의 관계를 맺어준다.
-
+  
 *** 설계된 ViewController 가 언제 생성되는지 확인하자.
 ViewController 의 생성시점은 앱이 어떻게 동작하는지에 대한 정보를
 알려준다. 예로, 동일 객체에서만 ViewController 가 생성되는 경우가
@@ -550,36 +550,236 @@ ViewController들 사이에 상호교환되어야 하는지에 대하여 이해�
 
 ViewController 에서 흔희 보여지는 패턴들을 살펴보자.
 
-- VC 는 다른 VC로 부터 데이터를 받아서 화면에 표시하되 편집하지
+- View Controller 는 다른 View Controller로 부터 데이터를 받아서 화면에 표시하되 편집하지
   않으면 ? 그 어떤 데이터도 반환되지 않는다.
-- VC 가 새로운 데이터를 입력받는 기능을 한다면, 사용자의 편집작업이
-  끝나고 새로 생성된 데이터를 다른 VC 에게 반환해야 한다.
-- VC 가 다른 VC 로 부터 데이터를 받고 사용자가 이를 편집할 수 있다면,
-  편집 종료후 새로운 데이터를 다른 VC 에게 반환한다.
-- VC 가 데이터를 주지도 받지도 않는다면, 얘는 Static View 를 표시하는 것.
-- VC 가 데이터를 주지도 받지도 않지만, 내부 구현상으로 데이터를 다른
+- View Controller 가 새로운 데이터를 입력받는 기능을 한다면, 사용자의 편집작업이
+  끝나고 새로 생성된 데이터를 다른 View Controller 에게 반환해야 한다.
+- View Controller 가 다른 View Controller 로 부터 데이터를 받고 사용자가 이를 편집할 수 있다면,
+  편집 종료후 새로운 데이터를 다른 View Controller 에게 반환한다.
+- View Controller 가 데이터를 주지도 받지도 않는다면, 얘는 Static View 를 표시하는 것.
+- View Controller 가 데이터를 주지도 받지도 않지만, 내부 구현상으로 데이터를 다른
   곳에서 받아오는 경우. 예를 들면, GKAchievementViewController
   클래스는 게임플레이어가 기기에 접속했는지를 확인하고 접속했으면
   플레이어의 데이터를 게임 센터로 부터 가져와 표시하는 방법을
   내부적으로 가지고 있다. 
-
+  
 위와 같은 설계에만 국한될 필요는 없다.
 
-데이터가 VC 의 안팎으로 들락거린다면, 데이터 모델 클래스를 설계하여
-다른 VC에게 전송될 데이터를 들고 있도록 할 수 도 있다.  예로,
-/Your Second iOS App: Storyboards/ 에서는 마스터 VC 가 BirdSighting
-객체를 사용해 sighting 과 관련된 데이터를 디테일 VC 에게 전송한다.
-이런식으로 구현하면, VC 클래스의 메소드 시그너쳐를 바꾸지 않고도
+데이터가 View Controller 의 안팎으로 들락거린다면, 데이터 모델 클래스를 설계하여
+다른 View Controller에게 전송될 데이터를 들고 있도록 할 수 도 있다.  예로,
+/Your Second iOS App: Storyboards/ 에서는 마스터 View Controller 가 BirdSighting
+객체를 사용해 sighting 과 관련된 데이터를 디테일 View Controller 에게 전송한다.
+이런식으로 구현하면, View Controller 클래스의 메소드 시그너쳐를 바꾸지 않고도
 추가적인 속성을 데이터에 더하는게 쉬워진다.
 
-*** 설계된 VC 는 사용자에게 어떤 작업을 수행할 수 있게 하는지를 확인하자.
-어떤 VC 는 CRUD 한다. 또 어떤 VC 는 컨텐츠의 내용을 여러 화면에 걸쳐
-조회할 수 있게 한다. 그리고, 어떤 VC 는 사용자가 수행할 수 있는
+*** 설계된 View Controller 는 사용자에게 어떤 작업을 수행할 수 있게 하는지를 확인하자.
+어떤 View Controller 는 CRUD 한다. 또 어떤 View Controller 는 컨텐츠의 내용을 여러 화면에 걸쳐
+조회할 수 있게 한다. 그리고, 어떤 View Controller 는 사용자가 수행할 수 있는
 작업을 제공하기도 한다. 예로, MFMailComposeViewController 는 사용자로
 하여금 email 을 작성/전송할 수 있게 해 준다. 저수준의 메일전송과
 관련한 상세구현을 포함하고 있는 것이다.
 
-*** VC 가 화면에 어떻게 표시되는지 확인하자.
+*** View Controller 가 화면에 어떻게 표시되는지 확인하자.
+어떤 View Controller 는 rootViewController 용으로 설계되었다. 또 어떤 View Controller 는 다른 View Controller
+에 의해 present 되거나, 컨테이너 View Controller 내에 배치될 용도로 설계되었다.
+보통은, View Controller 를 설계할 때, 여러 방법으로 표시될 수 있도록 하는 게
+일반적이다. 예를 들면, Split View Controller 의 마스터뷰는 landscape모드에서는
+split view내에 표시되지만, portrait모드에서는 popover control내에
+표시된다.
 
+작성된 View Controller가 어떻게 표시되도록 할 지는 화면에서의 크기와 위치가 어떻게
+바뀌어야 하는지 알 수 있게해준다. 또 View Controller 가 협업할 다른 View Controller들이
+무엇인지를 결정하는 것과 같은 다른 부분들에도 영향을 준다.
 
-* 
+*** 다른 View Controller 와 어떻게 협업할지를 확인하자.
+여기까지 학습했다면, 이제 View Controller간의 협업이 어떤것인지 이미 알 것이다.
+예를 들어, 어떤 View Controller가 Segue를 통해 생성되었다면, 이View Controller는 Source View Controller에
+의해 설정될 것이다. 그리고, 작성된 View Controller가 어떤 컨테이너의 자식이라면,
+컨테이너와 협업할 것이다. 전혀 다른 각도에서의 관계도 생각해 볼 수
+있다. 이를테면, View Controller가 자신의 작업을 다른 View Controller에게 넘기고 손을 떼는 것
+같은 것 말이다. 기존의 View Controller와 데이터를 주고받을 수 도 있다.
+
+이러한 연관관계를 생각해 볼 때, 어떤 View Controller 는, 다른 View Controller 가 사용하게될
+인터페이스를 제공하거나, 다른 View Controller의 존재를 먼저 알고 사용할 수 도 있다.
+이러한 연관관계는 동작을 매끄럽게 하는데 있어 필수적이다. 이러한 관계를
+통해 앱내의 클래스들간 상호의존성이 드러나기 때문이다. 하지만, 이러한
+의존성때문에 다른 클래스로 부터 격리된 어떤 클래스에 변경을 가하는
+것이 더 어렵게 된다. 이러한 이유로, 앱에서 요구하는 기능과 추후
+추가 변경을 용이하게 하려는 노력 사이에 균형을 맞추는게 필요하다.
+
+** 일반적인 View Controller 설계의 예
+
+*** 게임 타이틀 스크린
+
+*** 마스터뷰 View Controller
+
+*** 디테일뷰 View Controller
+
+*** 메일 작성 View Controller
+
+** 커스텀 컨텐트 View Controller 구현시의 점검사항
+- View Controller에 의해 로딩되는 View 를 설정해야 한다.
+  
+  커스텀 클래스는 자신의 View계층이 어떻게 로딩되고 언로딩될지를
+  관리할 특정의 메소드를 오버라이드해야 한다. 이 메소드들은 함께
+  생성된 다른 리소스들을 관리할 수 도 있다.
+  
+- View Controller 가 지원하는 장치 방향이 어떤것인지, 장치방향이 바뀔 때 어떻게
+  반응하는지에 대해서도 결정해야 한다.
+  
+View Controller를 구현하면서, 액션 메소드나 View와 사용하게 될 아웃렛들을 정의해야
+할 필요가 있다는 것을 깨닫게 될 것이다. 예를들어, View계층이 테이블을
+포함한다면, 나중에 테이블을 참조하기 위해 아웃렛에 포인터를 저장하게
+될 것이다.  마찬가지로, View 계층이 버튼 또는 다른 컨트롤을 가진다면,
+이들을 통해 어떤 액션 메소드가 호출되게 할 수 있다.  View Controller 클래스의
+정의를 쭈욱 훝어보다 보면 다음괕은 사항을 작성중인 View Controller에 추가해야 할
+필요가 있음을 알게된다.
+
+- 해당 View에 의해 표시될 데이터를 포함하는 객체를 가리키는 /선언된 속성들/
+- 커스텀 동작을 다른 View Controller에 제공하기 위한 공용 메소드/속성
+- View Controller가 상호작용해야 하는 View 계층내 각 View들에 대한 아웃렛
+- View 계층내 버튼 및 다른 컨트롤과 연관된 동작을 수행하기 위한 액션
+  메소드
+  
+*중요* View Controller를 사용하는 클라이언트는 View Controller가 표시할 View들이 뭔지 또는 어떤
+액션들이 이 View들에 의해 트리거되는지에 대해 알 필요가 없다.
+가급적이면, 아웃렛과 액션들은 클래스의 구현파일(*.m)내 클래스
+카테고리로 선언한다. 예를들어 MyViewController 라는 이름의 View Controller
+클래스에서 다음과 같은 선언을 카테고리를 추가한다.
+
+#+BEGIN_SRC objc
+  // MyViewController.m 파일내에서..
+  
+  @interface MyViewController()
+  
+  // 아웃렛과 액션을 여기에 둔다.
+  
+  @end
+  
+  @implementation MyViewController
+  
+  // 위에서 private으로 선언된 카테고리를 여기에 구현한다.
+  
+  @end
+#+END_SRC
+
+이름없는 카테고리를 선언하면, 속성과 액션은 동일한 구현 블럭내에 다른
+공용 인터페이스에 선언된 속성/메소드와 함께 구현되어야 한다.  private
+카테고리 내에 정의된 아웃렛과 액션들은 IB 에서 접근할 수 있다. 
+하지만, 앱내의 다른 클래스에서는 접근할 수 가 없다. 이 기법을 사용해
+IB는 여전히 활용하면서 클래스의 비밀스런 부분을 감출 수 있다.
+
+대신, 다른 클래스가 이 View Controller의 기능에 접근해야 할 때는, 공용 메소드 및
+속성을 추가하여 이긍을 접근하도록 해야 한다.
+
+* View Controller의 리소스 관리
+
+View Controller 는 앱의 리소스를 관리에 있어 필수적 부분이다. View Controller는 여러분의 앱을
+여러 부분으로 나뉘게 해 주고, 각 부분이 필요할 때 생성되게 해 준다.
+하지만, 더 중요한 것은, View Controller 자체가 다양한 리소스들을 관리하고 여러
+시점에 리소드들을 생성한다는 것이다.  예를 들면, View Controller 의 View 계층은
+해당 view 를 누군가 참조할 때 생성된다. 그런 경우는 대부분, view 가
+화면에 표시될 때이다.  여러 View Controller 가 네비게이션 스택에 동시에 push 되어
+있는 상태에서는 스택 가장 상단의 View Controller 가 보이는 상태이므로, 이 View Controller 의
+view 에 대한 접근이 이루어진다. 유사하게, View Controller 는 네비게이션 컨트롤러에
+의해 present 되지 않았다면, 그 View Controller의 navigation item 은 생성될 필요가
+없다. 필요한 시점이 되서야 대부분의 리소스들은 할당이 되도록
+함으로써, View Controller 는 리소스를 덜 잡아먹게 된다.
+
+앱의 메모리가 바닥나면, 모든 View Controller 는 시스템으로 부터 자동적으로 통지를
+받는다. 이를 통해 View Controller 는 케쉬나 나중에 메모리에 여유가 생길 때 다시 쉽게
+다시 생성할 수 있는 다른 여타의 객체들을 제거한다. 바로 이러한
+동작들은 앱이 동작하는 iOS의 버젼이 무엇이냐에 따라 다르며, iOS 의
+버젼에 따라 View Controller 의 설계가 영향을 받게 된다.
+
+View Controller와 연관된 리소스들을 신중히 관리하는 것은 앱이 효율적으로 동작하게
+함에 있어서 중요한 부분이다.  게으른 할당을 우선적으로 사용해야
+하는데, 즉, 나중에 실제로 해당 리소스가 필요한 시점이 된 경우에
+생성하도록 해야한다. 이러한 이유로, View Controller 는 자신의 생성시간동안 필요한
+별도의 객체들을 특정시간에만 필요한 객체들과 분리시켜 관리해야 한다.
+View Controller 가 메모리부족 경고를 수신하면, 화면에 보이지 않는 경우에 한해
+메모리 사용량을 줄이도록 작성되어야 한다.
+
+** View Controller 의 초기화
+
+View Controller가 처음 생성되면, 생존기간동안 필요한 객체들을 생성하거나 로딩한다.
+View 계층을 만들거나 표시할 내용과 연관된 객체들은 아직 만들면
+안된다.  데이터 객체들 및 중요한 동작들의 구현에 필요한 객체들만
+생성해야 하는 것이다. 
+
+*** 스토리보드로 부터 불러들인 View Controller 의 초기화
+View Controller 를 스토리보드에서 생성할 때는, IB 에서 설정한 어트리뷰트들이
+아카이브로 직렬화된다. 나중에, View Controller 가 생성될 때, 이 아카이브는
+메모리로 로딩되고 처리된다.  그 결과, 일련의 객체들이 IB에서 설정한
+대로의 어트리뷰트를 가진 상태로 생성된다. 이 아카이브는 View Controller의
+=initWithCoder:= 메소드가 호출될 때 로딩된다. 그런다음 =awakeFromNib=
+메소드가 구현된 모든 객체들에 대해 awakeFromNib 가 호출된다. 이
+메소드를 사용하여 이미 생성된 다른 객체들을 필요로 하는 설정단계를
+수행하게 된다.
+
+아카이빙에 대해서는 /Archives and Serailization Programming Guide/ 를
+참조
+
+*** 코드로 부터 생성된 View Controller 의 초기화
+View Controller 가 자신의 리소스를 코드로 부터 할당된다면, 여러분의
+View Controller 에 특화된 커스텀 초기화 메소드를 생성해야 한다. 이
+메소드는 부모 클래스의 init 메소드를 호출하고 난 다음, 클래스별
+초기화작업을 수행한다.
+
+일반적으로 초기화 메소드를 복잡하게 작성하지 않도록 한다. 대신,
+단순한 초기화 메소드를 구현한 다음, 동작특성을 설정하기 위해 View Controller의
+클라이언트에 대한 속성과 초기화 메소드를 구현한다. 
+
+** View Controller 는 View 에 대한 접근이 일어날 때 View Hiearchy 를 생성
+앱의 일부분이 View Controller 에게 View 객체 및 메모리에 현재 없는 객체를
+요청하면, View Controller 는 View 계층을 메모리로 불러들이고, =view= 속성값에
+저장해 놓는다. 로딩 사이클에 일어나는 작업들은 다음과 같다.
+
+1. View Controller 는 =loadView= 메소드를 호출한다. 기본 구현은 다음의
+   작업을 수행.
+
+   - View Controller 가 스토리보드와 연관이 되어 있다면, 스토리보트로
+     부터 view 를 로딩한다.
+   - View Controller 가 스토리보드와 연관이 없다면, 비어있는 UIView
+     객체가 생성되고 =view= 속성에 대입된다.
+
+2. View Controller 는 =viewDidLoad= 메소드를 호출하는데, 이를 통해
+   서브클래스는 로딩시, 추가적인 작업을 수행할 수 있게된다. 
+   
+   다음 그림은 로드 사이클을 표현하고 있는데, 호출되는 몇개의
+   메소드들을 포함하고 있다. VC에게 요구되는 동작들이 앱에서 일어나게
+   하기위해, =loadView= 와 =viewDidLoad= 메소드 모두를 오버라이드할 수
+   있다. 예를 들어, 앱에서 스토리보드가 사용되지 않은 경우, 추가적인
+   View 들을 View계층에 추가하려면, =loadView= 메소드를 오버라이드해서
+   이 View들을 코드상에서 생성할 수 있다.
+   
+   (아래 그림에서 Custom Method ? 라는 의미는 오버라이드를 했다는 의미?!)
+
+#+CAPTION:뷰를 메모리에 불러들이는 과정
+[[file:img/LearnViewController_20130328_215650_.png]]
+
+*** 스토리보드에서 VC 의 View 불러오기
+대부분의 VC 는 연관된 스토리보드로 부터 자신의 view 를 불러올 수
+있다. 스토리보드를 사용하는 잇점은 view 를 그래픽환경에서 설정하고
+배치할 수  있다는 점이다. 쉽고 빠르게 레이아웃을 조정할 수 있다. 이런
+저런 UI 결과물을 확인하여 잘 다듬어지고 정제된 설계를 할 수 있게된다.
+
+**** IB에서 View 생성하기
+
+***** IB 에서 View 의 표시 속성을 설정.
+
+***** VC 에 액션과 아웃렛 설정하기
+아래 코드는 2개의 아웃렛과 1개의 액션을 정의.
+#+BEGIN_SRC objc
+  //
+  // class category 로 *.m 파일에서 만든것으로 보이는데?
+  //
+  @interface MyViewController()
+  @property (nonatomic) IBOutlet id myButton;
+  @property (nonatomic) IBOutlet id myButton;
+  
+  -(IBAction)myAction:(id)sender;
+  @end
+#+END_SRC
+
+위 코드는 시각적으로 아래와 같이 표시될 수 있다. 뢔궥
