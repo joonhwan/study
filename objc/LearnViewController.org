@@ -1054,7 +1054,7 @@ View 계층에 있는 서브뷰들을 추가하고, 각 프레임을 UI에 맞�
 
 ** Preset된 VC 는 Presentation Context 를 사용한다.
 VC가 다른 VC에 의해 preset될 때, VC의 frame은 presentation context에
-의해 결정된다. /Presetntation Context에 의해 Present된 VC에 의해
+의해 결정된다. /Present된tation Context에 의해 Present된 VC에 의해
 점위되는 영역이 결정된다/ 부분을 참조.
 
 ** Popover 컨트롤러는 표시되는 View의 크기를 결정한다.
@@ -1186,11 +1186,195 @@ VC 가 root VC 위로 preset 되었을때, 시스템의 동작은 2가지 로
 변경된다.
 1. 해당 방향이 지원되는지에 대해 결정할 때, root VC 대신  Present된
    VC가 사용된다.
-2. Presetn된 VC는 *선호 방향(preferred orientation)* 이란 것을 제공할
+2. Present 된 VC는 *선호 방향(preferred orientation)* 이란 것을 제공할
    수 있다. VC 가 전체화면으로 present 되었다면, UI 는 선호 방향으로
    present된 것이다. 사용자는 화면표시가 장비방향과 맞지 않는 다고
    생각하고 장치를 회전시킬 것이다. *선호 방향* 은 컨텐츠가 새로운
    방향으로 표시되어야만 할 때 종종 사용된다. 
    
 *** VC 의 지원 인터페이스 방향 선언하기
+=shouldAutorotateToInterfaceOrientation:= 메소드를 오버라이드하고,
+사용자의 view 가 어떤 방향을ㄹ 지원할지에 따라 반환값을 달리 리턴하면
+된다. 디자인 시에 view 가 지원하는 방향을 항상 지정해 두고, 이를
+염두에 두고 구현한다.  런타임 정보에 의해 동적으로 지원 방향을
+선택하는 것은 이득이 억다. 설령 그렇게 했다 하더라도, 모든 가능한
+방향에 대해 필요한 코드를 여전히 구현해야 한다.
+
+다음은 전형적인 =shouldAutorotateToInteerfaceOrientation:= 의
+구현이다. landscape-left 방향과 portrait 방향만 지원하도록 하였다.
+
+#+BEGIN_SRC objc
+  -(BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientation
+  {
+      if ( (orientation == UIInterfaceOrientationPortrait) ||
+           (orientation == UIInterfaceOrientationLandscapeLeft) )
+      {
+          return YES;
+      }
+      return NO;
+  }
+#+END_SRC
+
+*주의사항* 적어도 한 방향에서 YES 를 반환해야 한다.
+위 처럼 값을 비교하는 대신 =UIInterfaceOrientationIsPortrait= 나
+=UIInterfaceOrientationIsLandscape= 와 같은 매크로를 사용가능.
+
+** 표시중인 VC 에서 방향 변경 처리하기.
+회전이 발생하면, VC 는 처리과정에서 중추적인 역할을 도맡는다. 화면에
+보이는 VC 는 회전의 각 단계별로 통지를 받아 추가적인 작업을 수행할
+기회를 얻게 된다. 이 메소드를 사용해서 view 를 감추고, 표시하고,
+위치변경하고, 크기변경할 수 있고, 앱의 다른 부분에 방향전환에 대해
+통지할 수 도 있다. 회전 동작중에 호출이 일어나기 때문에 시간이
+오래걸리는 작업따위를 해서는 안된다.  view 계층 전체를 완전히 새로운
+view 들로 바꾸는 식의 작업을 해서도 안된다.  서로 다른 방향에 대해
+고유한 view 를 제공하는 더 나은 방법이 존재하는데, 새로운 VC 를
+present하는 것과 같은 방법이 그것이다(Landscape 용 인터페이스 만들기
+참조).
+
+회전 메소드들은 root VC 에 대하여 호출된다. root VC 는 이들 이벤트를
+필요한 경우 자식에게 전달, 또 그 자식에 전달,... 하여 VC 계층을 타고
+흘려보낸다.  회전이 발생할 때 이벤트의 처리순서는 아래와 같다.
+
+1. Window 가 root VC의 =willRotateToInterfaceOrientation:duration:=
+   메소드를 호출한다. 컨테이너 VC 는 이 메시지를 현재 표시되는 컨텐츠
+   VC 에 전달한다.  커스텀 컨텐츠 VC 에서 이 메소드를 오버라이드하여,
+   view 들을 감추거나 인터페이스가 회전하기 전에 view의 레이아웃에
+   다른 변경을 가할 수 있다.
+
+2. Window 가 VC 의 view 의 영역을 조절한다. 이렇게 하면, view 로 하여금
+   =viewWillLayoutSubview= 메소드를 호출하여, 자신의 subview들에 대해
+   레이아웃을 수행하게 한다.  이 메소드가 수행될 때, 앱 객체의
+   =statusBarOrientation= 속성을 질의해보면 현재 사용자 인터페이스가
+   어떤 레이아웃인지 판단할 수 있다.  "VC가 어떻게 View 레이아웃
+   과정에 참여하는가"부분 참조.
+
+3. VC의 =willAnimateRotationToInterfaceOrientaion:duration:= 메소드가
+   호출된다. 이 메소드는 애니메이션 블럭내에서 호출이되어 회전을
+   구성하는 다른 애니메이션과 함께 애니메이션 효과를 주길 원하는
+   속성값을 변화시킬 수 있다.
+
+4. 애니메이션이 수행된다
+
+5. Window 가 VC 의 =didRotateFromInterfaceOrientation:= 메소드를
+   호출한다. 컨테이너 VC 는 이 메시지를 현재 표시중인 컨텐츠 VC 에
+   전달한다.  이 동작은 회전과정을 종결한다. 이 메스드를 사용해 view
+   들을 표시하거나, view의 레이아웃을 바꾸거나, 앱에 다른 변경을 가할
+   수 있다. 
+   
+위 과정을 시각적으로 표시하면 아래와 같다. 인터페이스가 과정중에
+어떻게 보이는지도 함께 나타내었다.
+
+[[file:img/LearnViewController_20130401_211014_.png]]
+   
+** VC 가 감추어진 상태에서 회전이 일어날 수 있다.
+만일 VC 가 화면에 없는 상태에서 회전이 발생하면, 해당 VC 는 회전과
+관련한 메시지들을 받지 못한다. 예를들어, 다음과 같은 이벤트의
+처리과정을 생각해보자.
+
+1. 사용자의 VC 가 다른 VC의 컨텐츠를 전체화면에 pressent.
+2. 사용자가 장치를 돌려서 UI 방향이 변하도록 하였다.
+3. present 된 VC 를 dismisss 된다.
+   
+이 경우, presenting하는 VC 는 회전이 발생할 때 보이지 않으므로,
+회전관련 이벤트는 수신하지 못한다. 대신, 화면에 다시 표시될 때, 이 VC의
+view 들은 정상적인 view의 레이아웃 과정을 통해 크기/위치가 조정된다.
+레이아웃 코드가 현재 장치의 방향을 알아야 할 필요가 있다면, 앱 객체의
+=statusBarOrientation= 속성을 통해 현재 회전방향을 알 수 있다.
+
+
+** 추가적인 Landscape용 인터페이스 만들기.
+동일한 데이터라도, 장치 방향이 portrait 인지 landscape 인지에 따라
+달리 표시하고 싶다면, 2개의 별도 VC 를 사용할 수 있다. 한 VC 는 주된
+방향(보통 portrait)을 지향하고, 또 다른 VC 는 추가적인 방향(결국
+landscape)을 지원하기 위한 것이다. 2개의 VC 를 사용하는 것은, 하나를
+가지고 이리 저리 다루는 것 보다, 더 간단하면서도 효율적인 방법이다.
+각 VC 로 하여금 각 방향에서의 데이터 표시방법에만 촛점을 맞추고
+그에 맞게 관리하게 하면 된다.  이렇게 하면 VC 의 코드가 현재 방향을
+계속 점검해야 하는 지저분함도 피할 수 있다.
+
+다음과 같은 작업수순.
+
+- 2개의 VC 객체를 구현. 주 VC는 portrait만을, 보조 VC는 landscape 만을
+  위하는 인터페이스를 표시한다.
+- =UIDeviceOrientationDidChangeNotification= 통지를 등록해서 수신하도록
+  한다. 이 핸들러에서 2개의 VC 를 현재 방향에 맞게 번갈아 표시한다.
+  
+VC 는 방향변화를 내부적으로 관리하므로, 각 VC 는 오직 한 방향에서만
+자신을 표시하도록 구분지어야 한다.  주 VC 는 자신이 처리하는 방향이
+아닌 것을 알게 되면, 보조 VC 를 present한다. 또 자신이 처리하는
+방향으로 회전을 검출하면 다시 보조 VC 를 dismiss 한다.
+
+아래 코드는 주 VC 인 "PortraitViewController" 의 구현예. 주 VC 가
+스토리보드로 부터 로딩되면, 방향전환 통지를 UIDevice 객체에 요청하여
+등록한다. 방향전환 통지를 받으면 =orientationChanged:= 메소드가
+호출되어 보조 VC 인 landScape용 VC 를 present하거나 dismiss 한다.
+
+#+BEGIN_SRC objc
+  @implementation PortraitViewController
+  
+  -(void)awakeFromNib
+  {
+      isShowingLandscapeView = NO;
+      [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+      [[NSNotificationCenter defaultCenter]
+          addObserver:self
+             selector:@selector (orientationChanged:)
+                 name:UIDeviceOrientationDidChangeNotification
+               object:nil];
+  }
+  
+  -(void)orientationChanged:(NSNotification *)notification
+  {
+      UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+      if (UIDeviceOrientaionIsLandscape(deviceOrientation) &&
+          !isShowingLandscapeView)
+      {
+          [self performSegueWithIdentifier:@"DisplayAlternateView"
+                                    sender:self];
+          isShowingLandscapeView = YES;
+      } else if (UIDeviceOrientationIsPortrait(deviceOrientation)) {
+          [self dismissViewControllerAnimated:YES
+                                   completion:nil];
+          isShowingLandscapeView = NO;
+      }
+  }
+  @end
+#+END_SRC
+
+
+** 회전관련 코드구현시 팁
+View의 복잡도에 따라, 회전을 지원하기 위한 코드가 많아질 경우도 있다.
+(또는 전혀 하지 않아도 될 경우도 있다).  어떤 작업을 해야하는지 알기
+위해, 코드 작성시 다음의 팁들을 지침으로 사용하라.
+
+- *이벤트전달을 회전시 임시적으로 비활성화* : 방향변경이 일어나고 있는
+  경우, View로 하여금 원치않는 코드의 실행이 되지 않도록 이벤트의
+  전달을 비활성화 함.
+- *지도View의 보이는 영역을 저장* : Map View 를 포함하는 경우,
+  장치방향전환시 사용자인터페이스를 회전시키기 전에 화면에 보이는
+  영역을 저장해 둔다. 회전이 끝나면 저장해 두었던 영역이 가능한 많이
+  보이도록 영역을 다시 설정한다.
+- *복잡한 View계층을 위해 view를 스샷해둔걸로 표시* : 잠시동안
+  화면 표시를 이미지로 저장한다음 그걸로 표시한다.
+- *테이블의 경우 회전후 컨텐츠를 reload* : 테이블의 각 row의 새로이
+  드러난 부분이 적절히 채워지게 하기 위해 회전작업을 마친 다음
+  reload를 강제로 호출한다.
+- *회전 통지를 사용해서 앱의 상태정보를 갱신* : 앱이 현재의 방향을
+  사용해 컨텐츠를 어떻게 표시하는지 결정한다면, VC의 회전 메소드를
+  사용해 (또는 관련 장치방향변경 통지에 반응하여) 필요한 조정작업을
+  수행하도록 한다.
+  
+  
+* TODO VC의 입장에서 본 접근성
+
+* TODO 다른 VC 로 부터 VC Present하기
+
+* TODO VC 간 연동하기
+
+* TODO VC 에서 Edit Mode 활성화하기
+
+* TODO 커스텀 Segue 만들기
+
+* TODO 커스텀 컨테이너 VC 만들기
+
 
