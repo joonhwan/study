@@ -44,3 +44,131 @@ NC 는 몇개의 객체로 네비게이션 인터페이스를 구현.  이들중
 
 [[file:img/LearnViewControllerCatalog_20130401_222425_.png]]
 
+
+위 그림에서 사용자가 수정할 수 있는 부분은
+
+- delegate
+- navigation stack(이하 NS)
+  
+이다. stack 에 맨 처음 들어간 VC 는 root VC 가 되며, 절대 stack 에서
+pop 되지 않는다. =UINavigationController= 의 메소드를 사용해 stack 에
+추가적인 항목이 들어갈 수 있다.
+
+다음 그림은 NC 와 NS 간의 관계를 나타낸 것.
+
+[[file:img/LearnViewControllerCatalog_20130402_010038_.png]]
+
+위 그림에서 =topViewController= 와 =visibleViewController= 는 항상
+같지 않을 수 있음에 유의(예를 들어, 어떤 VC 를 modal하게 present한
+경우 =visibleViewController= 는 present 된 VC 를 나타내지만,
+=topViewController= 는 여전히 presenting 한 VC 를 가리키게 된단다).
+
+NC 의 주요한 임무는 사용자의 행위에 따라, 새로운 컨텐츠 VC 를 스택에
+push 혹은 pop 하는 것이다. 각 VC 는 앱의 데이터중 일정부분을 표시할
+임무를 띄고 있다. 대개, 사용자가 현재 보이는 view 에서 어떤 항목을
+선택한 경우 해당 항목에 대한 상세한 부분을 표시하는 VC 를 설정하고 NS
+에 push 한다(예: 사진 어플에서 사용자가 사진 앨범을 선택하면 해당
+사진 앨범을 표시하는 VC 를 NS 에 push).
+
+대개의 경우, NS 에서 VC 를 코드상에서 pop 할 필요는 없다. 대신, NC 가
+제공하는 네비게이션바의 "back(뒤로가기)" 버튼이 눌릴 때, stack 의
+가장 위에 놓인 VC 가 자동적으로 pop 된다.
+
+** 네비게이션 인터페이스(이하 NI) 생성하기
+NI 를 생성할 때, 이를 어떻게 쓸 것인지를 결정해야 한다.
+
+- NC 가 앱의 전체 실행과정에서 상당한 부분을 차지하는 경우
+  1) Window 의 root VC 로 설치한다.
+  2) 탭바 인터페이스에 탭의 VC 로 설치한다.
+  3) 스플릿 뷰 인터페이스에서 2개의 root VC 중 하나로 설치한다(iPad만).
+
+- NC 를 짧은 순간만 사용하는 경우
+  1) 다른 VC로 부터 modal하게 present
+  2) Popover 로 부터 표시(iPad만)
+
+*** NI 용 컨텐츠 VC 정의하기.
+모든 NI 는 root level 에 해당하는 데이터 level 1개는 가진다. 이 level
+은 사용자의 인터페이스 시작점이라 할 수 있다. 예를들어, 사진 어플은
+자신의 데이터 계층에서 root level 로 포토앨범을 가진다. 포토 앨범을
+선잭하면 해당 앨범의 사진들이 표시되고, 그 사진들 중 하나를 선택하면
+사진 한장을 크게 표시하게 된다.
+
+[[file:img/LearnViewControllerCatalog_20130402_011518_.png]]
+
+NI 를 구현하려면, 데이터 계층의 각 단계에서 어떤 데이터를 표시할 지
+결정해야 한다. 각 단계마다, 해당 단계의 데이터를 관리/표시할 컨텐츠
+VC 가 제공되어야 한다. 만일 여러 단계에 걸쳐 동일한 화면표시가 이루어
+진다면, 동일한 VC 클래스를 여러개 만들어, 각 객체마다 자신만의 데이터
+집합을 관리하도록 설정해 주어야 한다. 예를들어, 사진 어플은 3개의
+독립적인 표시 유형을 가진다(위 그림참조). 이 경우에는 각 단계마다
+모든 다른 방식의 표시방식이 필요하다.
+
+각 컨텐츠 VC 는, 맨 끝단계를 제외하고는, 사용자에게 데이터 계층내 다음
+단계로 옮겨갈 수 있는 방법을 제공해야 한다. 항목의 목록을 표시하는 VC
+는 주어진 각 테이블 셀을 탭하면 다음 단계의 데이터를 표시할 수 있다.
+
+*** 스토리보드를 사용해 NI 생성
+Xcode 에서 Master-Detail 어플리케이션 템플릿을 사용하면 NC 를
+스토리보드상에서 사용하고 첫 장면으로 설정한 프로젝트가 생성된다.
+
+스토리보드상에 직접 NC 를 만들려면 다음과 같이 한다.
+
+1. NC 를 라이브러리에서 드래그
+2. IB 에서 NC 와 VC 를 만들고, 이들간 관계를 설정한다. 이 관계는
+   새로이 생성된 VC 를 NC의 root VC로 인식한다.
+3. 어트리뷰트 인스펙터에 Initial VC 옵션을 선택하여 생성한 NC 를
+   첫번째 VC 로 표시한다.
+   
+*** NI 를 코드로 생성하기.
+코드상 적절한 위치에서 NC 를 직접 생성할 수도 있다. 예를 들면, NC 가
+앱 Window 의 root view 를 제공한다면, NC 를 App Delegate의 
+=applicationDidiFinishLaunching:= 메소드에서 생성할 수 있다.
+
+1. NI 를 위한 root VC 를 생성
+   
+   이 객체는 NS에서 최상위 VC가 된다. 네비게이션 바는, view 가 표시될
+   때 뒤로가기 버튼을 표시하지 않으며, NS 에서 pop 될 수 없다.
+
+2. NC 를 생성하고, =initWithRootViewController:= 메소드를 사용해
+   초기화 한다.
+
+3. NC 를 사용자 윈도우의 root VC 로 설정한다(또는 사용자의
+   인터페이스에서 present한다).
+
+아래는 =applicationDidiFinishLaunching:=  메소드에서 NC 를 만들고
+앱의 main wnidow에 대한 root VC 로 설정하는 코드다.
+=navigationController= 와 =window= 변수는 App Delegate 클래스의
+멤버변수이고, =MyRootViewController= 클래스는 커스텀 VC 클래스이다.
+이 예제에서 Window 가 표시될 때, NI 는 root VC 에 대한 view 를
+present 한다.
+
+#+BEGIN_SRC objc
+  -(void)applicationDidLaunching:(UIApplication *)application
+  {
+      UIViewController *myViewControler = [[MyViewController alloc] init];
+      navigationController = [[UINavigationController alloc]
+                                 initWithRootViewController:myViewControler];
+  
+      window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+      window.rootViewController = navigationController;
+      [window makeKeyAndVisible];
+  }
+#+END_SRC
+
+*** 네비게이션 뷰에 전체화면 레이아웃을 적용하기.
+NI 는 네비게이션바 아래와 툴바 혹은 탭바의 위쪽 사이 공간에 커스텀
+컨텐츠 VC 를 표시한다. 하지만, 전체 화면 레이아웃으로도 표시되게 할 수
+있다. 전체화면 레이아웃에서 컨텐츠 뷰는 네비게이션바, 상태바,
+툴바등과 적절히 겹쳐진 형태로 표시된다. 가시 영역을 최대화 할 수 있는
+것이다. 
+
+NC 는 화면 전체 혹은 대부분을 채우도록 크기조정되어야 하는지 결정할
+때, 다음과 같은 몇가지 조건들을 고려한다.
+
+- 깔린 윈도우(혹은 부모 뷰)가 전체 화면을 채우는가?
+- 네비게이션 바가 반투명으로 설정되었는가?
+- 네비게이션 툴바가 (있다면) 반투명으로 설정되었는가?
+- 밑에 깔린 VC의 =wantsFullScreenLayout= 속성이 YES 인가?
+  
+커스텀 뷰의 최종 크기는 이러한 조건들을 고려하여 결정된다.  위의
+조건들의 나열 순서는 고려 순서이다. 
