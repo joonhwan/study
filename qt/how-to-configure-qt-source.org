@@ -1,0 +1,23 @@
+#+TITLE:How to configure Qt source
+
+* 요약
+
+  빌드가 오래걸리기 때문에, 한번에 빌드를 마칠 수 있는 방법이 좋다.
+  여러 개의 버젼으로 빌드하려는 경우도 마찬가지... 가장 걸림돌이
+  중간중간 뭘 물어보는 것과 example류들의 빌드.
+
+  아래와 같이 하면 한번에 할 수 있다.
+
+  #+BEGIN_EXAMPLE
+    ./configure -xplatform unsupported/macx-ios-clang -developer-build
+    -opensource -confirm-license -nomake examples -nomake tests -release
+    -sdk iphonesimulator
+  #+END_EXAMPLE
+
+  위의 경우는 ios 용 Qt의 빌드를 위한 configure 인데, 잘 보면,
+
+  "-opensource" 와 "-confirm-license" 그리고 "-nomake"의 조합이다.
+  이런식으로 configure하면 작업이 무인화 된다.
+  
+
+
