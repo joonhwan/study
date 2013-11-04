@@ -7,3 +7,6 @@ objc/*.tex
 dotnet/*.html
 dotnet/*.mm
 dotnet/*.tex
+dotnet/*/*/*.exe
+*_flymake.cs
+*_flymake.netmodule

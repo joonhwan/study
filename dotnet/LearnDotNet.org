@@ -24,8 +24,8 @@
    이런식으로 하지 않아도 된다.
 
    #+begin_src csharp
-     // 실제로 존재하지 않는 개념적 클래스 sealed class Box<T>:
-     System.ValueType<Type T>
+     // 실제로 존재하지 않는 개념적 클래스
+     sealed class Box<T>: System.ValueType<Type T>
      {
          T value;
          public Box(T t)

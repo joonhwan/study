@@ -234,7 +234,7 @@
 	- CopyTo(): 배열요소 복사하기
 	- Length: 배열항목갯수
 	- Rank: 몇차원 배열?
-	- Reverse(): 정작메소드. 1차원배열인 경우 순서를 역순으로 만듬
+	- Reverse(): 정적메소드. 1차원배열인 경우 순서를 역순으로 만듬
 	- Sort() : 정적메소드. 정렬.
 
 ** enum
@@ -287,7 +287,7 @@
 
 	패스.
 
-**  ValueType과 패스타입의 차이점 정리 
+**  ValueType과 ReferenceType의 차이점 정리 
 
 	- 객체가 어디에 정의되는가?
 	- 변수는 어떤 것을 표현하는가?
@@ -1777,24 +1777,35 @@
 ** Delegate 정의하는 법 : /delegate/ 키워드
 
 	#+begin_src csharp
+      // 아래에 컴파일러가 클래스로 확장한 내용이 나오는 예제 MyDelegate 
+      public delegate string MyDelegate(bool a, bool b, bool c);
+      
       // MyOtherDelegate 라는 이름의 delegate 를 정의
       public delegate string MyOtherDelegate(out bool a, ref bool b, int c);
 	#+end_src
 
-	위와 같이 하면 delegate가 정의된다. 실제로 위의 코드를 C#
-	컴파일러가 컴파일 하면, /System.MultiCaseDelegate/
+	위와 같이 하면 delegate가 정의된다. 실제로 위 코드는
+	C# 컴파일러가 컴파일 하면, /System.MultiCaseDelegate/
 	(/System.Delegate/ 의 파생클래스) 로 부터 파생된 Delegate이름(즉,
 	MyOtherDelegate)의 *클래스가 정의* 된다. ( *함수처럼 보이지만,
 	실제로는 클래스 타입이 정의된다!*)
 
 	#+begin_src csharp
-      sealed class MyDelegate: System.MulticastDelegate 
-      { 
-          public string Invoke(bool a, bool b, bool c); 
-          public IAsyncResult BeginInvoke(bool a, bool b, bool c, 
-                                          AsyncCallback cb, object state); 
-          public string EndInvoke(IAsyncResult result); 
-      } 
+      sealed class MyDelegate: System.MulticastDelegate
+      {
+          public string Invoke(bool a, bool b, bool c);
+          public IAsyncResult BeginInvoke(bool a, bool b, bool c,
+                                          AsyncCallback cb, object state);
+          public string EndInvoke(IAsyncResult result);
+      }
+      
+      public sealed class MyOtherDelegate: System.MulticastDelegate
+      {
+          public string Invoke(out bool a, ref bool b, int c);
+          public IAsyncResult BeginInvoke(out bool a, ref bool b, int c,
+                                          AsyncCallback cb, object state);
+          public string EndInvoke(out bool a, ref bool b, IAsyncResult result);
+      }
 	#+end_src
 
 	이 중 Invoke() 메소드는 동기호출을, BeginInvoke/EndInvoke 는
