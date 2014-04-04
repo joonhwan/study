@@ -7,3 +7,4 @@ objc/*.tex
 dotnet/*.html
 dotnet/*.mm
 dotnet/*.tex
+/.DS_Store

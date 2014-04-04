@@ -287,7 +287,7 @@
 
 	패스.
 
-**  ValueType과 패스타입의 차이점 정리 
+**  ValueType과 ReferenceType의 차이점 정리 
 
 	- 객체가 어디에 정의되는가?
 	- 변수는 어떤 것을 표현하는가?

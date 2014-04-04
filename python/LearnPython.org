@@ -1,0 +1,19 @@
+#+TITLE: Learn Python 5th Edition
+#+AUTHOR: Joonhwan
+
+* 4장. 파이썬 객체 타입
+
+  데이터가 객체의 형태로 표현. 객체는 파이썬 및 파이썬 확장
+  C라이브러리가 제공 혹은 사용자가 만든것.
+
+  파이썬은 모든게 객체(심지어 숫자도)
+
+** 파이썬 개념
+
+   #+BEGIN_SRC python
+   return "python".upper()
+   #+END_SRC
+
+   #+RESULTS:
+   : PYTHON
+
