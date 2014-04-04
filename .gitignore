@@ -8,3 +8,6 @@ dotnet/*.html
 dotnet/*.mm
 dotnet/*.tex
 /.DS_Store
+dotnet/*/*/*.exe
+*_flymake.cs
+*_flymake.netmodule

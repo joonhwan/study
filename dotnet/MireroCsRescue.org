@@ -1,0 +1,9 @@
+* Rescue Note
+
+  - struct 의 경우는 new -> heap 아님(stack)
+  - 함수 인자로 넘어가는 class 객체의 경우 ref 없이는 pass-by-value :
+    reference 가 가리키는 주소의 내용은 바꿀 수 있지만, reference 값
+    자체는 변경 불가. 그럴려면 ref 사용.
+  - struct 인 MyData의 경우 MyData [] myData = new MyData[27] 하면
+    sizeof(MyData) 영역은 heap에 그걸 가리키는 sizeof(pointer)만큼의
+    stack데이터가 생성. new 하면 무조건 0 으로 초기화. 
