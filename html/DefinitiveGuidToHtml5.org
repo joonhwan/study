@@ -628,3 +628,15 @@
    특정 요소 대비 상대크기 지정하는 방법도 있음. 
    
    #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4-21.using.units.derived.from.other.relative.values.html" src html
+   
+** 픽셀(상대 길이? 절대 길이!)
+
+   CSS 픽셀정의는 "독자가 자신의 팔길이에 해당하는 거리만큼 스크린에서
+   떨어져 있을때, ...." 라는 식으로 정의(헉!).
+
+   모든 브라우저는 이 정의를 따르지 않음. 대부분... 약 "1/96인치" 로
+   정의(LCD 디스플레이상의 R/G/B 로 구성된 1 Pixel 아님.)
+
+   --> 실제 정의는 "상대 길이" 지만, 실상 브라우저 자체는 *절대 길이*
+   로 구현함.
+   
