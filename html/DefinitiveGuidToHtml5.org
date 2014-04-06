@@ -1,0 +1,630 @@
+#+TITLE:Definitive Guide to HTML5 학습
+
+* <<3장>> HTML 시작하기
+  
+  최근들어, 모든 개발자들은 HTML을 배우는 추세. HTML은 Markup
+  Langauge, 즉, /element/ 와 텍스트인 /content/ 로 구성. 
+  
+  아래와 같은 global attribute들 
+  
+  | global attribute name | 용도                                   |
+  | accesskey             | 단축키                                 |
+  | class                 | style정의를 위해 element들을 묶음.     |
+  | contenteditable       | 사용자가 해당 element을 편집가능       |
+  | contextmenu           | 우버튼 클릭메뉴(아직 지원 안됨?        |
+  | dir                   | element의 레이아웃 방향지정            |
+  | draggable             | element 드래그 가능                    |
+  | dropzone              | drag & drop                            |
+  | hidden                | element와 자신의 content가 무관함      |
+  | id                    | element 각각의 구분하기 위함           |
+  | lang                  | 언어                                   |
+  | spellcheck            | 철자법 검사 할지 말지                  |
+  | style                 | css 등 style                           |
+  | tabindex              | Tab키로 요소들간 이동가능              |
+  | title                 | element에 대한 추가 정보(보통 툴팁 용) |
+  
+** Element 사용하기
+   
+   - start tag + content + end tag : ex  ~<code>apples</code>~
+   - 대소문자 구분하지 않으나, 요즘은 대부분 소문자.
+   - semantic element 가 있음 : ~<code>~ 같은 element는 표시방법이 아니라
+     의미의 전달을 위함
+   - element 정리 : =a, body, button, code, DOCTYPE, head, hr, html,
+     html, input, label, p, style, table, td, textarea, th, title, tr =
+   - self closing: ~<code/>~ 은  ~<code></code>~ 과 동일
+   - void element: =<hr>= 은 end tag가 필요없음. self closing 형태로
+     =<hr />= 와 같이 사용해도 되고, 이 방법을 선호.
+	 
+** Element Attribute 사용하기
+   
+   - attr name + attr value : ~<a href="apples.html">~
+   - attr value : 큰 따옴표(double quote), 작은 따옴표(single quote)
+     모든 사용가능. python같이 생각. value자체가 double/single quote를
+     가지는 경우에 서로 상이한 걸로 바깥쪽을 둘러싸는..
+   - element 1개에 여러개의 attr 사용가능.
+   - boolean attr : *값은 중요하지 않음*, *존재/비존재 여부로
+     true/false* (예:~<input disabled>~, 와 ~<input disabled="">~ 및
+     ~<input disabled="disabled">~ 는 모두 동일. 
+   - custom attr : 사전 약속되지 않은 attr를 만들어 쓸 수 있다.
+     ~<input disabled="true" data-creator="adam"
+     data-purpose="collection">~ 의 예와 같이, "data-" 로 시작하는
+     단어 등의 prefix를 namespace처럼 활용하여 사전 정의된 것들과
+     구분하는 것도 팁.
+	 
+** HTML Document 만들기
+   
+   - 내 웹서버이름 titan.
+   - User Agent란 : HTML을 소비하는 웹브라우저 및 *소프트웨어
+     컴포넌트* 를 지칭. 브라우저말고도 HTML을 읽어대는 놈들이 있다.
+   - HTML vs XHTML : XHTML은 이전의 xml호환되는 html. 이 책에서는
+     안다룸.
+	 
+   - 전체 구조 : 여러 markup 문서들중 html을 구분하려고 넣은 DOCTYPE은
+     이제는 더이상 없어도 부분이지만, 가끔 없으면 문자가.. 항상 넣자.
+	 
+   - Metadata : ~<head>~ element. ~<title>~ element는 적어도
+     있어야(웹브라우저 창 제목에 표시)
+	 
+	 #+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <!-- metadata가 여기에. -->
+           <title>Example</title>
+         </head>
+         <body>
+           <!-- 여기에 content와 element들이 온다. -->
+           I like <code>apples</code> and oranges.
+         </body>
+       </html>
+	 #+END_SRC
+	 
+   - 모든 element는 Parent, Child, Descendants, Sibling 관계의 tree
+     구조 : 웹브라우저, css, DOM(document object model)등에 있어서
+     중요한 개념.
+	 
+   - element의 유형 : 3가지. 아직 이해/정리 안됨.
+	 
+	 1) metadata : HTML docment의 기본 구조를 구성하고, 브라우저에
+        document가 어떻게 처리될지를 알려줌. 
+		
+	 2) flow : phrasing의 상위 집합. 
+		
+	 3) phrasing : HTML의 가장 기본적인 구성. 
+		
+** HTML entity
+   
+   HTML document에 사용되는 문자 집합. 일단 < 와 > 는 가장 중요.
+   entity에 사용되는 문자열은 문자 자체를 표현하기 위한 escape 존재.
+   "&#60" 처럼 코드를 사용하면 모든 것 표현 가능. 자주 쓰이는 것은
+   "&lt;" 와 같이 기억하기 좋은 별칭도 있음.
+   
+   | Character | Entity Name | Entity Number |
+   | <         | &lt;        | &#60          |
+   | >         | &gt;        | &#62          |
+   | &         | &amp;       | &#30;         |
+   | €         | &euro;      | &#8364;       |
+   | £         | &pound;     | &#163;        |
+   | §         | &sect;      | &#167;        |
+   | ©         | &copy;      | &#169;        |
+   | ®         | &reg;       | &#174;        |
+   | TM        | &trade;     | &#8482;       |
+   |           |             |               |
+   
+** HTML5 Global Attribute
+   
+*** accesskey 속성
+	
+	단축키. 아래 예의 경우, Alt+p 는 Name에서 Password로 포커스 이동
+	Alt+s 를 누르면 로그인.
+	
+	#+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <title>Example</title>
+         </head>
+         <body>
+           <form>
+             Name: <input type="text" name="name" accesskey="n"/>
+             <p/>
+             Password: <input type="password" name="password" accesskey="p"/> <p/>
+             <input type="submit" value="Log In" accesskey="s"/>
+           </form>
+         </body>
+       </html>
+	#+END_SRC
+	
+*** class 속성
+	
+	한 개 이상의 element를 묶음으로 처리할 때 유용. classify or
+    categorize elements. 속성값에 공백을 두고 여러개의 class 값을
+    지정가능.
+	
+	css 에서 style할때 "... class를 가지는 것들은 ... 식으로
+    스타일링해라..."는 식으로 처리.
+	
+	또 javascript에서 특정한 복수 element들을 가져올때도 유용.
+	
+	#+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <title>Example</title>
+         </head>
+         <body>
+           <a class="class1 class2" href="http://apress.com">Apress web site</a> <p/>
+           <a class="class2 otherclass" href="http://w3c.org">W3C web site</a> <script type="text/javascript">
+             var elems = document.getElementsByClassName("otherclass");
+             for (i = 0; i < elems.length; i++) {
+                             var x = elems[i];
+                             x.style.border = "thin solid black";
+                             x.style.backgroundColor = "white";
+                             x.style.color = "black";
+                             } </script>
+                             </body>
+       </html>     
+	#+END_SRC
+	
+*** id 속성
+
+	- 어떤 한 element를 지칭하기 위해 사용.
+	- 브라우저에서 바로가기 목적지로 사용(/URL fragment identifier/) :
+      예 : "example.html#my_element_id"
+
+*** style 속성
+
+	css스타일을 element에 바로 정의.
+
+	#+BEGIN_SRC html
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <title>Example</title>
+        </head>
+        <body>
+          <a href="http://apress.com" style="background: grey; color:white; padding:10px">
+            Visit the Apress site
+          </a>
+        </body>
+      </html>
+	#+END_SRC
+
+*** tabindex 속성
+
+	Tab 을 누를때 마다 커서 이동.
+
+	#+BEGIN_SRC html
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <title>Example</title>
+        </head>
+        <body>
+          <form>
+            <label>Name: <input type="text" name="name" tabindex="1"/></label>
+            <label>City: <input type="text" name="city" tabindex="-1"/></label>
+            <label>Country: <input type="text" name="country" tabindex="2"/></label> 
+            <input type="submit" tabindex="3"/>
+          </form>
+        </body>
+      </html>
+	#+END_SRC
+
+*** title속성
+
+	*강조* title element ~<title>~ 와는 다름. 마우스를 올리면 툴팁으로
+	표시되는 문자열을 만듬. 아래의 경우, Visit Apress 라는 부분에
+	마우스를 올리면 "Apress Publishing" 이라는 툴팁이 표시됨.
+
+	#+BEGIN_SRC html
+      <!DOCTYPE HTML>
+      <html>
+        <head>
+          <title>Example</title>
+        </head>
+        <body>
+          <a title="Apress Publishing" href="http://apress.com">Visit the Apress site</a>
+        </body>
+      </html>
+	#+END_SRC
+
+
+*** 기타
+
+	- contenteditble : 어? 꼭 textarea 같으네?
+	- contextmenu : 아직 지원안됨
+	- dir : 아라비아 사람들처럼 우측에서 좌측으로 글자가 진행되는 것을
+      표현하기 위함.
+	  
+	  #+BEGIN_SRC html
+        <!DOCTYPE HTML>
+        <html>
+            <head>
+                <title>Example</title>
+            </head>
+            <body>
+        <p dir="rtl">This is right-to-left</p>
+        <p dir="ltr">This is left-to-right</p> </body>
+        </html>      
+	  #+END_SRC
+	- draggable : [[37장]]
+	- dropzone : [[37장]]
+	- hidden : 해당 element가 표시 안됨. js 로 제어하여 toggle표시할
+      때 쓰이는 예.
+	- lang : 여러 언어로 표기한때 사용가능(근데, 이방법으로 다중언어지원은
+      복잡할껄) + 사용자가 선택한 언어로 된 content에만 꾸미거나
+      표시하고자 할 때 사용.
+	  
+	  #+BEGIN_SRC html
+        <!DOCTYPE HTML>
+        <html>
+            <head>
+                <title>Example</title>
+            </head>
+            <body>
+                <p lang="en">Hello - how are you?</p>
+                <p lang="fr">Bonjour - comment êtes-vous?</>
+                <p lang="es">Hola - ¿cómo estás?</p>
+            </body>
+        </html>
+	  #+END_SRC
+
+	- spellcheck : 철자법 검사 활성화. 아래의 경우 /mispelled/ 부분에
+      빨간줄이 그어짐.
+	  
+	  #+BEGIN_SRC html
+        <!DOCTYPE HTML>
+        <html>
+            <head>
+                <title>Example</title>
+            </head>
+            <body>
+        <textarea spellcheck="true">This is some mispelled text</textarea> </body>
+        </html>      
+	  #+END_SRC
+
+* <<4장>> CSS 시작하기
+
+  CSS = Cascading Style Sheet. HTML의 presentation layer.
+
+** 스타일 정의 및 적용
+
+   - Declaration = "속성:값;" 형태. ~background-color:grey;~.
+     semicolone(;) 으로 반드시 끝내야 됨.
+
+   - Declaration + Declaration. ~background-color:grey; color:white;~
+	 
+   - 주요 속성: 
+	 
+     | background-color | element 배경색               |
+     | border           | element border 외곽선        |
+     | color            | element 전경색               |
+     | font-size        | element 글자크기             |
+     | height           | element 높이                 |
+     | padding          | element border와 content간격 |
+     | text-decoration  | 글자꾸미기                   |
+     | width            | 폭                           |
+
+   - 3가지 방법
+	 - inline : 모든 element tag의 style 속성
+	 - embedded : ~<head>~ 내에 ~<style>~ 요소
+	
+	   [[file:img/DefinitiveGuidToHtml5_20140405_124318_.png]]
+
+	 - external : 별도 파일
+
+   - external css
+	 
+	 #+BEGIN_SRC css
+       /* style.css 의 내용. */
+
+       a {
+           background-color: grey;
+       }
+
+       span {
+           border: thin black solid;
+           padding: 10px;
+       }
+	 #+END_SRC
+
+	 #+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <title>Example</title>
+           <link rel="stylesheet" href="styles.css" type="text/css" />
+         </head>
+       </html>
+	 #+END_SRC
+
+   - 다른 stylesheet 가져오기 : 가능하지만, 성능문제등으로 잘 안씀
+	 
+	 ~@import~ 구문을 쓰되 파일 하나당 하나씩 적용한다. 보통은
+     css파일의 맨 위에서 @import 한다. 
+
+	 #+BEGIN_SRC css
+       @import "another-style.css"
+       span {
+           border:medium black dashed;
+           padding:10px;
+       }
+	 #+END_SRC
+
+   - stylesheet의 문자열 인코딩
+	 
+	 영어이외의 class,id 를 쓰는 경우가 있어서 그런가.. utf-8 따위의
+     문자열 인코딩을 css파일내에 지정가능
+	 
+	 #+BEGIN_SRC css
+       @charset "UTF-8";
+       @import "styles.css";
+       span {
+           border: medium black dashed;
+           padding: 10px;
+       }     
+	 #+END_SRC
+
+** CSS Selector 구성요소 : 다음 절을 이해하려면 필요해서 잠시 정리
+   
+   "selector" --> 특정 element을 "선택"하여 스타일을 지정한다~~~
+   
+   많이 쓰이는 selector : id, class, element name
+   특별한 selector: pseudo-class, pseudo-element[[http://newsignature.com/blog/2011/06/17/css-pseudo-classes-and-pseudo-elements/#.U0EXqa1_uI4][(여기]] 참조)
+   
+	 + id : ~#content { background:red; }~ 은 ~<div id="content">~ 에
+       적용
+	 + other attribute: ~a[target] { background:yellow; }~ 는 ~<a
+       href="#", target="_blah_blah">~ 에 적용
+	 + pseudo class : js 를 사용해야만 접근이 되던 걸, css로 할 수
+       있게 해주는 selector.  콜론(:)으로 시작된다. 일부
+       pseudo-class는 함수처럼 괄호안에 인자를 넣을 수 도 있음.
+	   
+	   :link, :visited, :hover(커서가 위에), :active(버튼을 누른 상태에
+       커서 아래), :focus, :enabled, :disabled, :checked(radio나
+       checkbox등이
+       선택된상태), :indeterminate(tri-state에서..), :target(웹페이지에서
+       #으로 시작하는 링크의 대상에 따라
+       선택), :nth-child({인자})(리스트의 특정 번째 항목 또는 항목들
+       선택), :nth-last-child(), :nth-of-type, :nth-last-of-type(),
+	   :first-child, :last-child, :first-of-type, :only-child, :empty, 
+	   :lang(), :root ...
+	   
+	 + pseudo-element: pseudo-class가 특별한 상태의 element들만을
+       선택하는 것이라면, pseudo-element 는 "가짜" element를 선택하기
+       위한거(예:첫 글자, 첫 줄, 특정 element 앞...). 더블콜론(::)으로
+       시작됨.
+	   
+	   ::first-line, ::first-letter, ::before(어떤이는, 리스트의 항목
+       번호에 완전히 다른 색상의 폰트를 적용할 때 이걸
+       쓴다는..), ::after, ::marker, ::selection
+	   
+
+** 여러개의 스타일이 합쳐(cascade)지고 상속받는(inherit) 것을 이해하자.
+
+   stylesheet 이해의 핵심은 /cascade(합침)/ 과 /inherit(상속)/ 을
+   이해하는 것.
+
+   - 브라우저 기본 스타일 : 아무런 스타일 지정없이도, 브라우저가
+     지정하는 스타일(예: hyper link는 보통 밑줄이 들어간 파란색)
+   - 사용자 스타일 : Chrome 긑은 브라우저는 ~Default/User
+     StyleSheets/Custom.css~ 파일을 통해 모든 사이트에 대한 일괄
+     스타일의 지정이 가능
+	 
+** 스타일이 어떻게 합쳐지는가(우선순위 문제)
+
+   다음의 순서가 중요.
+
+   1. inline style : style 전역속성을 사용하여 지정된 스타일
+   2. embedded style
+   3. external style
+   4. user style
+   5. browser style
+
+   브라우저가 하이퍼링크를 표시하려고 한다. 어떤 색을 쓸까? 1에
+   해당하는 ~<a style="color:red" href="http://apres.com">Visit
+   Apress</a>~ 와 같은 항목이 있나? 없네. 그럼. 2에 해당하는 ~<style
+   type="text/css"> a { color:red; }</style>~ 와 같은 항목이 있나?
+   없네. 그럼. 3에 해당하는..... 4에 해당하는... 5에 해당하는 ..... 
+
+   - 중요한 스타일에 대해 순서 조정하기 : /important/ 속성
+	 
+	 아래와 같이 하면, 우선순위가 낮은 style의 것이 우선적으로
+     사용되어 검은색으로 표시됨.
+	 
+	 #+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <title>Example</title>
+           <style type="text/css">
+             a {
+             color:black !important;
+             }
+           </style>
+         </head>
+         <body>
+           <a style="color:red" href="www.joonhwan.org">Visit Joonwah</a>
+           <p>I likde <span>
+         </body>
+       </html>
+	 #+END_SRC
+
+   - *중요* Selector의 Specificty 계산(적용우선순위 계산)
+	 
+	 하나의 요소에 적용될 수 있는 스타일이 2개(이상) 있고, 거기에
+     동일 한 종류의 CSS속성이 설정되어 있는 경우. 도대체 어떻게
+     적용될까. 브라우저는 다음 3가지 특성을 고려한다.
+	 
+	 1. selector 에 있는 ~id~ attr 값의 갯수(=숫자 'a')
+	 2. selector 에 있는 ~id~ 이외의 class 같은 다른 attr 또는
+        pseudo-classs의 갯수(=숫자'b')
+	 3. selector 에 있는 type selector(element name)와 pseudo-element의
+        갯수(=숫자'c')
+
+     위 3가지 특성이 a-b-c로 된 숫자 1개로 계산된다. 상세한 계산법은
+     [[http://www.w3.org/TR/selectors/#specificity][w3.org]] 참조(좀더 재미있는 예로 배우려면 [[http://www.stuffandnonsense.co.uk/archives/css_specificity_wars.html][Starwars CSS Specificity]]
+     를 참조)
+
+     #+BEGIN_SRC css
+       *              {}  /* a=0 b=0 c=0 -> specificity =   0 */
+       LI             {}  /* a=0 b=0 c=1 -> specificity =   1 */
+       UL LI          {}  /* a=0 b=0 c=2 -> specificity =   2 */
+       UL OL+LI       {}  /* a=0 b=0 c=3 -> specificity =   3 */
+       H1 + *[REL=up] {}  /* a=0 b=1 c=1 -> specificity =  11 */
+       UL OL LI.red   {}  /* a=0 b=1 c=3 -> specificity =  13 */
+       LI.red.level   {}  /* a=0 b=2 c=1 -> specificity =  21 */
+       #x34y          {}  /* a=1 b=0 c=0 -> specificity = 100 */
+       #s12:not(FOO)  {}  /* a=1 b=0 c=1 -> specificity = 101 */
+     #+END_SRC
+
+	 [[17장]]과 [[18장]]에 이들 서로다른 특성을 모두 포함하는 selector를 만드는
+     법이 설명됨. 브라우저는 각 평가문장으로 부터 값을 조합하여 가장
+     구체적인(most specific) 속성값을 적용한다("assessing
+     speicificity")
+	 
+	 #+BEGIN_SRC html
+     <!-- Specificity in Styles -->
+     <!DOCTYPE HTML>
+     <html>
+     <head>
+     <title>Example</title>
+     <style type="text/css">
+     a{
+     color: black;
+     }
+     a.myclass {
+     color:white;
+     background:grey;
+     }
+     </style>
+     </head>
+     <body>
+     <a href="http://apress.com">Visit the Apress website</a>
+     <p>I like <span>apples</span> and oranges.</p>
+     <a class="myclass" href="http://w3c.org">Visit the W3C website</a>
+     </body>
+     </html>     
+	 #+END_SRC
+	 
+	 ~a~ element가 여러 곳에서 style이 지정됨. specificity계산해
+     보자(Let's assess specificity!)
+
+	 위 예에서 ~a.myclass~ 는 class attribute을 포함하고 있으니, (0 id
+     values + 1 other attribue + 0 element names) 해서 숫자 0-1-0 이
+     만들어진다. ~a~ 는 0-0-1(0[id] - 0[class/other attri/pseudo
+     class] - 1[type(element name)/pseudo-element]).
+	 
+	 ~a.myclass~ : 0-1-0
+	 ~a~         : 0-0-1
+	 
+	 ~<a class="myclass">~ 에 위 두 style은 모두 적용가능. 하지만,
+     ~a.myclass~ 가 더 높은 수. 결국, ~a.myclass~ 에서 지정된 스타일이
+     적용됨(즉, grey배경에 white글자가 표시)
+	 
+	 하지만, ~<a>~ 는 적용할 수 있는게 ~a~ 에 대한 스타일 1개 밖에
+     없음. 그냥 그 스타일(black 글자)가 적용.
+
+     동일한 specificity 가 2군데 이상 나오는 경우도 있음. 
+	 
+	 #+BEGIN_SRC html
+       <!DOCTYPE HTML>
+       <html>
+         <head>
+           <title>Example</title>
+           <style type="text/css">
+             a.myclass1 {
+             color: black;
+             }
+             a.myclass2 {
+             color: red;
+             }
+           </style>
+         </head>
+         <body>
+           <a href="#">스타일 중복 없는 경우의 링크</a>
+           <a href="#" class="myclass1 myclass2">스타일 중복된 경우 링크</a>
+         </body>
+       </html>
+	 #+END_SRC
+	 
+	 위경우 첫번째 링크에 적용되는 스타일은 아예 없지만, 두번째 링크에
+     적용되는 스타일은 2개가 있음. 하필 두가지 스타일 모두
+     specificity는 0-1-1 으로 동일. 이런 경우에는 마지막에 정의된
+     스타일(즉, red 글자)이 적용됨.
+
+** 상속개념
+
+   만일 브라우저가 작성된 스타일중에서 특정 속성의 값을 찾지 못하면,
+   "상속"개념을 적용한다.
+
+   #+BEGIN_SRC web
+     <!DOCTYPE HTML>
+     <html>
+       <head>
+         <title>Example</title>
+         <style type="text/css">
+          p {
+            color:white;
+            background:grey;
+            border: medium solid black;
+          }
+         </style>
+       </head>
+       <body>
+         <a href="#">무 스타일 링크</a>
+         <p>I Like <span>apples</span> and oragnes</p>
+       </body>   
+     </html>
+   #+END_SRC
+
+   위 경우 ~<span>~ 에 대한 스타일은 따로 정해진게 없다. 하지만, 얘의
+   부모는 ~<p>~ 고, 거기에는 정해진 스타일이 있다. 이게 ~<span>~ 에
+   적용된다. 
+
+   *중요* *헛갈리게도, 모든 css속성들이 상속되는것은 또 아니다!*
+
+   - 외모와 관련된 것(text  color, font...) : 상속 된다
+   - 레이아웃과 관련된것(border...) : 상속되지 않는다.
+	 
+   상속되지 않는 속성값들을 억지로(?) 상속받게 하려면 *inherit* 을
+   값으로 넣어주면 된다.
+
+   #+include: "html/4-18.using.inherit.value.html" src html
+
+   ~<span>~ 은 ~<p>~ 의 자식이긴 하지만, border는 상속이 안된다.
+   inherit 이 없는 경우라면, span은 border가 전혀 없을 거다. 
+   하지만, inherit 을 붙였으므로, span 역시 p 와 같이 검은색 중간
+   굵기의 사각형 박스를 가진다.
+
+** CSS 색상
+
+   - "이름" : red, yellow, darkgrey, goldenrod
+   - "#rrggbb" : 16진수 rgb
+   - "rgb(r,g,b)" : r,g,b -> [0..255]
+   - "rgb(r,g,b,a)" : a 가 0 에서 1.0 사이의 부동소수점수(1.0이면
+     불투명, 0 이면 투명)
+   - "hsl(h,s,l)" : hue/saturation/lightness model.
+     ~color:hsl(120,100%,22%);~ 이런 식이 가능.
+   - "hsla(h,s,l,a)" : ~color:hsla(120,100%,22%, 0.4)~ 
+
+** CSS의 길이 단위
+
+   절대단위와 상대단위가 있음.
+
+   - 절대 단위 : in, cm, mm, pt, pc 
+   - 상대 단위 : em, ex, rem, px, %
+
+   절대 단위는 거의 안쓰임. 상대 단위도 일부는 쓸만한 게 못되는 상황임
+
+** 상대 단위로 Font Size 다루기
+
+   다음 예에서, 높이가 ~2 em~ 이라는 건, ~p~ 요소가 font 크기의 2배 값의 높이를
+   가지도록 함.
+
+   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4.20.using.relative.unit.html" src html
+   
+   특정 요소 대비 상대크기 지정하는 방법도 있음. 
+   
+   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4-21.using.units.derived.from.other.relative.values.html" src html
