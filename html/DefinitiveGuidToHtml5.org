@@ -618,7 +618,7 @@
 
    절대 단위는 거의 안쓰임. 상대 단위도 일부는 쓸만한 게 못되는 상황임
 
-** 상대 단위로 Font Size 다루기
+*** 상대 단위로 Font Size 다루기
 
    다음 예에서, 높이가 ~2 em~ 이라는 건, ~p~ 요소가 font 크기의 2배 값의 높이를
    가지도록 함.
@@ -629,7 +629,7 @@
    
    #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4-21.using.units.derived.from.other.relative.values.html" src html
    
-** 픽셀(상대 길이? 절대 길이!)
+*** 픽셀(상대 길이? 절대 길이!)
 
    CSS 픽셀정의는 "독자가 자신의 팔길이에 해당하는 거리만큼 스크린에서
    떨어져 있을때, ...." 라는 식으로 정의(헉!).
@@ -639,4 +639,153 @@
 
    --> 실제 정의는 "상대 길이" 지만, 실상 브라우저 자체는 *절대 길이*
    로 구현함.
+
+   *Tip* : css 에서 필자는 pixel을 자주 쓰지만, 이건 선택의 문제. em
+   단위는 좀 더 유연. 왜냐하면, font size에 따라 전체적인 크기를
+   한번에 바꿀 수 있기 때문. 
    
+*** Percent 단위.
+
+   2가지 복잡도.
+
+   1) 모든 속성이 % 로 설정할 수 있는 건 아님.
+   2) 각 속성은 자신이 간접적으로 참조하는(또는 상속받는) 다른 속성값에
+      대한 상대값이므로, 참조되는 속성값이 바뀌면 따라 바뀌는 점.(예:
+      font-size 는 상속받은 font-size에 대비 % 로 표시가능. width 는
+      자신을 포함하는 요소의 width 대비 % 표시)
+
+*** calc()
+
+   ~p { width: calc(80% - 20px); }~ 같은 수식으로 설정이 가능하지만,
+   IE만 됨. :(
+
+** 기타 단위
+
+*** 각도 단위
+
+   - deg : 0~360 degree
+   - grad: 0~400 gradian
+   - rad : 0~6.28(3.14*2) radian
+   - turn : 1 turn = 360 degree
+
+*** 시간 단위
+
+	- s : second
+	- ms : milisecond
+
+** CSS 기능 테스트 방법
+
+   - http://caniuse.com : 특정 css 기능이나 html 요소가 특정 버젼의
+     특정 브라우저에서 지원되는지 여부를 표시.
+   - http://www.modernizr.com : js 라이브러리로, html을 처리하는
+     웹브라우저가 특정 기능이 없으면, no-canvas no-multiple-backgroun
+     같은 특정의 class 가 정의되어. 그 기능지원여부에 따라 분기하여
+     html이 렌더링되도록 할 수 있다는...
+   - Chrome 의 inspector
+
+** LESS를 사용한 CSS 향상
+
+   - http://lesscss.org : css 작업은 타이핑도 많고, 반복작업도 많은데,
+     이걸 줄여주는 방법.  *.less 파일에 변수선언등이 가능한 발전된
+     형태의 css 를 만들고, lessc 컴파일러를 통해 *.css 파일을
+     만들어냄.
+	 
+* Javascript 시작하기
+
+**  html 문서에서 js 사용하는 2가지 방법
+
+  1) inline script
+	 
+	 #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/5-1.simple.inline.script.html" src html
+
+	 ~<script>~ 문이 "This is world!" 의 본문보다 더 뒤에 나온다.
+     이런 경우에는 브라우저가 정상적인 html 컨텐츠를 전부 처리 한
+     다음, 스크립트가 실행된다. (즉, ~<script>~ 의 *위치가 중요* 하다!)
+
+  2) external script
+
+	 일반적인 방법. 외부의 스크립트 파일을 사용한다. 
+
+** "문(Statement)"
+
+   세미콜론으로 statement 를 구분한다.
+
+   #+BEGIN_SRC html
+     <!DOCTYPE HTML>
+     <html>
+       <head>
+         <title>Example</title>
+       </head>
+       <body>
+         <script type="text/javascript">
+           document.writeln("이게 첫번째 문(statement)<br/>");
+           document.writeln("이건 두번째 문(statement)<br/>");
+         </script>
+       </body>
+     </html>
+   #+END_SRC
+
+** 함수 사용하기..
+
+   #+BEGIN_SRC js
+     function myFunc(name, weather) {
+         document.writeln("함수가 내는 메시지입니다");
+         document.writeln("Weather:" + weather);
+         document.writeln("Name:" + name);
+     }
+
+     // 호출 시에는 아래와 같이
+
+     myFunc("my name", "sunny");
+
+     // 그럼 메시지가 출력된다
+   #+END_SRC
+
+   'function' 키워드로 시작. 함수 이름이 오고 그 다음 중괄호로 블럭을
+   만들어 그 안에 처리내용. 인자는 type 이없음
+
+** 변수
+
+   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/5-6.local.and.global.variables.html" src html
+
+   위의 출력은
+
+   "Hello Adam. Today is sunny. I like apples"
+
+   과 같다. 
+
+   js 는 loosely typed language. Type 이 없다는 얘기가 아님. 명시적인
+   형 선언이 필요없다는 얘기. 형과 형 사이의 변환도 자유롭다. 
+
+** Primitive Type
+
+   - =string= : 큰따옴표. 작은따옴표 모두 사용.
+   - =number= : ~7~, ~3.14~, ~0xFFFF~ ....
+   - =boolean= : ~true~ / ~false~ 
+
+** 객체 생성
+
+   #+BEGIN_SRC browser :out img/5-12.adding.methods.to.an.object.png
+     <!DOCTYPE HTML>
+     <html>
+       <head>
+         <title>js example</title>
+       </head>
+       <body>
+         <script type="text/javascript">
+           var myData = new Object();
+           myData.name = "Adam";
+           myData.weather = "sunny";
+           myData.print = function() {
+             document.writeln("I am " + this.name);
+             document.writeln("Today is " + this.weather);
+           }
+           myData.print()
+         </script>
+       </body>
+     </html>
+   #+END_SRC
+
+   #+RESULTS[e7d2a0527806a7723c8470824df33563ec5cbd21]:
+   : img/5-12.adding.methods.to.an.object.png
+
