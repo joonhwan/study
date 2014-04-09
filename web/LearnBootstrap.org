@@ -1,0 +1,55 @@
+#+TITLE:Learn Twitter Bootstrap
+
+* 설치된 파일 목록 설명
+
+  bootstrap.js 에 대해 bootstrap.min.js 같은 형식으로 파일들이 있다. 이건
+  변수명 따위를 축약해서 사용할 수 있도록 해놓은 것들이다.
+
+
+* Scaffolding
+
+  기본적으로는 왼쪽 정렬이 되지만, container 사용하면 화면 가운데로
+  영역이 유지되더라.
+
+  #+BEGIN_SRC web
+    <div class="container">
+      이 안에 넣은 row/span 은 가운데로 몰린다.
+    </div>
+  #+END_SRC
+
+  즉 아래와 같은 구성
+
+     + container
+	 + row
+	   + span4
+	   + span8
+
+  항상 100% 꽉 채우는 방법은 -fluid 접미사를 붙이는것.
+
+   + container-fluid
+	 + row-fluid
+	   + span4
+	   + span8
+
+  이런 식으로 하면 100% 찬다.
+
+  반응형 웹 지원 : 화면폭이 얼마냐에 따라 스타일이 변경된다.
+
+  아래 표가 지원 상황.
+
+  http://getbootstrap.com/2.3.2/scaffolding.html 여 있는 Supported
+  devices 부분에서 Gutter Width는 Column과 Column사이 간격을 의미한다.
+
+  | Label             | Layout width    | Column width                   | Gutter width |
+  |-------------------+-----------------+--------------------------------+--------------|
+  | Large display     | 1200px and up   | 70px                           | 30px         |
+  | Default           | 980px and up    | 60px                           | 20px         |
+  | Portrait tablets  | 768px and above | 42px                           | 20px         |
+  | Phones to tablets | 767px and below | Fluid columns, no fixed widths | 왼쪽과 동일  |
+  | Phones            | 480px and below | Fluid columns, no fixed widths | 왼쪽과 동일  |
+
+
+  표 읽는 방법은 "1200픽셀보다 화면 크기가 크다면, 각각의 컬럼은
+  70픽셀이고, 컬럼과 컬럼사이의 간격은 30픽셀이다"의 식.
+
+  
