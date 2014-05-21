@@ -70,3 +70,215 @@
 - cv::Mat 에 대한 thin wrapper template class. 다른 무엇 보다도,
   버퍼의 데이터형 T 가 명기되어, 각 픽셀의 데이터참조를 할 수 있는
   operator() 연산자가 제공되어 코드가 깔끔해진다.
+
+* Chapter 8 Contour
+
+  Canny Edge검출은 Edge를 찾지만 그것들이 어떤 도형을 이루는지 모름.
+  cvFindContours() 를 사용하면 그걸 알 수 있음. 이걸 사용하려면,
+  OpenCV의 몇몇 자료구조/메모리관리를 이해하여야..
+
+** Memory Storage
+
+   메모리 저장소의 생성은 create(),  해제는 release()
+   메모리 저장소내의 메모리 생성은 alloc(),  해제는 clear()
+
+   메모리 저장소내의 메모리는 모두 linked-list 형태로 관리
+
+   #+BEGIN_SRC cpp
+     // 메모리를 할당 받을 수 있는 저장소를 생성(0 크기를 주면 block크기는
+     // 기본크기 64kb로 생성)
+     CvMemStorage* cvCreateMemStorage(int block_size = 0);
+     
+     // 저장소 자체의 할당을 해제
+     void cvReleaseMemStorage(CvMemStorage** storage);
+     
+     // 저장소내에 할당된 모든 메모리를 해제
+     void cvClearMemStorage(CvMemStorage* storage);
+     
+     // 저장소내 공간에 메모리를 할당
+     void* cvMemStorageAlloc(CvMemStorage* storage, size_t size);
+     
+   #+END_SRC
+   
+
+** Sequence
+
+   저장소내에서 관리할 수 있는 메모리를 사용한 자료구조의 한가지.
+   stl의 deque 과 유사(삽입/제거가 빠르고, 임의접근가능)
+
+   이를 위해 사용되는 자료구조가 CvSeq 구조체.
+
+   #+BEGIN_SRC cpp
+     typedef struct CvSeq {
+         // CV_TREE_NODE_FIELDS 의 시작
+         int flags;                  // miscellaneous flags
+         int header_size;            // size of sequence header
+         CvSeq* h_prev;              // previous sequence
+         CvSeq* h_next;              // next sequence
+         CvSeq* v_prev;              // 2nd previous sequence
+         CvSeq* v_next               // 2nd next sequence
+         // CV_TREE_NODE_FIELDS 의 끝
+         int total;                  // total number of elements
+         int elem_size;              // size of sequence element in byte
+         char* block_max;            // maximal bound of the last block
+         char* ptr;                  // current write pointer
+         int delta_elems;            // how many elements allocated
+                                     // when the sequence grows
+         CvMemStorage* storage;      // where the sequence is stored
+         CvSeqBlock* free_blocks;    // free blocks list
+         CvSeqBlock* first;          // pointer to the first sequence block
+     }
+   #+END_SRC
+
+   - 이 자료구조는 C++의 base class 비슷하게 사용되도록 다음과 같은
+     매크로를 사용해 정의
+	 
+	 #+BEGIN_SRC cpp
+       #define CV_TREE_NODE_FIELDS(node_type)                          \
+           int       flags;             /* Miscellaneous flags.     */ \
+           int       header_size;       /* Size of sequence header. */ \
+           struct    node_type* h_prev; /* Previous sequence.       */ \
+           struct    node_type* h_next; /* Next sequence.           */ \
+           struct    node_type* v_prev; /* 2nd previous sequence.   */ \
+           struct    node_type* v_next  /* 2nd next sequence.       */
+       
+       /*
+         Read/Write sequence.
+         Elements can be dynamically inserted to or deleted from the sequence.
+       ,*/
+       #define CV_SEQUENCE_FIELDS()                                            \
+           CV_TREE_NODE_FIELDS(CvSeq);                                         \
+           int       total;          /* Total number of elements.            */ \
+           int       elem_size;      /* Size of sequence element in bytes.   */ \
+           schar*    block_max;      /* Maximal bound of the last block.     */ \
+           schar*    ptr;            /* Current write pointer.               */ \
+           int       delta_elems;    /* Grow seq this many at a time.        */ \
+           CvMemStorage* storage;    /* Where the seq is stored.             */ \
+           CvSeqBlock* free_blocks;  /* Free blocks list.                    */ \
+           CvSeqBlock* first;        /* Pointer to the first sequence block. */
+       
+       typedef struct CvSeq
+       {
+           CV_SEQUENCE_FIELDS()
+       } CvSeq;
+	 #+END_SRC
+	 
+	 즉, 위와 같이 되어 있으므로, 사용자가 메모리 저장소내에 자신만의
+     특별한 정보를 더 추가하기 위한 sequence를 만들때
+	 
+	 #+BEGIN_SRC cpp
+       typedef struct MySequence
+       {
+           CV_SEQUENCE_FIELDS()
+           int my_age;
+           int my_id;
+           char my_name[256];
+       } MySequence;
+	 #+END_SRC
+	 
+	 과 같이 정의할 수 있다. 그러면, CvSeq와 앞부분이 동일한 구조를
+     가지는 자료구조가 만들어진다.
+	 
+
+   - h_prev,  h_next,  v_prev,  v_next : 수직/수평(?)방향의 이웃한
+     개체들의 포인터. 이웃과의 관계를 표기?. 이걸로 다양한 topology
+     표현이 가능하단다.
+
+   - cvFindContours()는 위의 4가지 포인터로 contour를 tree와 같은
+     복잡한 형태를 기술하는 결과값을 출력.
+	 
+** Sequence 생성
+
+   저장소를 만들고, 그 포인터를 사용해서..
+
+   #+BEGIN_SRC cpp
+     CvSeq* cvCreateSeq(int seq_flags,
+                        int header_size,
+                        int elem_size,
+                        CvMemStorage* storage);
+     
+   #+END_SRC
+
+   - header_size : 보통은 sizeof(CvSeq) 이겠으나, 사용자 정의
+     Sequence인 경우에는 sizeof(MySequence) 같은 값을 넘긴다.
+	 
+   - flags : 다음과 같은 값들의 OR Bitwise Flags 로 sequence의
+     정보유형을 표시. 3가지 카테고리가 있고, 이것들의 조합은 특정한
+     것끼리만 묶이는 경우가 대부분이라는데..(예: CV_SEQ_FLAG_CLOSED 는
+     Polygon을 sequence로 나타내는 경우...)
+
+	 - 첫번째
+      | CV_SEQ_ELTYPE_POINT          | (x,y)                            |
+      | CV_SEQ_ELTYPE_CODE           | Freeman code: 0..7               |
+      | CV_SEQ_ELTYPE_POINT          | Pointer to a point: &(x,y)       |
+      | CV_SEQ_ELTYPE_INDEX          | Integer index of a point: #(x,y) |
+      | CV_SEQ_ELTYPE_GRAPH_EDGE     | &next_o,&next_d,&vtx_o,&vtx_d    |
+      | CV_SEQ_ELTYPE_GRAPH_VERTEX   | first_edge, &(x,y)               |
+      | CV_SEQ_ELTYPE_TRIAN_ATR      | Vertex of the binary tree        |
+      | CV_SEQ_ELTYPE_CONNECTED_COMP | Connected component              |
+      | CV_SEQ_ELTYPE_POINT3D        | (x,y,z)                          |
+
+	 - 두번째 카테고리
+      | CV_SEQ_KIND_SET      | A set of objects               |
+      | CV_SEQ_KIND_CURVE    | A curve defined by the objects |
+      | CV_SEQ_KIND_BIN_TREE | A binary tree of the objects   |
+      | CV_SEQ_KIND_GRAPH    | A graph with objects as nodes  |
+
+	 - 세번째 카테고리
+      | CV_SEQ_FLAG_CLOSED | Sequence is closed (polygons) |
+      | CV_SEQ_FLAG_SIMPLE | Sequence is simple (polygons) |
+      | CV_SEQ_FLAG_CONVEX | Sequence is convex (polygons) |
+      | CV_SEQ_FLAG_HOLE   | Sequence is a hole (polygons) |
+
+** Sequence 할당해제
+
+  저장소의 할당은 create/release 지만, 앞서 말한대로, 그 안의
+  메모리들은 alloc/clear 로 명명된 것들을 사용.
+
+  sequence 의 할당 해제는.. 결국.. 아래와 같을 거라고 상상(?)하기
+  쉽다.
+
+  #+BEGIN_SRC cpp
+    void cvClearSeq(CvSeq* seq);
+  #+END_SRC
+
+  하지만 위 함수는 실제 존재하지만, *실제로 할당해제가 되는 건 아니고*
+  메모리만 clear하고 실제로는 할당상태가유지된다(해당 mem store가 이를
+  재활용할 수도 있단다). 실제 할당해제 하려면, *cvClearMemStore()*
+  을 써야 된단다.
+
+** Sequence 로의 접근
+
+   아래와 같이 seq 와 index 를 주면 해당 store의 index번째
+   sequence에 대한 포인터를 얻을 수 있다. 이를 적절히(!) 형변환해서
+   사용한다. 
+
+   #+BEGIN_SRC cpp
+     void printPoints(CvSeq* seq)
+     {
+         for( int i=0; i<seq->total; ++i )
+         {
+             // seq 에서 i 번째 sequence를 얻는다.
+             CvPoint* p = (CvPoint*) cvGetSeqElem ( seq, i );
+     
+             printf("(%d,%d)\n", p->x, p->y );
+         }
+     }
+   #+END_SRC
+
+   추가/삭제/검색 과 관련된 api가 있음(cvSeqElemIndex / cvSeqPush,
+   cvSeqPop...) 나중에 정리
+
+   
+
+   
+
+   
+
+   
+   
+  
+  
+	 
+
+
