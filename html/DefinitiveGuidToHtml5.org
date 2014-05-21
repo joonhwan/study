@@ -66,17 +66,17 @@
      있어야(웹브라우저 창 제목에 표시)
 	 
 	 #+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <!-- metadata가 여기에. -->
-           <title>Example</title>
-         </head>
-         <body>
-           <!-- 여기에 content와 element들이 온다. -->
-           I like <code>apples</code> and oranges.
-         </body>
-       </html>
+	 <!DOCTYPE HTML>
+	 <html>
+	   <head>
+		 <!-- metadata가 여기에. -->
+		 <title>Example</title>
+	   </head>
+	   <body>
+		 <!-- 여기에 content와 element들이 온다. -->
+		 I like <code>apples</code> and oranges.
+	   </body>
+	 </html>
 	 #+END_SRC
 	 
    - 모든 element는 Parent, Child, Descendants, Sibling 관계의 tree
@@ -119,20 +119,20 @@
 	Alt+s 를 누르면 로그인.
 	
 	#+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <title>Example</title>
-         </head>
-         <body>
-           <form>
-             Name: <input type="text" name="name" accesskey="n"/>
-             <p/>
-             Password: <input type="password" name="password" accesskey="p"/> <p/>
-             <input type="submit" value="Log In" accesskey="s"/>
-           </form>
-         </body>
-       </html>
+	<!DOCTYPE HTML>
+	<html>
+	  <head>
+		<title>Example</title>
+	  </head>
+	  <body>
+		<form>
+		  Name: <input type="text" name="name" accesskey="n"/>
+		  <p/>
+		  Password: <input type="password" name="password" accesskey="p"/> <p/>
+		  <input type="submit" value="Log In" accesskey="s"/>
+		</form>
+	  </body>
+	</html>
 	#+END_SRC
 	
 *** class 속성
@@ -147,23 +147,23 @@
 	또 javascript에서 특정한 복수 element들을 가져올때도 유용.
 	
 	#+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <title>Example</title>
-         </head>
-         <body>
-           <a class="class1 class2" href="http://apress.com">Apress web site</a> <p/>
-           <a class="class2 otherclass" href="http://w3c.org">W3C web site</a> <script type="text/javascript">
-             var elems = document.getElementsByClassName("otherclass");
-             for (i = 0; i < elems.length; i++) {
-                             var x = elems[i];
-                             x.style.border = "thin solid black";
-                             x.style.backgroundColor = "white";
-                             x.style.color = "black";
-                             } </script>
-                             </body>
-       </html>     
+	<!DOCTYPE HTML>
+	<html>
+	  <head>
+		<title>Example</title>
+	  </head>
+	  <body>
+		<a class="class1 class2" href="http://apress.com">Apress web site</a> <p/>
+		<a class="class2 otherclass" href="http://w3c.org">W3C web site</a> <script type="text/javascript">
+		  var elems = document.getElementsByClassName("otherclass");
+		  for (i = 0; i < elems.length; i++) {
+						  var x = elems[i];
+						  x.style.border = "thin solid black";
+						  x.style.backgroundColor = "white";
+						  x.style.color = "black";
+						  } </script>
+						  </body>
+	</html>     
 	#+END_SRC
 	
 *** id 속성
@@ -177,17 +177,17 @@
 	css스타일을 element에 바로 정의.
 
 	#+BEGIN_SRC html
-      <!DOCTYPE HTML>
-      <html>
-        <head>
-          <title>Example</title>
-        </head>
-        <body>
-          <a href="http://apress.com" style="background: grey; color:white; padding:10px">
-            Visit the Apress site
-          </a>
-        </body>
-      </html>
+	<!DOCTYPE HTML>
+	<html>
+	  <head>
+		<title>Example</title>
+	  </head>
+	  <body>
+		<a href="http://apress.com" style="background: grey; color:white; padding:10px">
+		  Visit the Apress site
+		</a>
+	  </body>
+	</html>
 	#+END_SRC
 
 *** tabindex 속성
@@ -195,20 +195,20 @@
 	Tab 을 누를때 마다 커서 이동.
 
 	#+BEGIN_SRC html
-      <!DOCTYPE HTML>
-      <html>
-        <head>
-          <title>Example</title>
-        </head>
-        <body>
-          <form>
-            <label>Name: <input type="text" name="name" tabindex="1"/></label>
-            <label>City: <input type="text" name="city" tabindex="-1"/></label>
-            <label>Country: <input type="text" name="country" tabindex="2"/></label> 
-            <input type="submit" tabindex="3"/>
-          </form>
-        </body>
-      </html>
+	<!DOCTYPE HTML>
+	<html>
+	  <head>
+		<title>Example</title>
+	  </head>
+	  <body>
+		<form>
+		  <label>Name: <input type="text" name="name" tabindex="1"/></label>
+		  <label>City: <input type="text" name="city" tabindex="-1"/></label>
+		  <label>Country: <input type="text" name="country" tabindex="2"/></label> 
+		  <input type="submit" tabindex="3"/>
+		</form>
+	  </body>
+	</html>
 	#+END_SRC
 
 *** title속성
@@ -218,15 +218,15 @@
 	마우스를 올리면 "Apress Publishing" 이라는 툴팁이 표시됨.
 
 	#+BEGIN_SRC html
-      <!DOCTYPE HTML>
-      <html>
-        <head>
-          <title>Example</title>
-        </head>
-        <body>
-          <a title="Apress Publishing" href="http://apress.com">Visit the Apress site</a>
-        </body>
-      </html>
+	<!DOCTYPE HTML>
+	<html>
+	  <head>
+		<title>Example</title>
+	  </head>
+	  <body>
+		<a title="Apress Publishing" href="http://apress.com">Visit the Apress site</a>
+	  </body>
+	</html>
 	#+END_SRC
 
 
@@ -238,15 +238,15 @@
       표현하기 위함.
 	  
 	  #+BEGIN_SRC html
-        <!DOCTYPE HTML>
-        <html>
-            <head>
-                <title>Example</title>
-            </head>
-            <body>
-        <p dir="rtl">This is right-to-left</p>
-        <p dir="ltr">This is left-to-right</p> </body>
-        </html>      
+	  <!DOCTYPE HTML>
+	  <html>
+		  <head>
+			  <title>Example</title>
+		  </head>
+		  <body>
+	  <p dir="rtl">This is right-to-left</p>
+	  <p dir="ltr">This is left-to-right</p> </body>
+	  </html>      
 	  #+END_SRC
 	- draggable : [[37장]]
 	- dropzone : [[37장]]
@@ -257,31 +257,31 @@
       표시하고자 할 때 사용.
 	  
 	  #+BEGIN_SRC html
-        <!DOCTYPE HTML>
-        <html>
-            <head>
-                <title>Example</title>
-            </head>
-            <body>
-                <p lang="en">Hello - how are you?</p>
-                <p lang="fr">Bonjour - comment êtes-vous?</>
-                <p lang="es">Hola - ¿cómo estás?</p>
-            </body>
-        </html>
+	  <!DOCTYPE HTML>
+	  <html>
+		  <head>
+			  <title>Example</title>
+		  </head>
+		  <body>
+			  <p lang="en">Hello - how are you?</p>
+			  <p lang="fr">Bonjour - comment êtes-vous?</>
+			  <p lang="es">Hola - ¿cómo estás?</p>
+		  </body>
+	  </html>
 	  #+END_SRC
 
 	- spellcheck : 철자법 검사 활성화. 아래의 경우 /mispelled/ 부분에
       빨간줄이 그어짐.
 	  
 	  #+BEGIN_SRC html
-        <!DOCTYPE HTML>
-        <html>
-            <head>
-                <title>Example</title>
-            </head>
-            <body>
-        <textarea spellcheck="true">This is some mispelled text</textarea> </body>
-        </html>      
+	  <!DOCTYPE HTML>
+	  <html>
+		  <head>
+			  <title>Example</title>
+		  </head>
+		  <body>
+	  <textarea spellcheck="true">This is some mispelled text</textarea> </body>
+	  </html>      
 	  #+END_SRC
 
 * <<4장>> CSS 시작하기
@@ -317,26 +317,26 @@
    - external css
 	 
 	 #+BEGIN_SRC css
-       /* style.css 의 내용. */
+	 /* style.css 의 내용. */
 
-       a {
-           background-color: grey;
-       }
+	 a {
+		 background-color: grey;
+	 }
 
-       span {
-           border: thin black solid;
-           padding: 10px;
-       }
+	 span {
+		 border: thin black solid;
+		 padding: 10px;
+	 }
 	 #+END_SRC
 
 	 #+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <title>Example</title>
-           <link rel="stylesheet" href="styles.css" type="text/css" />
-         </head>
-       </html>
+	 <!DOCTYPE HTML>
+	 <html>
+	   <head>
+		 <title>Example</title>
+		 <link rel="stylesheet" href="styles.css" type="text/css" />
+	   </head>
+	 </html>
 	 #+END_SRC
 
    - 다른 stylesheet 가져오기 : 가능하지만, 성능문제등으로 잘 안씀
@@ -345,11 +345,11 @@
      css파일의 맨 위에서 @import 한다. 
 
 	 #+BEGIN_SRC css
-       @import "another-style.css"
-       span {
-           border:medium black dashed;
-           padding:10px;
-       }
+	 @import "another-style.css"
+	 span {
+		 border:medium black dashed;
+		 padding:10px;
+	 }
 	 #+END_SRC
 
    - stylesheet의 문자열 인코딩
@@ -358,12 +358,12 @@
      문자열 인코딩을 css파일내에 지정가능
 	 
 	 #+BEGIN_SRC css
-       @charset "UTF-8";
-       @import "styles.css";
-       span {
-           border: medium black dashed;
-           padding: 10px;
-       }     
+	 @charset "UTF-8";
+	 @import "styles.css";
+	 span {
+		 border: medium black dashed;
+		 padding: 10px;
+	 }     
 	 #+END_SRC
 
 ** CSS Selector 구성요소 : 다음 절을 이해하려면 필요해서 잠시 정리
@@ -434,21 +434,21 @@
      사용되어 검은색으로 표시됨.
 	 
 	 #+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <title>Example</title>
-           <style type="text/css">
-             a {
-             color:black !important;
-             }
-           </style>
-         </head>
-         <body>
-           <a style="color:red" href="www.joonhwan.org">Visit Joonwah</a>
-           <p>I likde <span>
-         </body>
-       </html>
+	 <!DOCTYPE HTML>
+	 <html>
+	   <head>
+		 <title>Example</title>
+		 <style type="text/css">
+		   a {
+		   color:black !important;
+		   }
+		 </style>
+	   </head>
+	   <body>
+		 <a style="color:red" href="www.joonhwan.org">Visit Joonwah</a>
+		 <p>I likde <span>
+	   </body>
+	 </html>
 	 #+END_SRC
 
    - *중요* Selector의 Specificty 계산(적용우선순위 계산)
@@ -467,17 +467,17 @@
      [[http://www.w3.org/TR/selectors/#specificity][w3.org]] 참조(좀더 재미있는 예로 배우려면 [[http://www.stuffandnonsense.co.uk/archives/css_specificity_wars.html][Starwars CSS Specificity]]
      를 참조)
 
-     #+BEGIN_SRC css
-       *              {}  /* a=0 b=0 c=0 -> specificity =   0 */
-       LI             {}  /* a=0 b=0 c=1 -> specificity =   1 */
-       UL LI          {}  /* a=0 b=0 c=2 -> specificity =   2 */
-       UL OL+LI       {}  /* a=0 b=0 c=3 -> specificity =   3 */
-       H1 + *[REL=up] {}  /* a=0 b=1 c=1 -> specificity =  11 */
-       UL OL LI.red   {}  /* a=0 b=1 c=3 -> specificity =  13 */
-       LI.red.level   {}  /* a=0 b=2 c=1 -> specificity =  21 */
-       #x34y          {}  /* a=1 b=0 c=0 -> specificity = 100 */
-       #s12:not(FOO)  {}  /* a=1 b=0 c=1 -> specificity = 101 */
-     #+END_SRC
+	 #+BEGIN_SRC css
+	 ,*              {}  /* a=0 b=0 c=0 -> specificity =   0 */
+	 LI             {}  /* a=0 b=0 c=1 -> specificity =   1 */
+	 UL LI          {}  /* a=0 b=0 c=2 -> specificity =   2 */
+	 UL OL+LI       {}  /* a=0 b=0 c=3 -> specificity =   3 */
+	 H1 + *[REL=up] {}  /* a=0 b=1 c=1 -> specificity =  11 */
+	 UL OL LI.red   {}  /* a=0 b=1 c=3 -> specificity =  13 */
+	 LI.red.level   {}  /* a=0 b=2 c=1 -> specificity =  21 */
+	 #x34y          {}  /* a=1 b=0 c=0 -> specificity = 100 */
+	 #s12:not(FOO)  {}  /* a=1 b=0 c=1 -> specificity = 101 */
+	 #+END_SRC
 
 	 [[17장]]과 [[18장]]에 이들 서로다른 특성을 모두 포함하는 selector를 만드는
      법이 설명됨. 브라우저는 각 평가문장으로 부터 값을 조합하여 가장
@@ -485,27 +485,27 @@
      speicificity")
 	 
 	 #+BEGIN_SRC html
-     <!-- Specificity in Styles -->
-     <!DOCTYPE HTML>
-     <html>
-     <head>
-     <title>Example</title>
-     <style type="text/css">
-     a{
-     color: black;
-     }
-     a.myclass {
-     color:white;
-     background:grey;
-     }
-     </style>
-     </head>
-     <body>
-     <a href="http://apress.com">Visit the Apress website</a>
-     <p>I like <span>apples</span> and oranges.</p>
-     <a class="myclass" href="http://w3c.org">Visit the W3C website</a>
-     </body>
-     </html>     
+	 <!-- Specificity in Styles -->
+	 <!DOCTYPE HTML>
+	 <html>
+	 <head>
+	 <title>Example</title>
+	 <style type="text/css">
+	 a{
+	 color: black;
+	 }
+	 a.myclass {
+	 color:white;
+	 background:grey;
+	 }
+	 </style>
+	 </head>
+	 <body>
+	 <a href="http://apress.com">Visit the Apress website</a>
+	 <p>I like <span>apples</span> and oranges.</p>
+	 <a class="myclass" href="http://w3c.org">Visit the W3C website</a>
+	 </body>
+	 </html>     
 	 #+END_SRC
 	 
 	 ~a~ element가 여러 곳에서 style이 지정됨. specificity계산해
@@ -529,24 +529,24 @@
      동일한 specificity 가 2군데 이상 나오는 경우도 있음. 
 	 
 	 #+BEGIN_SRC html
-       <!DOCTYPE HTML>
-       <html>
-         <head>
-           <title>Example</title>
-           <style type="text/css">
-             a.myclass1 {
-             color: black;
-             }
-             a.myclass2 {
-             color: red;
-             }
-           </style>
-         </head>
-         <body>
-           <a href="#">스타일 중복 없는 경우의 링크</a>
-           <a href="#" class="myclass1 myclass2">스타일 중복된 경우 링크</a>
-         </body>
-       </html>
+	 <!DOCTYPE HTML>
+	 <html>
+	   <head>
+		 <title>Example</title>
+		 <style type="text/css">
+		   a.myclass1 {
+		   color: black;
+		   }
+		   a.myclass2 {
+		   color: red;
+		   }
+		 </style>
+	   </head>
+	   <body>
+		 <a href="#">스타일 중복 없는 경우의 링크</a>
+		 <a href="#" class="myclass1 myclass2">스타일 중복된 경우 링크</a>
+	   </body>
+	 </html>
 	 #+END_SRC
 	 
 	 위경우 첫번째 링크에 적용되는 스타일은 아예 없지만, 두번째 링크에
@@ -560,23 +560,23 @@
    "상속"개념을 적용한다.
 
    #+BEGIN_SRC web
-     <!DOCTYPE HTML>
-     <html>
-       <head>
-         <title>Example</title>
-         <style type="text/css">
-          p {
-            color:white;
-            background:grey;
-            border: medium solid black;
-          }
-         </style>
-       </head>
-       <body>
-         <a href="#">무 스타일 링크</a>
-         <p>I Like <span>apples</span> and oragnes</p>
-       </body>   
-     </html>
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>Example</title>
+	   <style type="text/css">
+		p {
+		  color:white;
+		  background:grey;
+		  border: medium solid black;
+		}
+	   </style>
+	 </head>
+	 <body>
+	   <a href="#">무 스타일 링크</a>
+	   <p>I Like <span>apples</span> and oragnes</p>
+	 </body>   
+   </html>
    #+END_SRC
 
    위 경우 ~<span>~ 에 대한 스타일은 따로 정해진게 없다. 하지만, 얘의
@@ -591,7 +591,27 @@
    상속되지 않는 속성값들을 억지로(?) 상속받게 하려면 *inherit* 을
    값으로 넣어주면 된다.
 
-   #+include: "html/4-18.using.inherit.value.html" src html
+   #+BEGIN_SRC html
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>Example</title>
+	   <style type="text/css">
+		 p {
+		 color:white;
+		 background:grey;
+		 border:medium solid red;
+		 }
+		 span {
+		 border:auto;
+		 }
+	   </style>
+	 </head>
+	 <body>
+	   <p>I like <span>apples</span> and oranges</p>
+	 </body>
+   </html>
+   #+END_SRC
 
    ~<span>~ 은 ~<p>~ 의 자식이긴 하지만, border는 상속이 안된다.
    inherit 이 없는 경우라면, span은 border가 전혀 없을 거다. 
@@ -623,11 +643,53 @@
    다음 예에서, 높이가 ~2 em~ 이라는 건, ~p~ 요소가 font 크기의 2배 값의 높이를
    가지도록 함.
 
-   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4.20.using.relative.unit.html" src html
+   #+BEGIN_SRC html
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>Example</title>
+	   <style type="text/css">
+		 p {
+		 background: grey;
+		 color:white;
+		 font-size: 15pt;
+		 height: 2em;
+		 }
+	   </style>
+	 </head>
+	 <body>
+	   <h1>height가 2em 으로 설정된상태</h1>
+	   <hr />
+	   <p>여기는 폰트크기가 15pt, 높이는 2배인 30pt</p>
+	   <hr />
+	   <p style="font-size:12pt">폰트 크기가 12pt, 높이는 2배인 24pt</p>
+	   <hr />
+	 </body>
+   </html>
+   #+END_SRC
    
    특정 요소 대비 상대크기 지정하는 방법도 있음. 
    
-   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/4-21.using.units.derived.from.other.relative.values.html" src html
+   #+BEGIN_SRC html
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>Example</title>
+	   <style type="text/css">
+		 html {
+		 font-size: 12px;
+		 }
+		 p{
+		 background: grey; color:white; font-size: 2rem; height: 2em;
+		 }
+	   </style>
+	 </head>
+	 <body>
+	   <h2>&lt;html&gt; element의 font-size를 기준으로...</h2>
+	   <p>font-size가 2 rem. 즉, html 요소의 font-size의 2배가 됨.</p>
+	 </body>
+   </html>
+   #+END_SRC
    
 *** 픽셀(상대 길이? 절대 길이!)
 
@@ -690,13 +752,26 @@
      형태의 css 를 만들고, lessc 컴파일러를 통해 *.css 파일을
      만들어냄.
 	 
-* Javascript 시작하기
+* <<5장>> Javascript 시작하기
 
 **  html 문서에서 js 사용하는 2가지 방법
 
   1) inline script
 	 
-	 #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/5-1.simple.inline.script.html" src html
+	 #+BEGIN_SRC html
+	 <!DOCTYPE HTML> 
+	 <html> 
+	   <head> 
+		 <title>Example</title>
+	   </head> 
+	   <body>
+		 This is world!
+		 <script type="text/javascript"> 
+		   document.writeln("<h1>H</h1>ello"); 
+		 </script>
+	   </body>
+	 </html> 
+	 #+END_SRC
 
 	 ~<script>~ 문이 "This is world!" 의 본문보다 더 뒤에 나온다.
      이런 경우에는 브라우저가 정상적인 html 컨텐츠를 전부 처리 한
@@ -711,34 +786,34 @@
    세미콜론으로 statement 를 구분한다.
 
    #+BEGIN_SRC html
-     <!DOCTYPE HTML>
-     <html>
-       <head>
-         <title>Example</title>
-       </head>
-       <body>
-         <script type="text/javascript">
-           document.writeln("이게 첫번째 문(statement)<br/>");
-           document.writeln("이건 두번째 문(statement)<br/>");
-         </script>
-       </body>
-     </html>
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>Example</title>
+	 </head>
+	 <body>
+	   <script type="text/javascript">
+		 document.writeln("이게 첫번째 문(statement)<br/>");
+		 document.writeln("이건 두번째 문(statement)<br/>");
+	   </script>
+	 </body>
+   </html>
    #+END_SRC
 
 ** 함수 사용하기..
 
    #+BEGIN_SRC js
-     function myFunc(name, weather) {
-         document.writeln("함수가 내는 메시지입니다");
-         document.writeln("Weather:" + weather);
-         document.writeln("Name:" + name);
-     }
+   function myFunc(name, weather) {
+	   document.writeln("함수가 내는 메시지입니다");
+	   document.writeln("Weather:" + weather);
+	   document.writeln("Name:" + name);
+   }
 
-     // 호출 시에는 아래와 같이
+   // 호출 시에는 아래와 같이
 
-     myFunc("my name", "sunny");
+   myFunc("my name", "sunny");
 
-     // 그럼 메시지가 출력된다
+   // 그럼 메시지가 출력된다
    #+END_SRC
 
    'function' 키워드로 시작. 함수 이름이 오고 그 다음 중괄호로 블럭을
@@ -746,7 +821,27 @@
 
 ** 변수
 
-   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/5-6.local.and.global.variables.html" src html
+   #+BEGIN_SRC html
+   <!DOCTYPE HTML> 
+   <html> 
+	 <head> 
+	   <title>Example</title> 
+	 </head> 
+	 <body> 
+	   <script type="text/javascript"> 
+		 var myGlobalVar = "apples"; 
+		 function myFunc(name) { 
+		 var myLocalVar = "sunny"; 
+		 return ("Hello " + name + ". Today is " + myLocalVar + "."); 
+		 }; 
+		 document.writeln(myFunc("Adam")); 
+	   </script> 
+	   <script type="text/javascript">
+		 document.writeln("I like " + myGlobalVar);
+	   </script> 
+	 </body> 
+   </html>
+   #+END_SRC
 
    위의 출력은
 
@@ -765,27 +860,74 @@
 
 ** 객체 생성
 
-   #+BEGIN_SRC browser :out img/5-12.adding.methods.to.an.object.png
-     <!DOCTYPE HTML>
-     <html>
-       <head>
-         <title>js example</title>
-       </head>
-       <body>
-         <script type="text/javascript">
-           var myData = new Object();
-           myData.name = "Adam";
-           myData.weather = "sunny";
-           myData.print = function() {
-             document.writeln("I am " + this.name);
-             document.writeln("Today is " + this.weather);
-           }
-           myData.print()
-         </script>
-       </body>
-     </html>
+   객체 생성은 두가지 방법
+
+   #+BEGIN_SRC js
+     // 첫번째 방법
+     var myData = new Object(); 
+     myData.name = "Adam"; 
+     myData.weather = "sunny";
+
+     // 두번째 방법(이걸 'object literal' format이라함)
+     var myData = { 
+         name: "Adam", 
+         weather: "sunny" 
+     }; 
    #+END_SRC
 
-   #+RESULTS[e7d2a0527806a7723c8470824df33563ec5cbd21]:
-   : img/5-12.adding.methods.to.an.object.png
+   실제로는 멤버 변수 뿐 아니라 메소드도 가능. 메소드안에서 자기
+   자신의 멤버 변수에 대한 접근시 /this/ 키워드를 사용함.
 
+   #+BEGIN_SRC browser :out "img/5-12.adding.methods.to.an.object.png"
+   <!DOCTYPE HTML>
+   <html>
+	 <head>
+	   <title>js example</title>
+	 </head>
+	 <body>
+	   <script type="text/javascript">
+		 var myData = new Object();
+		 myData.name = "Adam";
+		 myData.weather = "sunny";
+		 myData.print = function() {
+		   document.writeln("I am " + this.name);
+		   document.writeln("Today is " + this.weather);
+		 }
+		 myData.print()
+	   </script>
+	 </body>
+   </html>
+   #+END_SRC
+
+   #+RESULTS[6f894b3e27d8bc395bd05c789216ee6f66047b3f]:
+   [[file:img/5-12.adding.methods.to.an.object.png]]
+
+
+** 객체 사용
+
+   #+BEGIN_SRC js
+     var myData = {
+         name: "Adam";
+         weather: "sunny";
+     }
+   #+END_SRC
+
+* <<12장>> Form 다루기
+
+  HTML5 가 되면서 form 관련된 부분이 전반적으로 업데이트됨.
+
+  이장에서 ..
+  
+  Node.js를 소개하고, 폼을 테스트하고, 브라우저에서 서버로 데이터가
+  전송되는 것을 확인해본다. 또 HTML5 에서 개선된 -특정 타입의 데이터를
+  사용자로 부터 받기 -브라우저에서 데이터 유효성 검증하기.. 등을
+  알아본다
+
+  HTML5 에 대한 대다수의 브라우저들은 괜찮은 편이지만, 완벽하지
+  않다(점검사항이 있다)
+
+** 기본 폼 만들기
+
+   3가지 element. ~form~, ~input~, ~button~ 을 사용.
+
+   #+INCLUDE: "/Volumes/MyHdd/prj/oss/mine/study/html/html/12-1.simple.html.form.html" src html
