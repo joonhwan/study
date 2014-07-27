@@ -1,0 +1,110 @@
+#+TITLE:Pro WPF in CSharp 2010
+
+* <<C1>> 아키텍쳐
+
+** 클래스 계층
+
+   DispatchObject - DepenecyObject - Visual - UiElement - FrameworkElement
+
+   FrameworkElement - Shape/Control/Panel
+
+   Control - ContentControl/ItemsControl
+
+   
+** System.Windows.Media.Visual 클래스
+
+WPF 윈도우에 표시되는 모든 요소들의 중심. 
+
+ - 그리기 수행
+ - 그리기 관련된 속성관리(ex: clipping, 투명도...)
+ - 그리기 관련 기본 기능(ex:HitTest...)
+
+어플과 milcore.dll 사이의 Link역할을 함.
+
+4장 <<C4>> 에서 상세내용 확인
+
+** System.Windows.UIElement
+
+Layout, Input, Focus, Events 처리. MS에서 WPF의 "생명"으로 여김.
+
+  - <<C18>> 에서 측정/정렬의 2단계 레이아웃 과정을
+  - <<C5>> 에서 Routed Events 라는 발전된 이벤트 전달 시스템을
+
+배우게 된다.
+
+** System.Windows.FrameworkElement
+
+WPF 클래스 계층의 정점. 부모인 UiElement가 단순히 정의한 멤버들을 실제 구현.
+(ex: HorizontalAlignment, Margin ...)
+
+** System.Windows.Shapes.Shape
+
+Rectangle, Polygon, Ellipse, Line.... [[C12]] 에서 상세히
+
+** System.Windows.Controls.Control
+
+사용자와 상호작용하는 요소. 텍스트 상자, 버튼, 리스트 상자...
+
+[[C17]] 에서 상세히...
+
+#+BEGIN_QUOTE
+윈폼에서는 모든 visual item이 /control/. WPF에서는 /element/ 는
+control 및 기타 다른 것들 포함. *유념사항* System.windows.Controls
+네이스페이스에 정의된 많이 element 들이 있지만, 실제로
+Windows.Controls.Control 로 부터 파생되지 않은 클래스들도 이
+네임스페이스 있다(ex: Panel).
+#+END_QUOTE
+
+** System.Windows.Controls.ContentControl
+
+초간단 Label 같은거. 하지만, 다른 요소를 복잡한 형태로 배치시키는
+Layout Panel도 이 범주에 속한다는거.
+
+[[C6]] 참조
+
+** System.Windows.Controls.ItemControl
+
+아이템 기반 요소들(ListBox, ...)
+
+[[C19]] 에서 기본 사항, [[C20]] 에서 확장하는 법, [[C22]] 에서 list control을
+특별하게 만드는 방법등 ...
+
+** WPF4 
+
+ - WPF 3.0 : 첫버젼.
+ - WPF 3.5 :
+ - WPF 3.5 SP1 : DataGrid와 그래픽 효과등 포함
+ - WPF 4 : Text Rendering 개선, 멀티터치...
+
+....
+
+
+** Multitargeting
+
+ .NET 4.0 정도 쓰면 된다는...?!
+
+** .NET Client Profile
+
+ASP.NET, 디버거, 개발도구, 컴파일러... 등등의 서버 측 기능들이 빠진
+.NET Framework 배포(?) 판. 굳이 Full .NET Framework 4 를 설치 안해도
+됨. Windows XP에서도 가능?!
+
+** Visutal Studio Designer
+
+VS2010 부터 XAML 파일을 손으로 작성하지 않고, GUI에서 디자인 가능.
+그렇지만, *여전히 XAML을 직접 작성하는게 낫다는...*
+
+** 이장을 마치며..
+
+윈폼/User32/GDI/GDI+와 다른점..
+
+ - 하드웨어 가속 : DirectX 레이어를 통해..
+ - 해상도 독립 : DPI설정에 무관하게 동일크기
+ - 내마음대로 Control 외양을... : Owner Draw 같은 개념 필요없음.
+ - 선언적 사용자 인터페이스 : XAML
+ - 객체기반 작도 : 그림을 /그리기/ 하는게 아니라 /생성/ 하고 WPF가
+   그리게...
+
+이제 XAML 을 배운다..
+
+
