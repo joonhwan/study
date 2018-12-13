@@ -60,6 +60,61 @@ env.EnvironementName == "Development"
 ```
 
 그냥 문자열 비교이다. 그럼 이 EnvironmentName 이라는 문자열은 어디서 가져오는가?
-그건 `appsettings.json` 파일이다. 그냥 
 
+index.cshtml에 `@inject` 로 특정 타입을 주면 해당 페이지에 필요로 하는 서비가 주입된다. 이때, `Microsoft.Extensions.Configuration.IConfiguration`을 타입으로 준다. 이렇게 해서 appsettings.json파일 혹은 실행시키는 시스템의 환경변수값을 얻을 수 있다.
+
+이를테면, index.cshtml파일을 다음처럼 바꾼다.
+
+```html
+@page
+@using Microsoft.Extensions.Configuration
+@model IndexModel
+@inject IConfiguration Configuration
+@{
+    ViewData["Title"] = "Home page";
+}
+
+@*환경변수 "COMPUTERNAME"을 여기 출력할 수 있다(설정파일에는 없지만, 환경변수로는 있다!! 환경변수도 가져올 수 있다)*@
+<h2>환경변수 COMPUTERNAME-의 값: @Configuration["computername"]</h2>
+
+@*또는 appsettings.json에 포함시킨 설정값을 볼 수 도 있다*@
+<h2>apsettings설정파일에 있는 MyTwitterKye값: @Configuration["MyTwitterKey"]</h2>
+```
+
+여기서 MyTwitterKey는 appsettings.json 파일에 다음처럼 기록
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "DataSource=app.db"
+  },
+  "Logging": {
+    "IncludeScopes": false,
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "MyTwitterKey":  "Joonhwan" 
+}
+```
+
+appsettings파일은 `appsettings.Development.json` 과 `appsettings.json` 이 있는데, 이 2개 파일은 override되는 거 같다. 예를들어 IHostingEnvironment.EnvironmentName 이 "Development"이면 `appsettings.Development.json`에서 "MyTwitterKey"를 찾는다. 그런다음, 거기 그런 값이 없으면, fallback config로 appsettings.json 에서 해당 이름의 값을 찾는식이다... 
+
+그럼 대체 이 `EnvironmentName`은 어디서 설정가능한가?
+
+   - 환경변수 `ASPNETCORE_ENVIRONMENT` (동영상에서 사용한 방법.)
+   - `dotnet new`로 만든 프로젝트 코드의 ./properties/launchSettings.json
+
+이 2곳에서 가능한것으로 보인다.
+
+어쨌든 파일에다 트위터계정등과 같은 *민감한* 정보를 담아서 커밋하는건...찝찝하므로, `secrets.json` 같은 파일에 저장하는 방법이 소개되고 있다.
+
+자세한 방법은 ["Safe storage of app secrets in development in ASP.NET Core" 문서](https://docs.microsoft.com/ko-kr/aspnet/core/security/app-secrets) 참고
+
+간단히 설명하면 
+
+   - `*.csproj` 파일에 `<UserSecretsId>` 태그 삽입하고 고유한아이값("user_secrets_id") 지정 - GUID같은게 포함되도록 하는게 좋겠지?
+   - `%APPDATA%\Microsoft\UserSecrets\<user_secrets_id>\secrets.json` 파일에 민감한 정보 넣기.
+    
+사실. 첫번째것은 `dotnet new` 할때 이미 되어 있었던거 같다. 두번째의 `secrets.json`만 만들면 되는것 같다. 
 
