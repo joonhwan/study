@@ -1,0 +1,28 @@
+* Test
+
+  이것은 테스트 입니다. 
+
+   #+BEGIN_SRC browser :out img/test.png
+     <!DOCTYPE HTML>
+     <html>
+       <head>
+         <title>js example</title>
+       </head>
+       <body>
+         <script type="text/javascript">
+           var myData = new Object();
+           myData.name = "Adam";
+           myData.weather = "sunny";
+           myData.print = function() {
+             document.writeln("저의 이름 : " + this.name);
+             document.writeln("Today is " + this.weather);
+           }
+           myData.print()
+         </script>
+       </body>
+     </html>
+   #+END_SRC
+
+   #+RESULTS[078f3973eccc9e2005d7fe496e62c3f9afaf580b]:
+   : img/test.png
+

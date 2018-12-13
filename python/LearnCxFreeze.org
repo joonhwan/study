@@ -1,0 +1,66 @@
+#+TITLE:cx_freeze 사용하기
+
+* 주요 힌트
+
+* matplotlib 관련
+
+[[https://www.google.co.kr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=6&ved=0CFUQFjAF&url=http%3A%2F%2Fcx_freeze.readthedocs.org%2Fen%2Flatest%2Freleasenotes.html&ei=M0LUU5_fNcbc8AWd8IKwAQ&usg=AFQjCNHlgTpr9skqSgFs_3Ko0xiSIzEAfw&sig2=XWljIO-XdWXg7DaZD7M4tw&bvm=bv.71778758,d.dGc&cad=rjt][새로운 버젼의 cx freeze]] 에서 matplotlib 관련된 문제들이 해결되었고,
+example로도 포함되었다는 얘기가 있었다. 
+
+한편 [[https://www.google.co.kr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=3&ved=0CDgQFjAC&url=https%3A%2F%2Fgist.github.com%2Fjuanpabloaj%2F7294839&ei=M0LUU5_fNcbc8AWd8IKwAQ&usg=AFQjCNEsQAw3n-ArWXPOvQNL9I1u-nPd2g&sig2=oZ9Vd8NL325rxWwTywQ20w&bvm=bv.71778758,d.dGc&cad=rjt][gist]] 에서 다음과 같은 스크립트를 찾았는데, 잘 보면, backend를
+default인 TkAgg에서 Qt4Agg 로 변경하고 있고, backend.qt4 설정을 바꾸고
+있음을 알수 있다. 아래의 예는 응용프로그램 구성에 필수 적인
+PySide(~=PyQt) 를 함께 배포할 수 있다는 장점이 있다. 
+
+#+BEGIN_SRC python
+  #!/usr/bin/env python
+  # http://wiki.scipy.org/Cookbook/Matplotlib/PySide
+  import sys
+  import matplotlib
+  
+  matplotlib.use('Qt4Agg')
+  matplotlib.rcParams['backend.qt4']='PySide'
+  
+  from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+  from matplotlib.figure import Figure
+  
+  from PySide import QtCore, QtGui
+  
+  if __name__ == '__main__':
+      app = QtGui.QApplication(sys.argv)
+  
+      # generate plot
+      fig = Figure(figsize=(600, 600), dpi=72, facecolor=(1,1,1), edgecolor=(0,0,0))
+      ax = fig.add_subplot(111)
+      ax.plot([0,1])
+      # generate the canvas to display the plot
+      canvas = FigureCanvas(fig)
+  
+      win = QtGui.QMainWindow()
+      # add the plot canvas to a window
+      win.setCentralWidget(canvas)
+  
+      win.show()
+  
+      sys.exit(app.exec_())
+#+END_SRC
+
+또, [[http://stackoverflow.com/a/23502896/884268][SO]] 에 있는 답변을 보니, 어떤 사람은 Win7 에서 다음과 같은 방법으로
+matplotlib 를 포함하는 python script의 freeze에 성공하였다함. 
+
+#+BEGIN_EXAMPLE
+After a more in depth research I did the following:
+
+Installed PyWin32
+Installed beta release of cx_Freeze (might not be necessary) https://bitbucket.org/anthony_tuininga/cx_freeze/downloads
+edited python33/Lib/site-packages/matplotlib/mpl-data/matplotlibrc so that line 32:
+backend: tkAgg
+
+becomes
+
+backend: Agg
+last source was ImportError: No module named backend_tkagg
+
+This solution works on Win 7 64bit with Python3.3 for a single window PyQT5 with Matplotlib backends.
+#+END_EXAMPLE
+
