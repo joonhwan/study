@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
@@ -10,15 +10,21 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using mymva.Data;
+using mymva.Requirements;
 using mymva.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 
 namespace mymva
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private ILoggerFactory _loggerFactory;
+
+        public Startup(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
             Configuration = configuration;
+            _loggerFactory = loggerFactory;
         }
 
         public IConfiguration Configuration { get; }
@@ -38,6 +44,21 @@ namespace mymva
                 // AddEntityFrameworkStores() 확장메소드는 계속 IdentityBuilder를 반환하는 Fluent API . 추가적으로 이런저런 설정..
                 .AddDefaultTokenProviders()
                 ;
+
+            var anyKoreanCanBeAdminRequirement = new AnyKoreanCanBeAdminRequirement(_loggerFactory);
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CandianAdminsOnly", builder => builder
+                    .RequireClaim(ClaimTypes.Country, "Canada")
+                    .RequireClaim(ClaimTypes.Role, "Admin")
+                );
+                options.AddPolicy("KoreanAdminsOnly", builder => builder
+                    .RequireClaim(ClaimTypes.Country, "Korea")
+                    .RequireClaim(ClaimTypes.Role, "Admin")
+                );
+                options.AddPolicy("AnyKoreanCanBeAdminRequirement", builder => builder.AddRequirements(anyKoreanCanBeAdminRequirement));
+            });
 
             services
                 // 만들때 dotnet new razor 했지만, 이게 결국 mvc 위에서 만들어지거기 때문에, mvc서비스를 활성화 하고. 
@@ -72,6 +93,10 @@ namespace mymva
             app.UseStaticFiles();
 
             app.UseAuthentication();
+            if (env.IsDevelopment())
+            {
+                app.UseMyMvaAppSuperUser("dev@test.com", @"Passw0rd!");
+            }
 
             app.UseMvc(routes =>
             {
