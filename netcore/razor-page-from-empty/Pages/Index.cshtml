@@ -1,0 +1,18 @@
+﻿@page
+@model MyWebApp.Pages.IndexModel
+@{
+}
+<div id="app"></div>
+
+<h3>완전 무에서 만든 Razor Page - No Layout, ViewStart</h3>
+당신은 이 문서를 @Request.Headers["User-Agent"] 에서 보고 있습니다.
+
+@section scripts {
+    <script>
+        $(function() {
+            
+            //$("#app").text("JQuery Works!");
+
+        });
+    </script>
+}
